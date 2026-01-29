@@ -335,17 +335,8 @@
     .spinner {
       display: inline-block;
       flex-shrink: 0;
-      width: 14px;
-      height: 14px;
-    }
-    
-    .spinner svg {
-      animation: spin 1s linear infinite;
-    }
-    
-    @keyframes spin { 
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); } 
+      font-family: monospace;
+      color: var(--progress);
     }
     
     .elapsed-time {
@@ -871,12 +862,7 @@
                 <!-- Always show progress indicator for in-progress -->
                 <div class="task-progress">
                   <div class="task-progress-current">
-                    <div class="spinner">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <circle cx="12" cy="12" r="10" stroke-opacity="0.25"/>
-                        <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/>
-                      </svg>
-                    </div>
+                    <span class="spinner" x-text="spinnerFrame"></span>
                     <span x-text="task.currentStep || task.currentAction || 'Working...'"></span>
                     <span class="elapsed-time" x-text="getElapsedTime(task.updatedAt || task.startedAt)"></span>
                   </div>
@@ -1126,6 +1112,9 @@
         apiError: null,
         apiConnected: false,
         now: Date.now(),
+        spinnerFrame: '⠋',
+        spinnerFrames: ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'],
+        spinnerIndex: 0,
         
         // GitHub Activity
         githubActivity: [],
@@ -1148,6 +1137,12 @@
           
           // Update elapsed time every second
           setInterval(() => { this.now = Date.now(); }, 1000);
+          
+          // Animate spinner
+          setInterval(() => {
+            this.spinnerIndex = (this.spinnerIndex + 1) % this.spinnerFrames.length;
+            this.spinnerFrame = this.spinnerFrames[this.spinnerIndex];
+          }, 80);
           
           // Fetch from API if enabled
           if (this.config.useApi && this.config.apiEndpoint) {
