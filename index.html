@@ -559,7 +559,11 @@
                 <div class="task-header">
                   <div class="task-title" x-text="task.title"></div>
                 </div>
-                <div class="task-meta" x-text="formatDate(task.createdAt)"></div>
+                <div class="task-desc" x-show="expandedTask === task.id && task.description" x-text="task.description" style="font-size: 11px; color: var(--muted); margin-top: 8px; line-height: 1.4;"></div>
+                <div class="task-meta">
+                  <span x-text="formatDate(task.createdAt)"></span>
+                  <span x-show="task.repo" style="margin-left: 8px; color: var(--progress);" x-text="task.repo"></span>
+                </div>
               </div>
             </template>
           </div>
@@ -810,6 +814,7 @@
               this.progress = await res.json();
               this.updateStatus();
               this.syncTasksFromProgress();
+              this.loadBacklogFromProgress();
             }
           } catch (e) {
             console.log('Could not fetch progress:', e);
@@ -825,6 +830,29 @@
               task.prUrl = prog.prUrl;
               this.save();
             }
+          }
+        },
+        
+        loadBacklogFromProgress() {
+          // Load backlog items from progress.json if not already in tasks
+          const backlog = this.progress.backlog || [];
+          let added = 0;
+          for (const item of backlog) {
+            if (!this.tasks.find(t => t.id === item.id)) {
+              this.tasks.push({
+                id: item.id,
+                title: item.title,
+                description: item.description,
+                repo: item.repo,
+                status: 'backlog',
+                createdAt: item.createdAt || new Date().toISOString()
+              });
+              added++;
+            }
+          }
+          if (added > 0) {
+            this.save();
+            this.$nextTick(() => this.initKanban());
           }
         },
         

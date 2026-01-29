@@ -1,0 +1,175 @@
+#!/usr/bin/env python3
+"""
+Quick task dispatcher for Moltbot/Telegram integration.
+
+Usage:
+  dexter-task "Fix the login bug" --repo KishParikh13/my-app
+  dexter-task "Add dark mode" --context "Use CSS variables"
+
+This is a thin wrapper that can be called directly from chat.
+"""
+
+import argparse
+import json
+import os
+import subprocess
+import sys
+import re
+from datetime import datetime
+from pathlib import Path
+
+SCRIPT_DIR = Path(__file__).parent
+DASHBOARD_DIR = SCRIPT_DIR.parent
+
+
+def parse_natural_command(text: str) -> dict:
+    """
+    Parse a natural language task command.
+    
+    Examples:
+    - Start task: "Fix login bug" Repo: KishParikh13/app Task ID: task-123
+    - "Add feature X" in KishParikh13/repo
+    - Task: Update README (context: add installation section)
+    """
+    result = {
+        "title": None,
+        "repo": None,
+        "context": None,
+        "task_id": None,
+    }
+    
+    # Extract task ID
+    id_match = re.search(r'Task ID:\s*([^\s\n]+)', text, re.IGNORECASE)
+    if id_match:
+        result["task_id"] = id_match.group(1)
+    
+    # Extract repo
+    repo_match = re.search(r'Repo:\s*([^\s\n]+)', text, re.IGNORECASE)
+    if not repo_match:
+        repo_match = re.search(r'in\s+([A-Za-z0-9_-]+/[A-Za-z0-9_.-]+)', text)
+    if repo_match:
+        result["repo"] = repo_match.group(1)
+    
+    # Extract context
+    context_match = re.search(r'Context:\s*(.+?)(?:\n|Task ID:|$)', text, re.IGNORECASE)
+    if not context_match:
+        context_match = re.search(r'\(context:\s*([^)]+)\)', text, re.IGNORECASE)
+    if context_match:
+        result["context"] = context_match.group(1).strip()
+    
+    # Extract title (quoted string or after "Start task:")
+    title_match = re.search(r'["\']([^"\']+)["\']', text)
+    if not title_match:
+        title_match = re.search(r'Start task:\s*["\']?([^"\'\n]+)', text, re.IGNORECASE)
+    if not title_match:
+        title_match = re.search(r'Task:\s*["\']?([^"\'\n(]+)', text, re.IGNORECASE)
+    if title_match:
+        result["title"] = title_match.group(1).strip()
+    
+    return result
+
+
+def main():
+    # Check if input looks like natural language
+    if len(sys.argv) >= 2 and ":" in sys.argv[1]:
+        # Might be natural language input
+        full_text = " ".join(sys.argv[1:])
+        parsed = parse_natural_command(full_text)
+        
+        if parsed["title"]:
+            args_title = parsed["title"]
+            args_repo = parsed["repo"]
+            args_context = parsed["context"]
+            args_task_id = parsed["task_id"]
+        else:
+            # Fall through to argparse
+            parsed = None
+    else:
+        parsed = None
+    
+    if not parsed or not parsed.get("title"):
+        parser = argparse.ArgumentParser(description="Dispatch a task to Dexter")
+        parser.add_argument("title", help="Task title/description")
+        parser.add_argument("--repo", "-r", help="Target repo (owner/repo or /path)")
+        parser.add_argument("--context", "-c", help="Additional context")
+        parser.add_argument("--task-id", "-i", help="Task ID (auto-generated if not provided)")
+        parser.add_argument("--background", "-b", action="store_true", help="Run in background")
+        parser.add_argument("--notify", "-n", action="store_true", help="Send Telegram notification when done")
+        
+        args = parser.parse_args()
+        args_title = args.title
+        args_repo = args.repo
+        args_context = args.context
+        args_task_id = args.task_id
+        args_background = args.background if hasattr(args, 'background') else False
+        args_notify = args.notify if hasattr(args, 'notify') else False
+    else:
+        args_title = parsed["title"]
+        args_repo = parsed["repo"]
+        args_context = parsed["context"]
+        args_task_id = parsed["task_id"]
+        args_background = False
+        args_notify = True  # Default to notify for natural language
+    
+    # Generate task ID if needed
+    if not args_task_id:
+        args_task_id = f"task-{int(datetime.now().timestamp())}"
+    
+    # Build command
+    cmd = [
+        sys.executable,
+        str(SCRIPT_DIR / "orchestrator.py"),
+        "--task-id", args_task_id,
+        "--title", args_title,
+    ]
+    
+    if args_repo:
+        cmd.extend(["--repo", args_repo])
+    if args_context:
+        cmd.extend(["--context", args_context])
+    
+    print(f"🚀 Dispatching task: {args_title}")
+    print(f"   ID: {args_task_id}")
+    if args_repo:
+        print(f"   Repo: {args_repo}")
+    print()
+    
+    # Run orchestrator
+    if hasattr(args, 'background') and args.background:
+        # Background mode - use nohup
+        log_file = DASHBOARD_DIR / "scripts" / f"{args_task_id}.log"
+        with open(log_file, "w") as f:
+            subprocess.Popen(
+                cmd,
+                stdout=f,
+                stderr=subprocess.STDOUT,
+                start_new_session=True,
+            )
+        print(f"✅ Task running in background")
+        print(f"   Log: {log_file}")
+    else:
+        # Foreground mode
+        result = subprocess.run(cmd)
+        
+        # Read last run output
+        output_file = SCRIPT_DIR / "last-run.json"
+        if output_file.exists():
+            with open(output_file) as f:
+                output = json.load(f)
+            
+            # If notify flag, wake moltbot
+            if args_notify or (hasattr(args, 'notify') and args.notify):
+                notification = output.get("notification", "Task completed")
+                subprocess.run([
+                    "moltbot", "gateway", "wake",
+                    "--text", notification,
+                    "--mode", "now"
+                ])
+        
+        return result.returncode
+    
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
