@@ -38,6 +38,388 @@
     /* Layout */
     .layout { display: flex; min-height: 100vh; }
     
+    /* Activity Sidebar (left collapsible) */
+    .activity-sidebar {
+      width: 300px;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      background: var(--bg);
+      transition: width 0.2s ease;
+      overflow: hidden;
+    }
+    
+    .activity-sidebar.collapsed {
+      width: 48px;
+    }
+    
+    .activity-sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+      min-height: 48px;
+    }
+    
+    .activity-sidebar-title {
+      font-size: 10px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    
+    .activity-sidebar.collapsed .activity-sidebar-title {
+      display: none;
+    }
+    
+    .activity-toggle {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--fg);
+      cursor: pointer;
+      flex-shrink: 0;
+      font-size: 14px;
+    }
+    
+    .activity-toggle:hover {
+      border-color: var(--fg);
+      background: var(--hover-bg);
+    }
+    
+    .activity-sidebar-content {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+    
+    .activity-sidebar.collapsed .activity-sidebar-content {
+      display: none;
+    }
+    
+    /* Collapsed icons */
+    .activity-sidebar-icons {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      padding: 12px 0;
+      gap: 8px;
+    }
+    
+    .activity-sidebar.collapsed .activity-sidebar-icons {
+      display: flex;
+    }
+    
+    .activity-icon-btn {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--fg);
+      cursor: pointer;
+      font-size: 14px;
+      transition: border-color 0.1s;
+    }
+    
+    .activity-icon-btn:hover {
+      border-color: var(--fg);
+      background: var(--hover-bg);
+    }
+    
+    .activity-icon-btn.active {
+      border-color: var(--progress);
+      background: rgba(0, 170, 255, 0.1);
+    }
+    
+    /* Activity sections within sidebar */
+    .activity-sidebar .activity-section {
+      border-bottom: 1px solid var(--border);
+      padding: 12px;
+    }
+    
+    .activity-sidebar .activity-section:last-child {
+      border-bottom: none;
+    }
+    
+    .activity-sidebar .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    
+    .activity-sidebar .section-title {
+      font-size: 10px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+    }
+    
+    .activity-sidebar .section-action {
+      font-size: 10px;
+      color: var(--muted);
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .activity-sidebar .section-action:hover {
+      color: var(--fg);
+    }
+    
+    /* Log entries in sidebar */
+    .activity-sidebar .log-entry {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 11px;
+    }
+    
+    .activity-sidebar .log-entry:last-child {
+      border-bottom: none;
+    }
+    
+    .activity-sidebar .log-time {
+      font-size: 9px;
+      color: var(--progress);
+      text-transform: uppercase;
+    }
+    
+    .activity-sidebar .log-msg {
+      color: var(--fg);
+      word-break: break-word;
+    }
+    
+    /* Notes in sidebar */
+    .activity-sidebar .notes-input {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    
+    .activity-sidebar .notes-input-row {
+      display: flex;
+      gap: 6px;
+    }
+    
+    .activity-sidebar .note-task-select {
+      width: 100%;
+      padding: 6px 8px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--fg);
+      font-family: inherit;
+      font-size: 10px;
+      cursor: pointer;
+    }
+    
+    .activity-sidebar .note-task-select:focus {
+      outline: none;
+      border-color: var(--fg);
+    }
+    
+    .activity-sidebar .notes-input input {
+      flex: 1;
+      padding: 6px 8px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--fg);
+      font-family: inherit;
+      font-size: 11px;
+      min-width: 0;
+    }
+    
+    .activity-sidebar .notes-input input:focus {
+      outline: none;
+      border-color: var(--fg);
+    }
+    
+    .activity-sidebar .notes-input input::placeholder {
+      color: var(--muted);
+    }
+    
+    .activity-sidebar .notes-list {
+      margin-top: 8px;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+    
+    .activity-sidebar .note {
+      display: flex;
+      flex-direction: column;
+      padding: 6px;
+      border: 1px solid var(--border);
+      margin-bottom: 4px;
+      font-size: 11px;
+      gap: 4px;
+    }
+    
+    .activity-sidebar .note-task-tag {
+      font-size: 9px;
+      color: var(--progress);
+      background: rgba(255, 165, 0, 0.1);
+      padding: 2px 4px;
+    }
+    
+    .activity-sidebar .note-text {
+      word-break: break-word;
+    }
+    
+    .activity-sidebar .note-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .activity-sidebar .note-meta {
+      font-size: 9px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    
+    .activity-sidebar .note-delete {
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 14px;
+    }
+    
+    .activity-sidebar .note-delete:hover {
+      color: var(--error);
+    }
+    
+    /* GitHub activity in sidebar */
+    .activity-sidebar .github-header {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    
+    .activity-sidebar .github-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    
+    .activity-sidebar .github-filter {
+      padding: 3px 6px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--muted);
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+    }
+    
+    .activity-sidebar .github-filter:hover {
+      color: var(--fg);
+      border-color: var(--fg);
+    }
+    
+    .activity-sidebar .github-filter.active {
+      color: var(--fg);
+      border-color: var(--fg);
+      background: var(--hover-bg);
+    }
+    
+    .activity-sidebar .github-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    
+    .activity-sidebar .activity-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 8px;
+      border: 1px solid var(--border);
+      font-size: 11px;
+      transition: border-color 0.1s;
+    }
+    
+    .activity-sidebar .activity-item:hover {
+      border-color: var(--fg);
+    }
+    
+    .activity-sidebar .activity-icon {
+      width: 16px;
+      text-align: center;
+      flex-shrink: 0;
+      font-size: 12px;
+    }
+    
+    .activity-sidebar .activity-content {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .activity-sidebar .activity-title {
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 11px;
+    }
+    
+    .activity-sidebar .activity-title a {
+      color: var(--fg);
+      text-decoration: none;
+    }
+    
+    .activity-sidebar .activity-title a:hover {
+      text-decoration: underline;
+    }
+    
+    .activity-sidebar .activity-meta {
+      font-size: 9px;
+      color: var(--muted);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 2px;
+    }
+    
+    .activity-sidebar .activity-repo {
+      color: var(--progress);
+    }
+    
+    .activity-sidebar .empty {
+      font-size: 10px;
+      color: var(--muted);
+      padding: 8px 0;
+    }
+    
+    .activity-sidebar .github-loading,
+    .activity-sidebar .github-error {
+      font-size: 10px;
+      color: var(--muted);
+      padding: 8px 0;
+    }
+    
+    .activity-sidebar .github-error {
+      color: var(--error);
+    }
+    
     /* Sidebar */
     .sidebar {
       width: 200px;
@@ -1648,6 +2030,117 @@
       </div>
     </aside>
     
+    <!-- Activity Sidebar (collapsible) -->
+    <aside class="activity-sidebar" :class="{'collapsed': activitySidebarCollapsed}">
+      <div class="activity-sidebar-header">
+        <span class="activity-sidebar-title">ACTIVITY</span>
+        <button class="activity-toggle" @click="toggleActivitySidebar()" :title="activitySidebarCollapsed ? 'Expand' : 'Collapse'">
+          <span x-text="activitySidebarCollapsed ? '☰' : '◀'"></span>
+        </button>
+      </div>
+      
+      <!-- Collapsed icons -->
+      <div class="activity-sidebar-icons">
+        <button class="activity-icon-btn" @click="toggleActivitySidebar(); $nextTick(() => activitySidebarSection = 'log')" title="Action Log">📜</button>
+        <button class="activity-icon-btn" @click="toggleActivitySidebar(); $nextTick(() => activitySidebarSection = 'notes')" title="Notes for Dexter">📝</button>
+        <button class="activity-icon-btn" @click="toggleActivitySidebar(); $nextTick(() => activitySidebarSection = 'github')" title="GitHub Activity">🐙</button>
+      </div>
+      
+      <!-- Expanded content -->
+      <div class="activity-sidebar-content">
+        <!-- Action Log -->
+        <div class="activity-section">
+          <div class="section-header">
+            <span class="section-title" @click="actionLogCollapsed = !actionLogCollapsed">
+              <span x-text="actionLogCollapsed ? '▶' : '▼'" style="display: inline-block; width: 12px;"></span>
+              📜 Action Log
+            </span>
+            <span class="section-action" x-show="!actionLogCollapsed" @click="actionLog = []; saveActionLog()">Clear</span>
+          </div>
+          <div x-show="!actionLogCollapsed">
+            <template x-for="(entry, i) in actionLog.slice().reverse().slice(0, 15)" :key="i">
+              <div class="log-entry">
+                <span class="log-time" x-text="formatLogTime(entry.timestamp)"></span>
+                <span class="log-msg" x-text="entry.message"></span>
+              </div>
+            </template>
+            <div class="empty" x-show="actionLog.length === 0">No actions logged</div>
+          </div>
+        </div>
+        
+        <!-- Notes for Dexter -->
+        <div class="activity-section">
+          <div class="section-header">
+            <span class="section-title">📝 Notes for Dexter</span>
+            <span class="nav-meta" style="font-size: 8px; color: var(--muted);">Heartbeat</span>
+          </div>
+          <div class="notes-input">
+            <select x-model="noteTaskId" class="note-task-select">
+              <option value="">All Tasks (General)</option>
+              <template x-for="task in tasks.filter(t => t.status !== 'done')" :key="task.id">
+                <option :value="task.id" x-text="task.title.substring(0, 25) + (task.title.length > 25 ? '...' : '')"></option>
+              </template>
+            </select>
+            <div class="notes-input-row">
+              <input type="text" x-model="newNote" @keydown.enter="addNote()" placeholder="Note for Dexter...">
+              <button class="btn btn-primary" style="padding: 6px 10px; font-size: 10px;" @click="addNote()">+</button>
+            </div>
+          </div>
+          <div class="notes-list">
+            <template x-for="note in notes" :key="note.id">
+              <div class="note">
+                <span class="note-task-tag" x-show="note.taskTitle" x-text="'📌 ' + (note.taskTitle || '').substring(0, 15)"></span>
+                <span class="note-text" x-text="note.text"></span>
+                <div class="note-footer">
+                  <span class="note-meta" x-text="formatDate(note.createdAt)"></span>
+                  <span class="note-delete" @click="notes = notes.filter(n => n.id !== note.id); saveNotes()">×</span>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+        
+        <!-- GitHub Activity -->
+        <div class="activity-section">
+          <div class="github-header">
+            <span class="section-title">🐙 GitHub Activity</span>
+            <div class="github-filters">
+              <button class="github-filter" :class="{'active': githubFilter === 'all'}" @click="githubFilter = 'all'">All</button>
+              <button class="github-filter" :class="{'active': githubFilter === 'commit'}" @click="githubFilter = 'commit'">Commits</button>
+              <button class="github-filter" :class="{'active': githubFilter === 'pr'}" @click="githubFilter = 'pr'">PRs</button>
+              <button class="github-filter" :class="{'active': githubFilter === 'issue'}" @click="githubFilter = 'issue'">Issues</button>
+              <button class="github-filter" @click="fetchGitHubActivity()" title="Refresh">↻</button>
+            </div>
+          </div>
+          
+          <div class="github-loading" x-show="githubLoading">Loading...</div>
+          <div class="github-error" x-show="githubError && !githubLoading" x-text="githubError"></div>
+          
+          <div class="github-feed" x-show="!githubLoading && !githubError">
+            <template x-for="item in filteredGitHubActivity" :key="item.id">
+              <div class="activity-item" :class="'activity-type-' + item.type">
+                <div class="activity-icon">
+                  <span x-show="item.type === 'commit'">⚡</span>
+                  <span x-show="item.type === 'pr'">⎇</span>
+                  <span x-show="item.type === 'issue'">◉</span>
+                </div>
+                <div class="activity-content">
+                  <div class="activity-title">
+                    <a :href="item.url" target="_blank" x-text="item.title"></a>
+                  </div>
+                  <div class="activity-meta">
+                    <span class="activity-repo" x-text="item.repo.replace('KishParikh13/', '')"></span>
+                    <span x-text="formatRelativeTime(item.date)"></span>
+                  </div>
+                </div>
+              </div>
+            </template>
+            <div class="empty" x-show="filteredGitHubActivity.length === 0 && !githubLoading">No activity</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+    
     <!-- Main Wrapper (for push layout) -->
     <div class="main-wrapper" :class="{'panel-open': selectedTask}">
       <!-- Main -->
@@ -1798,105 +2291,6 @@
         </div>
       </div>
       
-      <!-- Sections -->
-      <div class="sections">
-        <div class="section">
-          <div class="section-header">
-            <span class="section-title" @click="toggleActionLog()" style="cursor: pointer;">
-              <span x-text="actionLogCollapsed ? '▶' : '▼'" style="display: inline-block; width: 14px;"></span>
-              📜 Action Log
-            </span>
-            <span class="section-action" x-show="!actionLogCollapsed" @click="actionLog = []; saveActionLog()">Clear</span>
-          </div>
-          <div x-show="!actionLogCollapsed">
-            <template x-for="(entry, i) in actionLog.slice().reverse().slice(0, 15)" :key="i">
-              <div class="log-entry">
-                <span class="log-time" x-text="formatLogTime(entry.timestamp)"></span>
-                <span class="log-msg" x-text="entry.message"></span>
-              </div>
-            </template>
-            <div class="empty" x-show="actionLog.length === 0">No actions logged</div>
-          </div>
-        </div>
-        
-      </div>
-      
-      <!-- Notes -->
-      <div class="notes-section">
-        <div class="section-header">
-          <span class="section-title">📝 Notes for Dexter</span>
-          <span class="nav-meta">Checked on heartbeat</span>
-        </div>
-        <div class="notes-input">
-          <div class="notes-input-row">
-            <select x-model="noteTaskId" class="note-task-select">
-              <option value="">All Tasks (General)</option>
-              <template x-for="task in tasks.filter(t => t.status !== 'done')" :key="task.id">
-                <option :value="task.id" x-text="task.title.substring(0, 30) + (task.title.length > 30 ? '...' : '')"></option>
-              </template>
-            </select>
-          </div>
-          <div class="notes-input-row">
-            <input type="text" x-model="newNote" @keydown.enter="addNote()" placeholder="Type a note for Dexter...">
-            <button class="btn btn-primary" @click="addNote()">Add</button>
-          </div>
-        </div>
-        <div class="notes-list">
-          <template x-for="note in notes" :key="note.id">
-            <div class="note">
-              <span class="note-task-tag" x-show="note.taskTitle" x-text="'📌 ' + (note.taskTitle || '').substring(0, 20)"></span>
-              <span class="note-text" x-text="note.text"></span>
-              <span class="note-meta" x-text="formatDate(note.createdAt)"></span>
-              <span class="note-delete" @click="notes = notes.filter(n => n.id !== note.id); saveNotes()">×</span>
-            </div>
-          </template>
-        </div>
-      </div>
-      
-      <!-- GitHub Activity Feed -->
-      <div class="github-activity">
-        <div class="github-header">
-          <span class="section-title">🐙 GitHub Activity</span>
-          <div class="github-filters">
-            <button class="github-filter" :class="{'active': githubFilter === 'all'}" @click="githubFilter = 'all'">All</button>
-            <button class="github-filter" :class="{'active': githubFilter === 'commit'}" @click="githubFilter = 'commit'">Commits</button>
-            <button class="github-filter" :class="{'active': githubFilter === 'pr'}" @click="githubFilter = 'pr'">PRs</button>
-            <button class="github-filter" :class="{'active': githubFilter === 'issue'}" @click="githubFilter = 'issue'">Issues</button>
-            <button class="github-filter" @click="fetchGitHubActivity()" title="Refresh">↻</button>
-          </div>
-        </div>
-        
-        <div class="github-loading" x-show="githubLoading">
-          Loading activity...
-        </div>
-        
-        <div class="github-error" x-show="githubError && !githubLoading" x-text="githubError"></div>
-        
-        <div class="github-feed" x-show="!githubLoading && !githubError">
-          <template x-for="item in filteredGitHubActivity" :key="item.id">
-            <div class="activity-item" :class="'activity-type-' + item.type">
-              <div class="activity-icon">
-                <span x-show="item.type === 'commit'">⚡</span>
-                <span x-show="item.type === 'pr'">⎇</span>
-                <span x-show="item.type === 'issue'">◉</span>
-              </div>
-              <div class="activity-content">
-                <div class="activity-title">
-                  <a :href="item.url" target="_blank" x-text="item.title"></a>
-                </div>
-                <div class="activity-meta">
-                  <span class="activity-repo" x-text="item.repo.replace('KishParikh13/', '')"></span>
-                  <span x-text="formatRelativeTime(item.date)"></span>
-                  <span x-show="item.author" x-text="'by ' + item.author"></span>
-                </div>
-              </div>
-            </div>
-          </template>
-          <div class="empty" x-show="filteredGitHubActivity.length === 0 && !githubLoading">
-            No activity found
-          </div>
-        </div>
-      </div>
     </main>
     </div><!-- /main-wrapper -->
     
@@ -2291,6 +2685,8 @@
         apiError: null,
         apiConnected: false,
         actionLogCollapsed: false,
+        activitySidebarCollapsed: JSON.parse(localStorage.getItem('dexter-activity-sidebar-collapsed') || 'false'),
+        activitySidebarSection: 'log',
         now: Date.now(),
         spinnerFrame: '⠋',
         spinnerFrames: ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'],
@@ -3351,6 +3747,11 @@
         toggleActionLog() { 
           this.actionLogCollapsed = !this.actionLogCollapsed; 
           localStorage.setItem('dexter-action-log-collapsed', this.actionLogCollapsed); 
+        },
+        
+        toggleActivitySidebar() {
+          this.activitySidebarCollapsed = !this.activitySidebarCollapsed;
+          localStorage.setItem('dexter-activity-sidebar-collapsed', JSON.stringify(this.activitySidebarCollapsed));
         },
         
         // Export/Import
