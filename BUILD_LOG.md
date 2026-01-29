@@ -83,3 +83,36 @@ Kish requested features matching Klaus Dashboard. Rebuilt entirely:
 - **Notes Section** - Quick notes I check on heartbeat
 - **Dark Theme** - Matches Klaus aesthetic
 
+### 08:42 UTC - Applied Kish Design System
+- Cloned kish-thoughts and kanban-board repos
+- Extracted design system: black/white, monospace, sharp corners
+- Created `/data/workspace/design-system/` with docs + CSS
+- Restyled dashboard to match
+
+### 08:49 UTC - UX Improvements
+- Removed manual status controls (auto-detected now)
+- Inline add task form in backlog column
+- Inline task detail panel (no modal)
+
+### 09:01 UTC - Agent Integration Architecture
+Built system for automatic coding agent spawning:
+- **Confirmation on drag to In Progress** - asks for repo/context
+- **Generates command** for Telegram (copies to clipboard)
+- **progress.json** in GitHub for live status
+- **Dashboard polls** for updates every 15s
+- **Spinner + current step** on in-progress cards
+- **Expandable step list** - click to see all steps
+- **Review column** for tasks awaiting PR approval
+- **Active Agents section** shows running agents
+
+**Flow:**
+1. Kish drags task to "In Progress"
+2. Confirmation dialog asks for repo + context
+3. On confirm, command copied to clipboard
+4. Kish pastes to Telegram
+5. I spawn coding agent, update progress.json
+6. Dashboard shows live progress
+7. When done, I create PR and notify Kish
+8. Kish reviews, approves via GitHub/Telegram
+9. I merge, move to Done
+
