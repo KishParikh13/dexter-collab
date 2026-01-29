@@ -1803,6 +1803,123 @@
       color: var(--bg);
     }
     
+    /* Reasoning Section */
+    .reasoning-section {
+      margin-top: 16px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    
+    .reasoning-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.02);
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s;
+    }
+    
+    .reasoning-header:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    
+    .reasoning-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+    }
+    
+    .reasoning-title .icon {
+      font-size: 14px;
+    }
+    
+    .reasoning-toggle {
+      font-size: 10px;
+      color: var(--muted);
+      transition: transform 0.2s;
+    }
+    
+    .reasoning-toggle.expanded {
+      transform: rotate(90deg);
+    }
+    
+    .reasoning-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+    }
+    
+    .reasoning-content.expanded {
+      max-height: 400px;
+    }
+    
+    .reasoning-body {
+      padding: 14px;
+      border-top: 1px solid var(--border);
+      max-height: 350px;
+      overflow-y: auto;
+    }
+    
+    .reasoning-text {
+      font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+      font-size: 11px;
+      line-height: 1.6;
+      color: var(--fg);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    
+    .reasoning-empty {
+      color: var(--muted);
+      font-size: 11px;
+      font-style: italic;
+    }
+    
+    .reasoning-steps {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .reasoning-step {
+      display: flex;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .reasoning-step:last-child {
+      border-bottom: none;
+    }
+    
+    .reasoning-step-marker {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(var(--progress-rgb), 0.2);
+      color: var(--progress);
+      font-size: 10px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    
+    .reasoning-step-text {
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--fg);
+    }
+    
     /* Lightbox */
     .lightbox-overlay {
       position: fixed;
@@ -2273,6 +2390,38 @@
               <div class="panel-context" x-text="selectedTask.context"></div>
             </div>
             
+            <!-- Reasoning Section (collapsible) -->
+            <div class="panel-section" x-show="selectedTask.reasoning || selectedTask.thoughtProcess" style="padding: 0;">
+              <div class="reasoning-section">
+                <div class="reasoning-header" @click="reasoningExpanded = !reasoningExpanded">
+                  <div class="reasoning-title">
+                    <span class="icon">🧠</span>
+                    <span>Agent Reasoning</span>
+                  </div>
+                  <span class="reasoning-toggle" :class="{'expanded': reasoningExpanded}">▶</span>
+                </div>
+                <div class="reasoning-content" :class="{'expanded': reasoningExpanded}">
+                  <div class="reasoning-body">
+                    <!-- If reasoning is a string -->
+                    <template x-if="typeof (selectedTask.reasoning || selectedTask.thoughtProcess) === 'string'">
+                      <div class="reasoning-text" x-text="selectedTask.reasoning || selectedTask.thoughtProcess"></div>
+                    </template>
+                    <!-- If reasoning is an array of steps -->
+                    <template x-if="Array.isArray(selectedTask.reasoning || selectedTask.thoughtProcess)">
+                      <ul class="reasoning-steps">
+                        <template x-for="(step, idx) in (selectedTask.reasoning || selectedTask.thoughtProcess)" :key="idx">
+                          <li class="reasoning-step">
+                            <span class="reasoning-step-marker" x-text="idx + 1"></span>
+                            <span class="reasoning-step-text" x-text="typeof step === 'string' ? step : step.text || step.thought || JSON.stringify(step)"></span>
+                          </li>
+                        </template>
+                      </ul>
+                    </template>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
             <!-- PR Review Section (only for review status) -->
             <div class="panel-section" x-show="selectedTask.status === 'review'" style="padding: 0;">
               <!-- Loading State -->
@@ -2619,6 +2768,7 @@
         prLoading: false,
         prError: null,
         prFilesExpanded: true,
+        reasoningExpanded: false,
         lightboxImage: null,
         mergeStatus: null,
         merging: false,
