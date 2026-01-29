@@ -58,3 +58,16 @@ Build an MVP web app that lets Kish give me multiple tasks and see my output in 
   - Stats dashboard
   - Local storage persistence
 
+### 08:15 UTC - GitHub Deployment
+- Created GitHub repo: https://github.com/KishParikh13/dexter-collab
+- Enabled GitHub Pages
+- Live URL: https://kishparikh13.github.io/dexter-collab/
+
+### 08:20 UTC - Added Collaboration Features
+- Import/Export JSON (for syncing between sessions)
+- Share link with URL hash encoding
+- Human-readable export format (for me to read)
+- Quick actions (Mark all done, Clear completed)
+- Keyboard shortcuts (?, d, e, i, Esc)
+- Help modal
+

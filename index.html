@@ -57,6 +57,9 @@
                 <button @click="showImport = true" class="px-3 py-2 text-sm rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors text-gray-700 dark:text-gray-300">
                     📥 Import
                 </button>
+                <button @click="showNotes = true" class="px-3 py-2 text-sm rounded-lg bg-yellow-100 dark:bg-yellow-900/30 hover:bg-yellow-200 dark:hover:bg-yellow-900/50 transition-colors text-yellow-700 dark:text-yellow-400">
+                    📝 Notes
+                </button>
                 <button @click="darkMode = !darkMode" class="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
                     <span x-show="!darkMode">🌙</span>
                     <span x-show="darkMode">☀️</span>
@@ -288,6 +291,38 @@ Or JSON UI:
         </div>
     </div>
 
+    <!-- Notes Modal -->
+    <div x-show="showNotes" x-cloak class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="showNotes = false">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center flex-shrink-0">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">📝 Shared Notes</h3>
+                <button @click="showNotes = false" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">✕</button>
+            </div>
+            <div class="p-4 flex-1 overflow-auto">
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Free-form notes for collaboration. Write updates, thoughts, or messages.</p>
+                <textarea 
+                    x-model="notes"
+                    @input="saveNotes()"
+                    class="w-full h-64 p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white resize-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    placeholder="Write notes here...
+
+Example:
+---
+## Kish's Notes
+- Priority: Fix the auth bug first
+- Meeting at 3pm tomorrow
+
+## Dexter's Updates  
+- Completed API integration ✅
+- Working on tests next
+---"></textarea>
+                <div class="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                    Auto-saved locally. Export includes notes.
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Help Modal -->
     <div x-show="showHelp" x-cloak class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="showHelp = false">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full">
@@ -301,6 +336,7 @@ Or JSON UI:
                     <div class="flex justify-between"><span class="text-gray-600 dark:text-gray-400">Toggle dark mode</span><kbd class="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs">d</kbd></div>
                     <div class="flex justify-between"><span class="text-gray-600 dark:text-gray-400">Export</span><kbd class="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs">e</kbd></div>
                     <div class="flex justify-between"><span class="text-gray-600 dark:text-gray-400">Import</span><kbd class="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs">i</kbd></div>
+                    <div class="flex justify-between"><span class="text-gray-600 dark:text-gray-400">Notes</span><kbd class="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs">n</kbd></div>
                     <div class="flex justify-between"><span class="text-gray-600 dark:text-gray-400">Close modal/deselect</span><kbd class="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs">Esc</kbd></div>
                     <div class="flex justify-between"><span class="text-gray-600 dark:text-gray-400">Add tasks (in textarea)</span><kbd class="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs">Ctrl+Enter</kbd></div>
                 </div>
@@ -345,6 +381,10 @@ Or JSON UI:
                         const hashData = this.parseHashData();
                         if (hashData) {
                             this.tasks = hashData.tasks || [];
+                            if (hashData.notes !== undefined) {
+                                this.notes = hashData.notes;
+                                this.saveNotes();
+                            }
                             // Clear hash after loading
                             history.replaceState(null, '', window.location.pathname);
                             this.save();
@@ -360,6 +400,12 @@ Or JSON UI:
                     const savedDark = localStorage.getItem('dexter-collab-dark');
                     if (savedDark !== null) {
                         this.darkMode = savedDark === 'true';
+                    }
+                    
+                    // Load notes
+                    const savedNotes = localStorage.getItem('dexter-collab-notes');
+                    if (savedNotes) {
+                        this.notes = savedNotes;
                     }
 
                     // Watch for dark mode changes
@@ -386,12 +432,14 @@ Or JSON UI:
                 },
                 
                 generateShareLink() {
-                    const data = { version: 1, tasks: this.tasks };
+                    const data = { version: 1, tasks: this.tasks, notes: this.notes };
                     const encoded = btoa(encodeURIComponent(JSON.stringify(data)));
                     return window.location.origin + window.location.pathname + '#data=' + encoded;
                 },
                 
                 showHelp: false,
+                notes: '',
+                showNotes: false,
                 
                 handleKeyboard(e) {
                     // Don't trigger if typing in an input
@@ -413,11 +461,16 @@ Or JSON UI:
                     if (e.key === 'i') {
                         this.showImport = true;
                     }
+                    // n = notes
+                    if (e.key === 'n') {
+                        this.showNotes = true;
+                    }
                     // Escape = close modals
                     if (e.key === 'Escape') {
                         this.showExport = false;
                         this.showImport = false;
                         this.showHelp = false;
+                        this.showNotes = false;
                         this.selectedTask = null;
                     }
                 },
@@ -486,6 +539,10 @@ Or JSON UI:
 
                 save() {
                     localStorage.setItem('dexter-collab-tasks', JSON.stringify(this.tasks));
+                },
+                
+                saveNotes() {
+                    localStorage.setItem('dexter-collab-notes', this.notes);
                 },
 
                 formatDate(iso) {
@@ -638,7 +695,8 @@ Or JSON UI:
                     return JSON.stringify({
                         version: 1,
                         exported: new Date().toISOString(),
-                        tasks: this.tasks
+                        tasks: this.tasks,
+                        notes: this.notes
                     }, null, 2);
                 },
                 
@@ -661,8 +719,13 @@ Or JSON UI:
                     try {
                         const data = JSON.parse(this.importData);
                         if (data.tasks && Array.isArray(data.tasks)) {
-                            if (confirm(`Import ${data.tasks.length} tasks? This will replace your current tasks.`)) {
+                            const hasNotes = data.notes ? ' and notes' : '';
+                            if (confirm(`Import ${data.tasks.length} tasks${hasNotes}? This will replace your current data.`)) {
                                 this.tasks = data.tasks;
+                                if (data.notes !== undefined) {
+                                    this.notes = data.notes;
+                                    this.saveNotes();
+                                }
                                 this.save();
                                 this.showImport = false;
                                 this.importData = '';
