@@ -16,16 +16,12 @@ from boto3.dynamodb.conditions import Key
 dynamodb = boto3.resource('dynamodb')
 tasks_table = dynamodb.Table(os.environ.get('TASKS_TABLE', 'dexter-tasks-prod'))
 sessions_table = dynamodb.Table(os.environ.get('SESSIONS_TABLE', 'dexter-sessions-prod'))
-CORS_ORIGIN = os.environ.get('CORS_ORIGIN', 'https://kishparikh13.github.io')
-
-
 def cors_headers():
     """Return CORS headers for all responses"""
     return {
-        'Access-Control-Allow-Origin': CORS_ORIGIN,
+        'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type,X-Api-Key,Authorization',
         'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
-        'Access-Control-Allow-Credentials': 'true',
         'Content-Type': 'application/json'
     }
 

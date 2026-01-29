@@ -38,388 +38,6 @@
     /* Layout */
     .layout { display: flex; min-height: 100vh; }
     
-    /* Activity Sidebar (left collapsible) */
-    .activity-sidebar {
-      width: 300px;
-      border-right: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      flex-shrink: 0;
-      background: var(--bg);
-      transition: width 0.2s ease;
-      overflow: hidden;
-    }
-    
-    .activity-sidebar.collapsed {
-      width: 48px;
-    }
-    
-    .activity-sidebar-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px;
-      border-bottom: 1px solid var(--border);
-      min-height: 48px;
-    }
-    
-    .activity-sidebar-title {
-      font-size: 10px;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--muted);
-      white-space: nowrap;
-      overflow: hidden;
-    }
-    
-    .activity-sidebar.collapsed .activity-sidebar-title {
-      display: none;
-    }
-    
-    .activity-toggle {
-      width: 24px;
-      height: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: none;
-      border: 1px solid var(--border);
-      color: var(--fg);
-      cursor: pointer;
-      flex-shrink: 0;
-      font-size: 14px;
-    }
-    
-    .activity-toggle:hover {
-      border-color: var(--fg);
-      background: var(--hover-bg);
-    }
-    
-    .activity-sidebar-content {
-      flex: 1;
-      overflow-y: auto;
-      overflow-x: hidden;
-    }
-    
-    .activity-sidebar.collapsed .activity-sidebar-content {
-      display: none;
-    }
-    
-    /* Collapsed icons */
-    .activity-sidebar-icons {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      padding: 12px 0;
-      gap: 8px;
-    }
-    
-    .activity-sidebar.collapsed .activity-sidebar-icons {
-      display: flex;
-    }
-    
-    .activity-icon-btn {
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: none;
-      border: 1px solid var(--border);
-      color: var(--fg);
-      cursor: pointer;
-      font-size: 14px;
-      transition: border-color 0.1s;
-    }
-    
-    .activity-icon-btn:hover {
-      border-color: var(--fg);
-      background: var(--hover-bg);
-    }
-    
-    .activity-icon-btn.active {
-      border-color: var(--progress);
-      background: rgba(0, 170, 255, 0.1);
-    }
-    
-    /* Activity sections within sidebar */
-    .activity-sidebar .activity-section {
-      border-bottom: 1px solid var(--border);
-      padding: 12px;
-    }
-    
-    .activity-sidebar .activity-section:last-child {
-      border-bottom: none;
-    }
-    
-    .activity-sidebar .section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-    
-    .activity-sidebar .section-title {
-      font-size: 10px;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      cursor: pointer;
-    }
-    
-    .activity-sidebar .section-action {
-      font-size: 10px;
-      color: var(--muted);
-      cursor: pointer;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    
-    .activity-sidebar .section-action:hover {
-      color: var(--fg);
-    }
-    
-    /* Log entries in sidebar */
-    .activity-sidebar .log-entry {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      padding: 6px 0;
-      border-bottom: 1px solid var(--border);
-      font-size: 11px;
-    }
-    
-    .activity-sidebar .log-entry:last-child {
-      border-bottom: none;
-    }
-    
-    .activity-sidebar .log-time {
-      font-size: 9px;
-      color: var(--progress);
-      text-transform: uppercase;
-    }
-    
-    .activity-sidebar .log-msg {
-      color: var(--fg);
-      word-break: break-word;
-    }
-    
-    /* Notes in sidebar */
-    .activity-sidebar .notes-input {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      margin-top: 8px;
-    }
-    
-    .activity-sidebar .notes-input-row {
-      display: flex;
-      gap: 6px;
-    }
-    
-    .activity-sidebar .note-task-select {
-      width: 100%;
-      padding: 6px 8px;
-      border: 1px solid var(--border);
-      background: var(--bg);
-      color: var(--fg);
-      font-family: inherit;
-      font-size: 10px;
-      cursor: pointer;
-    }
-    
-    .activity-sidebar .note-task-select:focus {
-      outline: none;
-      border-color: var(--fg);
-    }
-    
-    .activity-sidebar .notes-input input {
-      flex: 1;
-      padding: 6px 8px;
-      border: 1px solid var(--border);
-      background: var(--bg);
-      color: var(--fg);
-      font-family: inherit;
-      font-size: 11px;
-      min-width: 0;
-    }
-    
-    .activity-sidebar .notes-input input:focus {
-      outline: none;
-      border-color: var(--fg);
-    }
-    
-    .activity-sidebar .notes-input input::placeholder {
-      color: var(--muted);
-    }
-    
-    .activity-sidebar .notes-list {
-      margin-top: 8px;
-      max-height: 150px;
-      overflow-y: auto;
-    }
-    
-    .activity-sidebar .note {
-      display: flex;
-      flex-direction: column;
-      padding: 6px;
-      border: 1px solid var(--border);
-      margin-bottom: 4px;
-      font-size: 11px;
-      gap: 4px;
-    }
-    
-    .activity-sidebar .note-task-tag {
-      font-size: 9px;
-      color: var(--progress);
-      background: rgba(255, 165, 0, 0.1);
-      padding: 2px 4px;
-    }
-    
-    .activity-sidebar .note-text {
-      word-break: break-word;
-    }
-    
-    .activity-sidebar .note-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    
-    .activity-sidebar .note-meta {
-      font-size: 9px;
-      color: var(--muted);
-      text-transform: uppercase;
-    }
-    
-    .activity-sidebar .note-delete {
-      color: var(--muted);
-      cursor: pointer;
-      font-size: 14px;
-    }
-    
-    .activity-sidebar .note-delete:hover {
-      color: var(--error);
-    }
-    
-    /* GitHub activity in sidebar */
-    .activity-sidebar .github-header {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-    
-    .activity-sidebar .github-filters {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-    }
-    
-    .activity-sidebar .github-filter {
-      padding: 3px 6px;
-      border: 1px solid var(--border);
-      background: var(--bg);
-      color: var(--muted);
-      font-size: 9px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      cursor: pointer;
-    }
-    
-    .activity-sidebar .github-filter:hover {
-      color: var(--fg);
-      border-color: var(--fg);
-    }
-    
-    .activity-sidebar .github-filter.active {
-      color: var(--fg);
-      border-color: var(--fg);
-      background: var(--hover-bg);
-    }
-    
-    .activity-sidebar .github-feed {
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
-      max-height: 200px;
-      overflow-y: auto;
-    }
-    
-    .activity-sidebar .activity-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-      padding: 8px;
-      border: 1px solid var(--border);
-      font-size: 11px;
-      transition: border-color 0.1s;
-    }
-    
-    .activity-sidebar .activity-item:hover {
-      border-color: var(--fg);
-    }
-    
-    .activity-sidebar .activity-icon {
-      width: 16px;
-      text-align: center;
-      flex-shrink: 0;
-      font-size: 12px;
-    }
-    
-    .activity-sidebar .activity-content {
-      flex: 1;
-      min-width: 0;
-    }
-    
-    .activity-sidebar .activity-title {
-      font-weight: 500;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      font-size: 11px;
-    }
-    
-    .activity-sidebar .activity-title a {
-      color: var(--fg);
-      text-decoration: none;
-    }
-    
-    .activity-sidebar .activity-title a:hover {
-      text-decoration: underline;
-    }
-    
-    .activity-sidebar .activity-meta {
-      font-size: 9px;
-      color: var(--muted);
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      margin-top: 2px;
-    }
-    
-    .activity-sidebar .activity-repo {
-      color: var(--progress);
-    }
-    
-    .activity-sidebar .empty {
-      font-size: 10px;
-      color: var(--muted);
-      padding: 8px 0;
-    }
-    
-    .activity-sidebar .github-loading,
-    .activity-sidebar .github-error {
-      font-size: 10px;
-      color: var(--muted);
-      padding: 8px 0;
-    }
-    
-    .activity-sidebar .github-error {
-      color: var(--error);
-    }
-    
     /* Sidebar */
     .sidebar {
       width: 200px;
@@ -715,6 +333,308 @@
     
     .api-indicator.disconnected .api-dot { background: var(--error); }
     .api-indicator.disconnected { color: var(--error); }
+    
+    /* Sidebar Accordion Sections */
+    .sidebar-accordion {
+      border-top: 1px solid var(--border);
+    }
+    
+    .accordion-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      transition: color 0.15s, background 0.15s;
+    }
+    
+    .accordion-header:hover {
+      color: var(--fg);
+      background: var(--hover-bg);
+    }
+    
+    .accordion-header.expanded {
+      color: var(--fg);
+    }
+    
+    .accordion-chevron {
+      font-size: 8px;
+      width: 12px;
+      transition: transform 0.2s;
+    }
+    
+    .accordion-header.expanded .accordion-chevron {
+      transform: rotate(90deg);
+    }
+    
+    .accordion-title {
+      flex: 1;
+    }
+    
+    .accordion-action {
+      font-size: 10px;
+      color: var(--muted);
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .accordion-action:hover {
+      color: var(--fg);
+    }
+    
+    .accordion-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+      background: var(--bg);
+    }
+    
+    .accordion-body.expanded {
+      max-height: 300px;
+      overflow-y: auto;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .accordion-content {
+      padding: 8px 12px;
+    }
+    
+    /* Sidebar Log Entry */
+    .sidebar-log-entry {
+      display: flex;
+      gap: 8px;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 11px;
+    }
+    
+    .sidebar-log-entry:last-child {
+      border-bottom: none;
+    }
+    
+    .sidebar-log-time {
+      font-size: 9px;
+      color: var(--progress);
+      white-space: nowrap;
+      text-transform: uppercase;
+    }
+    
+    .sidebar-log-msg {
+      color: var(--fg);
+      flex: 1;
+      word-break: break-word;
+    }
+    
+    /* Sidebar Notes */
+    .sidebar-notes-input {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    
+    .sidebar-note-select {
+      padding: 6px 8px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--fg);
+      font-family: inherit;
+      font-size: 10px;
+      cursor: pointer;
+    }
+    
+    .sidebar-note-select:focus {
+      outline: none;
+      border-color: var(--fg);
+    }
+    
+    .sidebar-notes-row {
+      display: flex;
+      gap: 6px;
+    }
+    
+    .sidebar-note-input {
+      flex: 1;
+      padding: 6px 8px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--fg);
+      font-family: inherit;
+      font-size: 11px;
+    }
+    
+    .sidebar-note-input:focus {
+      outline: none;
+      border-color: var(--fg);
+    }
+    
+    .sidebar-note-input::placeholder {
+      color: var(--muted);
+    }
+    
+    .sidebar-note-btn {
+      padding: 6px 10px;
+      border: 1px solid var(--fg);
+      background: var(--fg);
+      color: var(--bg);
+      font-family: inherit;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+    }
+    
+    .sidebar-note-btn:hover {
+      background: var(--bg);
+      color: var(--fg);
+    }
+    
+    .sidebar-note {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 11px;
+      gap: 4px;
+    }
+    
+    .sidebar-note:last-child {
+      border-bottom: none;
+    }
+    
+    .sidebar-note-task {
+      font-size: 9px;
+      color: var(--progress);
+      background: rgba(0, 170, 255, 0.1);
+      padding: 2px 4px;
+      width: 100%;
+      margin-bottom: 2px;
+    }
+    
+    .sidebar-note-text {
+      flex: 1;
+      word-break: break-word;
+    }
+    
+    .sidebar-note-meta {
+      font-size: 9px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-left: 8px;
+      white-space: nowrap;
+    }
+    
+    .sidebar-note-delete {
+      color: var(--muted);
+      cursor: pointer;
+      margin-left: 4px;
+    }
+    
+    .sidebar-note-delete:hover {
+      color: var(--error);
+    }
+    
+    /* Sidebar GitHub Activity */
+    .sidebar-github-filters {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    
+    .sidebar-github-filter {
+      padding: 3px 6px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--muted);
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+    }
+    
+    .sidebar-github-filter:hover {
+      color: var(--fg);
+      border-color: var(--fg);
+    }
+    
+    .sidebar-github-filter.active {
+      color: var(--fg);
+      border-color: var(--fg);
+      background: var(--hover-bg);
+    }
+    
+    .sidebar-activity-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 11px;
+    }
+    
+    .sidebar-activity-item:last-child {
+      border-bottom: none;
+    }
+    
+    .sidebar-activity-icon {
+      width: 14px;
+      text-align: center;
+      flex-shrink: 0;
+      font-size: 12px;
+    }
+    
+    .sidebar-activity-item.type-commit .sidebar-activity-icon { color: #4f4; }
+    .sidebar-activity-item.type-pr .sidebar-activity-icon { color: #a0f; }
+    .sidebar-activity-item.type-issue .sidebar-activity-icon { color: #fa0; }
+    
+    .sidebar-activity-content {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .sidebar-activity-title {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .sidebar-activity-title a {
+      color: var(--fg);
+      text-decoration: none;
+    }
+    
+    .sidebar-activity-title a:hover {
+      text-decoration: underline;
+    }
+    
+    .sidebar-activity-meta {
+      font-size: 9px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    
+    .sidebar-activity-repo {
+      color: var(--progress);
+    }
+    
+    .sidebar-loading,
+    .sidebar-empty {
+      padding: 12px 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
     
     /* Main */
     .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
@@ -2021,6 +1941,101 @@
         <div class="sidebar-empty" x-show="sessions.length === 0">No active sessions</div>
       </div>
       
+      <!-- Accordion: Action Log -->
+      <div class="sidebar-accordion">
+        <div class="accordion-header" :class="{'expanded': accordionState.actionLog}" @click="toggleAccordion('actionLog')">
+          <span class="accordion-chevron">▶</span>
+          <span class="accordion-title">📜 Action Log</span>
+          <span class="accordion-action" x-show="accordionState.actionLog" @click.stop="actionLog = []; saveActionLog()">Clear</span>
+        </div>
+        <div class="accordion-body" :class="{'expanded': accordionState.actionLog}">
+          <div class="accordion-content">
+            <template x-for="(entry, i) in actionLog.slice().reverse().slice(0, 10)" :key="i">
+              <div class="sidebar-log-entry">
+                <span class="sidebar-log-time" x-text="formatLogTime(entry.timestamp)"></span>
+                <span class="sidebar-log-msg" x-text="entry.message"></span>
+              </div>
+            </template>
+            <div class="sidebar-empty" x-show="actionLog.length === 0">No actions logged</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Accordion: Notes -->
+      <div class="sidebar-accordion">
+        <div class="accordion-header" :class="{'expanded': accordionState.notes}" @click="toggleAccordion('notes')">
+          <span class="accordion-chevron">▶</span>
+          <span class="accordion-title">📝 Notes</span>
+        </div>
+        <div class="accordion-body" :class="{'expanded': accordionState.notes}">
+          <div class="accordion-content">
+            <div class="sidebar-notes-input">
+              <select x-model="noteTaskId" class="sidebar-note-select">
+                <option value="">All Tasks (General)</option>
+                <template x-for="task in tasks.filter(t => t.status !== 'done')" :key="task.id">
+                  <option :value="task.id" x-text="task.title.substring(0, 25) + (task.title.length > 25 ? '...' : '')"></option>
+                </template>
+              </select>
+              <div class="sidebar-notes-row">
+                <input type="text" x-model="newNote" @keydown.enter="addNote()" placeholder="Note for Dexter..." class="sidebar-note-input">
+                <button class="sidebar-note-btn" @click="addNote()">+</button>
+              </div>
+            </div>
+            <template x-for="note in notes" :key="note.id">
+              <div class="sidebar-note">
+                <span class="sidebar-note-task" x-show="note.taskTitle" x-text="'📌 ' + (note.taskTitle || '').substring(0, 18)"></span>
+                <span class="sidebar-note-text" x-text="note.text"></span>
+                <span class="sidebar-note-meta" x-text="formatDate(note.createdAt)"></span>
+                <span class="sidebar-note-delete" @click="notes = notes.filter(n => n.id !== note.id); saveNotes()">×</span>
+              </div>
+            </template>
+            <div class="sidebar-empty" x-show="notes.length === 0">No notes yet</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Accordion: GitHub Activity -->
+      <div class="sidebar-accordion">
+        <div class="accordion-header" :class="{'expanded': accordionState.github}" @click="toggleAccordion('github')">
+          <span class="accordion-chevron">▶</span>
+          <span class="accordion-title">🐙 GitHub</span>
+          <span class="accordion-action" x-show="accordionState.github" @click.stop="fetchGitHubActivity()">↻</span>
+        </div>
+        <div class="accordion-body" :class="{'expanded': accordionState.github}">
+          <div class="accordion-content">
+            <div class="sidebar-github-filters">
+              <button class="sidebar-github-filter" :class="{'active': githubFilter === 'all'}" @click="githubFilter = 'all'">All</button>
+              <button class="sidebar-github-filter" :class="{'active': githubFilter === 'commit'}" @click="githubFilter = 'commit'">Commits</button>
+              <button class="sidebar-github-filter" :class="{'active': githubFilter === 'pr'}" @click="githubFilter = 'pr'">PRs</button>
+              <button class="sidebar-github-filter" :class="{'active': githubFilter === 'issue'}" @click="githubFilter = 'issue'">Issues</button>
+            </div>
+            <div class="sidebar-loading" x-show="githubLoading">Loading...</div>
+            <div class="sidebar-empty" x-show="githubError && !githubLoading" x-text="githubError"></div>
+            <div x-show="!githubLoading && !githubError">
+              <template x-for="item in filteredGitHubActivity.slice(0, 8)" :key="item.id">
+                <div class="sidebar-activity-item" :class="'type-' + item.type">
+                  <div class="sidebar-activity-icon">
+                    <span x-show="item.type === 'commit'">⚡</span>
+                    <span x-show="item.type === 'pr'">⎇</span>
+                    <span x-show="item.type === 'issue'">◉</span>
+                  </div>
+                  <div class="sidebar-activity-content">
+                    <div class="sidebar-activity-title">
+                      <a :href="item.url" target="_blank" x-text="item.title.substring(0, 35) + (item.title.length > 35 ? '...' : '')"></a>
+                    </div>
+                    <div class="sidebar-activity-meta">
+                      <span class="sidebar-activity-repo" x-text="item.repo.replace('KishParikh13/', '')"></span>
+                      · <span x-text="formatRelativeTime(item.date)"></span>
+                    </div>
+                  </div>
+                </div>
+              </template>
+              <div class="sidebar-empty" x-show="filteredGitHubActivity.length === 0">No activity</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
       <!-- API Status Indicator -->
       <div class="sidebar-footer">
         <div class="api-indicator" :class="apiConnected ? 'connected' : 'disconnected'">
@@ -2030,118 +2045,7 @@
       </div>
     </aside>
     
-    <!-- Activity Sidebar (collapsible) -->
-    <aside class="activity-sidebar" :class="{'collapsed': activitySidebarCollapsed}">
-      <div class="activity-sidebar-header">
-        <span class="activity-sidebar-title">ACTIVITY</span>
-        <button class="activity-toggle" @click="toggleActivitySidebar()" :title="activitySidebarCollapsed ? 'Expand' : 'Collapse'">
-          <span x-text="activitySidebarCollapsed ? '☰' : '◀'"></span>
-        </button>
-      </div>
-      
-      <!-- Collapsed icons -->
-      <div class="activity-sidebar-icons">
-        <button class="activity-icon-btn" @click="toggleActivitySidebar(); $nextTick(() => activitySidebarSection = 'log')" title="Action Log">📜</button>
-        <button class="activity-icon-btn" @click="toggleActivitySidebar(); $nextTick(() => activitySidebarSection = 'notes')" title="Notes for Dexter">📝</button>
-        <button class="activity-icon-btn" @click="toggleActivitySidebar(); $nextTick(() => activitySidebarSection = 'github')" title="GitHub Activity">🐙</button>
-      </div>
-      
-      <!-- Expanded content -->
-      <div class="activity-sidebar-content">
-        <!-- Action Log -->
-        <div class="activity-section">
-          <div class="section-header">
-            <span class="section-title" @click="actionLogCollapsed = !actionLogCollapsed">
-              <span x-text="actionLogCollapsed ? '▶' : '▼'" style="display: inline-block; width: 12px;"></span>
-              📜 Action Log
-            </span>
-            <span class="section-action" x-show="!actionLogCollapsed" @click="actionLog = []; saveActionLog()">Clear</span>
-          </div>
-          <div x-show="!actionLogCollapsed">
-            <template x-for="(entry, i) in actionLog.slice().reverse().slice(0, 15)" :key="i">
-              <div class="log-entry">
-                <span class="log-time" x-text="formatLogTime(entry.timestamp)"></span>
-                <span class="log-msg" x-text="entry.message"></span>
-              </div>
-            </template>
-            <div class="empty" x-show="actionLog.length === 0">No actions logged</div>
-          </div>
-        </div>
-        
-        <!-- Notes for Dexter -->
-        <div class="activity-section">
-          <div class="section-header">
-            <span class="section-title">📝 Notes for Dexter</span>
-            <span class="nav-meta" style="font-size: 8px; color: var(--muted);">Heartbeat</span>
-          </div>
-          <div class="notes-input">
-            <select x-model="noteTaskId" class="note-task-select">
-              <option value="">All Tasks (General)</option>
-              <template x-for="task in tasks.filter(t => t.status !== 'done')" :key="task.id">
-                <option :value="task.id" x-text="task.title.substring(0, 25) + (task.title.length > 25 ? '...' : '')"></option>
-              </template>
-            </select>
-            <div class="notes-input-row">
-              <input type="text" x-model="newNote" @keydown.enter="addNote()" placeholder="Note for Dexter...">
-              <button class="btn btn-primary" style="padding: 6px 10px; font-size: 10px;" @click="addNote()">+</button>
-            </div>
-          </div>
-          <div class="notes-list">
-            <template x-for="note in notes" :key="note.id">
-              <div class="note">
-                <span class="note-task-tag" x-show="note.taskTitle" x-text="'📌 ' + (note.taskTitle || '').substring(0, 15)"></span>
-                <span class="note-text" x-text="note.text"></span>
-                <div class="note-footer">
-                  <span class="note-meta" x-text="formatDate(note.createdAt)"></span>
-                  <span class="note-delete" @click="notes = notes.filter(n => n.id !== note.id); saveNotes()">×</span>
-                </div>
-              </div>
-            </template>
-          </div>
-        </div>
-        
-        <!-- GitHub Activity -->
-        <div class="activity-section">
-          <div class="github-header">
-            <span class="section-title">🐙 GitHub Activity</span>
-            <div class="github-filters">
-              <button class="github-filter" :class="{'active': githubFilter === 'all'}" @click="githubFilter = 'all'">All</button>
-              <button class="github-filter" :class="{'active': githubFilter === 'commit'}" @click="githubFilter = 'commit'">Commits</button>
-              <button class="github-filter" :class="{'active': githubFilter === 'pr'}" @click="githubFilter = 'pr'">PRs</button>
-              <button class="github-filter" :class="{'active': githubFilter === 'issue'}" @click="githubFilter = 'issue'">Issues</button>
-              <button class="github-filter" @click="fetchGitHubActivity()" title="Refresh">↻</button>
-            </div>
-          </div>
-          
-          <div class="github-loading" x-show="githubLoading">Loading...</div>
-          <div class="github-error" x-show="githubError && !githubLoading" x-text="githubError"></div>
-          
-          <div class="github-feed" x-show="!githubLoading && !githubError">
-            <template x-for="item in filteredGitHubActivity" :key="item.id">
-              <div class="activity-item" :class="'activity-type-' + item.type">
-                <div class="activity-icon">
-                  <span x-show="item.type === 'commit'">⚡</span>
-                  <span x-show="item.type === 'pr'">⎇</span>
-                  <span x-show="item.type === 'issue'">◉</span>
-                </div>
-                <div class="activity-content">
-                  <div class="activity-title">
-                    <a :href="item.url" target="_blank" x-text="item.title"></a>
-                  </div>
-                  <div class="activity-meta">
-                    <span class="activity-repo" x-text="item.repo.replace('KishParikh13/', '')"></span>
-                    <span x-text="formatRelativeTime(item.date)"></span>
-                  </div>
-                </div>
-              </div>
-            </template>
-            <div class="empty" x-show="filteredGitHubActivity.length === 0 && !githubLoading">No activity</div>
-          </div>
-        </div>
-      </div>
-    </aside>
-    
-    <!-- Main Wrapper (for push layout) -->
+<!-- Main Wrapper (for push layout) -->
     <div class="main-wrapper" :class="{'panel-open': selectedTask}">
       <!-- Main -->
       <main class="main">
@@ -2687,8 +2591,7 @@
         apiError: null,
         apiConnected: false,
         actionLogCollapsed: false,
-        activitySidebarCollapsed: JSON.parse(localStorage.getItem('dexter-activity-sidebar-collapsed') || 'false'),
-        activitySidebarSection: 'log',
+        accordionState: JSON.parse(localStorage.getItem('dexter-accordion-state') || '{"actionLog": false, "notes": true, "github": false}'),
         now: Date.now(),
         spinnerFrame: '⠋',
         spinnerFrames: ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'],
@@ -3751,9 +3654,9 @@
           localStorage.setItem('dexter-action-log-collapsed', this.actionLogCollapsed); 
         },
         
-        toggleActivitySidebar() {
-          this.activitySidebarCollapsed = !this.activitySidebarCollapsed;
-          localStorage.setItem('dexter-activity-sidebar-collapsed', JSON.stringify(this.activitySidebarCollapsed));
+        toggleAccordion(section) {
+          this.accordionState[section] = !this.accordionState[section];
+          localStorage.setItem('dexter-accordion-state', JSON.stringify(this.accordionState));
         },
         
         // Export/Import

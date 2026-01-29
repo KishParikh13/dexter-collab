@@ -13,3 +13,4 @@ config.local.js
 # Python
 __pycache__/
 *.pyc
+.vercel
