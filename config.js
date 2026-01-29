@@ -7,7 +7,7 @@ window.DEXTER_CONFIG = {
   apiEndpoint: 'https://d0kzdquajc.execute-api.us-east-1.amazonaws.com/prod',
   
   // API Key for write operations
-  apiKey: 'Ak5YL5VOFt1xXnABMEygg4MeKRyS1UGs6zVU1M6U',
+  apiKey: 's5D9GeYUFT39s3rPGTcUJ8jjlfQjm9QH57El8sKG',
   
   // Polling intervals (ms)
   sessionPollInterval: 5000,
