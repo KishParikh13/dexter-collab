@@ -124,6 +124,33 @@
       letter-spacing: 0.5px;
     }
     
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 12px;
+      border-top: 1px solid var(--border);
+    }
+    
+    .api-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .api-indicator .api-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+    
+    .api-indicator.connected .api-dot { background: #4f4; }
+    .api-indicator.connected { color: #4f4; }
+    
+    .api-indicator.disconnected .api-dot { background: var(--error); }
+    .api-indicator.disconnected { color: var(--error); }
+    
     /* Main */
     .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
     
@@ -576,10 +603,12 @@
         <div class="sidebar-empty" x-show="sessions.length === 0">No active sessions</div>
       </div>
       
-      <!-- API Status -->
-      <div class="sidebar-section" x-show="apiError">
-        <div class="sidebar-title" style="color: var(--error);">⚠️ API Error</div>
-        <div class="sidebar-empty" style="color: var(--error); font-size: 10px;" x-text="apiError"></div>
+      <!-- API Status Indicator -->
+      <div class="sidebar-footer">
+        <div class="api-indicator" :class="apiConnected ? 'connected' : 'disconnected'">
+          <span class="api-dot"></span>
+          <span x-text="apiConnected ? 'API Connected' : (apiError || 'API Offline')"></span>
+        </div>
       </div>
     </aside>
     
@@ -832,6 +861,7 @@
         newNote: '',
         importDataText: '',
         apiError: null,
+        apiConnected: false,
         
         // Config from config.js
         config: window.DEXTER_CONFIG || {},
@@ -906,6 +936,7 @@
             const data = await this.apiRequest('GET', '/tasks');
             this.tasks = data.tasks || [];
             this.apiError = null;
+            this.apiConnected = true;
             
             // Also save to localStorage as backup
             if (this.config.fallbackToLocalStorage) {
@@ -917,6 +948,7 @@
           } catch (e) {
             console.error('Failed to fetch tasks from API:', e);
             this.apiError = e.message;
+            this.apiConnected = false;
             
             // Fallback to localStorage
             if (this.config.fallbackToLocalStorage) {
