@@ -307,6 +307,16 @@
       font-size: 11px;
     }
     
+    .task-active {
+      border-left: 3px solid var(--progress);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.85; }
+    }
+    
     /* Progress Indicator */
     .task-progress {
       margin-top: 8px;
@@ -732,23 +742,23 @@
           </div>
           <div id="kanban-in-progress" class="column-body">
             <template x-for="task in tasks.filter(t => t.status === 'in-progress')" :key="task.id">
-              <div class="task" :class="{'expanded': expandedTask === task.id}" :data-id="task.id" @click="toggleTask(task.id)">
+              <div class="task task-active" :class="{'expanded': expandedTask === task.id}" :data-id="task.id" @click="toggleTask(task.id)">
                 <div class="task-header">
                   <div class="task-title" x-text="task.title"></div>
                 </div>
-                <!-- Progress indicator -->
-                <div class="task-progress" x-show="getProgress(task.id)">
+                <!-- Always show progress indicator for in-progress -->
+                <div class="task-progress">
                   <div class="task-progress-current">
                     <div class="spinner"></div>
-                    <span x-text="getProgress(task.id)?.currentStep || 'Starting...'"></span>
+                    <span x-text="task.currentStep || task.currentAction || 'Working...'"></span>
                   </div>
-                  <div class="task-progress-toggle" @click.stop="toggleTask(task.id)">
-                    <span x-text="expandedTask === task.id ? '▼ Hide steps' : '▶ Show steps'"></span>
+                  <div class="task-progress-toggle" x-show="task.steps?.length" @click.stop="toggleTask(task.id)">
+                    <span x-text="expandedTask === task.id ? '▼ Hide' : '▶ ' + (task.steps?.length || 0) + ' steps'"></span>
                   </div>
                 </div>
                 <!-- Expanded steps list -->
-                <div class="task-steps" x-show="expandedTask === task.id && getProgress(task.id)?.steps">
-                  <template x-for="step in getProgress(task.id)?.steps || []" :key="step.name">
+                <div class="task-steps" x-show="expandedTask === task.id && task.steps?.length">
+                  <template x-for="step in task.steps || []" :key="step.name">
                     <div class="step" :class="'step-' + step.status">
                       <div class="step-icon">
                         <span x-show="step.status === 'done'">✓</span>
@@ -762,7 +772,11 @@
                     </div>
                   </template>
                 </div>
-                <div class="task-meta" x-show="!getProgress(task.id)" x-text="'Started ' + formatDate(task.startedAt || task.createdAt)"></div>
+                <!-- Time elapsed -->
+                <div class="task-meta">
+                  <span x-text="'Started ' + formatDate(task.startedAt || task.createdAt)"></span>
+                  <span x-show="task.repo" style="margin-left: 8px; color: var(--progress);" x-text="task.repo"></span>
+                </div>
               </div>
             </template>
           </div>
@@ -956,8 +970,16 @@
             await this.fetchTasksFromApi();
             await this.fetchSessions();
             
-            // Poll for updates
-            setInterval(() => this.fetchTasksFromApi(), this.config.taskPollInterval || 10000);
+            // Adaptive polling - faster when tasks are in progress
+            const pollTasks = async () => {
+              await this.fetchTasksFromApi();
+              const hasActive = this.tasks.some(t => t.status === 'in-progress');
+              // 3s when active, 10s when idle
+              const nextPoll = hasActive ? 3000 : (this.config.taskPollInterval || 10000);
+              setTimeout(pollTasks, nextPoll);
+            };
+            setTimeout(pollTasks, 3000);
+            
             setInterval(() => {
               this.fetchSessions();
               this.lastSync = new Date().toLocaleTimeString();
