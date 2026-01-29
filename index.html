@@ -61,8 +61,9 @@
       align-items: center;
       justify-content: center;
       margin: 0 auto 12px;
-      font-size: 40px;
       position: relative;
+      padding: 8px;
+      overflow: visible;
     }
     
     .status-dot {
@@ -81,6 +82,164 @@
     
     .avatar-name { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
     .avatar-status { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); }
+    
+    /* Dexter Avatar Animations */
+    .dexter-avatar {
+      width: 64px;
+      height: 64px;
+      overflow: visible;
+    }
+    
+    .dexter-avatar .face {
+      fill: none;
+      stroke: var(--fg);
+      stroke-width: 2;
+    }
+    
+    .dexter-avatar .eye {
+      fill: var(--fg);
+      transition: all 0.3s ease;
+      transform-origin: center center;
+      transform-box: fill-box;
+    }
+    
+    .dexter-avatar .eyes {
+      transition: transform 0.3s ease;
+    }
+    
+    .dexter-avatar .mouth {
+      fill: none;
+      stroke: var(--fg);
+      stroke-width: 2;
+      stroke-linecap: round;
+    }
+    
+    .dexter-avatar .glasses {
+      fill: none;
+      stroke: var(--fg);
+      stroke-width: 2;
+    }
+    
+    .dexter-avatar .zzz {
+      fill: var(--fg);
+      font-family: 'SF Mono', 'Monaco', monospace;
+      font-size: 10px;
+      font-weight: bold;
+      opacity: 0;
+    }
+    
+    .dexter-avatar .thought-dot {
+      fill: var(--fg);
+      opacity: 0;
+    }
+    
+    .dexter-avatar .zzz-group,
+    .dexter-avatar .thinking-dots {
+      overflow: visible;
+    }
+    
+    /* Online/Ready State - subtle blink */
+    .avatar.status-online .dexter-avatar .eyes {
+      animation: eyes-blink 4s ease-in-out infinite;
+    }
+    
+    @keyframes eyes-blink {
+      0%, 92%, 100% { transform: scaleY(1); }
+      96% { transform: scaleY(0.1); }
+    }
+    
+    /* Working State - active thinking with bouncing and looking around */
+    .avatar.status-working .dexter-avatar {
+      animation: avatar-bounce 1.5s ease-in-out infinite;
+    }
+    
+    .avatar.status-working .dexter-avatar .eyes {
+      animation: eyes-look 2.5s ease-in-out infinite;
+    }
+    
+    .avatar.status-working .dexter-avatar .thought-dot {
+      animation: thought-appear 1.5s ease-in-out infinite;
+    }
+    
+    .avatar.status-working .dexter-avatar .thought-dot:nth-child(2) {
+      animation-delay: 0.3s;
+    }
+    
+    .avatar.status-working .dexter-avatar .thought-dot:nth-child(3) {
+      animation-delay: 0.6s;
+    }
+    
+    @keyframes avatar-bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+    
+    @keyframes eyes-look {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(3px); }
+      40% { transform: translateX(-2px); }
+      60% { transform: translateX(1px); }
+      80% { transform: translateX(-3px); }
+    }
+    
+    @keyframes thought-appear {
+      0%, 20% { opacity: 0; transform: scale(0.5); }
+      40%, 80% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(0.5) translateY(-4px); }
+    }
+    
+    /* Idle/Sleeping State */
+    .avatar.status-idle .dexter-avatar .eyes {
+      animation: none;
+      transform: scaleY(0.15);
+    }
+    
+    .avatar.status-idle .dexter-avatar .mouth {
+      d: path("M26 40 L34 40");
+    }
+    
+    .avatar.status-idle .dexter-avatar .zzz {
+      animation: zzz-float 2.5s ease-in-out infinite;
+    }
+    
+    .avatar.status-idle .dexter-avatar .zzz:nth-child(2) {
+      animation-delay: 0.6s;
+    }
+    
+    .avatar.status-idle .dexter-avatar .zzz:nth-child(3) {
+      animation-delay: 1.2s;
+    }
+    
+    @keyframes zzz-float {
+      0% { opacity: 0; transform: translate(0, 0) scale(0.6); }
+      15% { opacity: 1; }
+      85% { opacity: 0.8; }
+      100% { opacity: 0; transform: translate(6px, -10px) scale(1.1); }
+    }
+    
+    /* Waiting State - patient gentle pulse */
+    .avatar.status-waiting .dexter-avatar {
+      animation: gentle-pulse 3s ease-in-out infinite;
+    }
+    
+    .avatar.status-waiting .dexter-avatar .eyes {
+      animation: eyes-blink 3s ease-in-out infinite;
+    }
+    
+    @keyframes gentle-pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+    
+    /* Active state (for any explicit "active" status) */
+    .avatar.status-active .dexter-avatar .eyes {
+      animation: eyes-alert 0.8s ease-in-out infinite;
+    }
+    
+    @keyframes eyes-alert {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
     
     /* Sidebar sections */
     .sidebar-section {
@@ -1065,8 +1224,44 @@
     <!-- Sidebar -->
     <aside class="sidebar">
       <div class="avatar-section">
-        <div class="avatar">
-          🥸
+        <div class="avatar" :class="'status-' + status">
+          <!-- Animated Dexter Avatar -->
+          <svg class="dexter-avatar" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+            <!-- Face outline -->
+            <circle class="face" cx="30" cy="32" r="24"/>
+            
+            <!-- Glasses frame -->
+            <g class="glasses">
+              <rect x="14" y="24" width="13" height="11" rx="2"/>
+              <rect x="33" y="24" width="13" height="11" rx="2"/>
+              <line x1="27" y1="29.5" x2="33" y2="29.5"/>
+              <line x1="6" y1="29.5" x2="14" y2="29.5"/>
+              <line x1="46" y1="29.5" x2="54" y2="29.5"/>
+            </g>
+            
+            <!-- Eyes (inside glasses) - group for animation -->
+            <g class="eyes" style="transform-origin: 30px 29px;">
+              <ellipse class="eye" cx="20.5" cy="29" rx="2.5" ry="3"/>
+              <ellipse class="eye" cx="39.5" cy="29" rx="2.5" ry="3"/>
+            </g>
+            
+            <!-- Mouth - slight smile -->
+            <path class="mouth" d="M24 44 Q30 48 36 44"/>
+            
+            <!-- Sleeping Zzz (only visible when idle) -->
+            <g class="zzz-group">
+              <text class="zzz" x="46" y="20">z</text>
+              <text class="zzz" x="50" y="13">z</text>
+              <text class="zzz" x="54" y="6">Z</text>
+            </g>
+            
+            <!-- Thinking dots (only visible when working) -->
+            <g class="thinking-dots">
+              <circle class="thought-dot" cx="50" cy="14" r="2"/>
+              <circle class="thought-dot" cx="55" cy="9" r="2.5"/>
+              <circle class="thought-dot" cx="60" cy="4" r="3"/>
+            </g>
+          </svg>
           <div class="status-dot" :class="'status-' + status"></div>
         </div>
         <div class="avatar-name">Dexter</div>
