@@ -1192,6 +1192,367 @@
       flex-shrink: 0;
     }
     
+    /* PR Review Section Styles */
+    .pr-review-section {
+      background: var(--hover-bg);
+      border: 1px solid var(--border);
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    
+    .pr-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    
+    .pr-icon {
+      font-size: 24px;
+      color: #a0f;
+    }
+    
+    .pr-title-section {
+      flex: 1;
+    }
+    
+    .pr-title {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+    
+    .pr-title a {
+      color: var(--fg);
+      text-decoration: none;
+    }
+    
+    .pr-title a:hover {
+      text-decoration: underline;
+    }
+    
+    .pr-number {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    
+    .pr-stats {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 16px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+    }
+    
+    .pr-stat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .pr-stat-value {
+      font-size: 18px;
+      font-weight: 500;
+    }
+    
+    .pr-stat-value.additions { color: #4f4; }
+    .pr-stat-value.deletions { color: #f44; }
+    .pr-stat-value.files { color: var(--progress); }
+    
+    .pr-stat-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+    }
+    
+    /* Screenshot Display */
+    .pr-screenshots {
+      margin-bottom: 16px;
+    }
+    
+    .pr-screenshots-title {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    
+    .pr-screenshot-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .pr-screenshot {
+      border: 1px solid var(--border);
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    
+    .pr-screenshot:hover {
+      border-color: var(--fg);
+    }
+    
+    .pr-screenshot img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    
+    .pr-screenshot-caption {
+      padding: 8px;
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-top: 1px solid var(--border);
+    }
+    
+    /* PR Description */
+    .pr-description {
+      padding: 12px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      margin-bottom: 16px;
+      font-size: 12px;
+      line-height: 1.6;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    
+    .pr-description h1, .pr-description h2, .pr-description h3 {
+      font-size: 13px;
+      font-weight: 600;
+      margin: 12px 0 8px 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .pr-description h1:first-child, .pr-description h2:first-child, .pr-description h3:first-child {
+      margin-top: 0;
+    }
+    
+    .pr-description p { margin-bottom: 8px; }
+    .pr-description ul, .pr-description ol { margin-left: 16px; margin-bottom: 8px; }
+    .pr-description li { margin-bottom: 4px; }
+    .pr-description code { background: var(--hover-bg); padding: 2px 4px; font-family: inherit; }
+    .pr-description pre { background: var(--hover-bg); padding: 8px; margin: 8px 0; overflow-x: auto; }
+    .pr-description a { color: var(--progress); }
+    
+    /* Files Changed */
+    .pr-files {
+      margin-bottom: 16px;
+    }
+    
+    .pr-files-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    
+    .pr-files-title {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+    }
+    
+    .pr-files-toggle {
+      font-size: 10px;
+      color: var(--muted);
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .pr-files-toggle:hover { color: var(--fg); }
+    
+    .pr-file-list {
+      border: 1px solid var(--border);
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    
+    .pr-file {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border);
+      font-size: 11px;
+    }
+    
+    .pr-file:last-child { border-bottom: none; }
+    
+    .pr-file-status {
+      width: 12px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    
+    .pr-file-status.added { color: #4f4; }
+    .pr-file-status.modified { color: #fa0; }
+    .pr-file-status.deleted { color: #f44; }
+    .pr-file-status.renamed { color: var(--progress); }
+    
+    .pr-file-name {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .pr-file-name a {
+      color: var(--fg);
+      text-decoration: none;
+    }
+    
+    .pr-file-name a:hover { text-decoration: underline; }
+    
+    .pr-file-stats {
+      display: flex;
+      gap: 4px;
+      font-size: 10px;
+      flex-shrink: 0;
+    }
+    
+    .pr-file-additions { color: #4f4; }
+    .pr-file-deletions { color: #f44; }
+    
+    /* PR Actions */
+    .pr-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    
+    .btn-merge {
+      background: #238636;
+      border-color: #238636;
+      color: #fff;
+    }
+    
+    .btn-merge:hover {
+      background: #2ea043;
+      border-color: #2ea043;
+    }
+    
+    .btn-merge:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .btn-changes {
+      border-color: #fa0;
+      color: #fa0;
+    }
+    
+    .btn-changes:hover {
+      background: #fa0;
+      color: var(--bg);
+    }
+    
+    /* Lightbox */
+    .lightbox-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.95);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 20px;
+    }
+    
+    .lightbox-content {
+      max-width: 95vw;
+      max-height: 95vh;
+      position: relative;
+    }
+    
+    .lightbox-content img {
+      max-width: 100%;
+      max-height: 90vh;
+      object-fit: contain;
+    }
+    
+    .lightbox-close {
+      position: absolute;
+      top: -40px;
+      right: 0;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--fg);
+      width: 32px;
+      height: 32px;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .lightbox-close:hover {
+      border-color: var(--fg);
+    }
+    
+    /* PR Loading State */
+    .pr-loading {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 24px;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .pr-error {
+      padding: 16px;
+      text-align: center;
+      color: var(--error);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border: 1px solid var(--error);
+      background: rgba(255, 68, 68, 0.1);
+    }
+    
+    /* Merge Status */
+    .merge-status {
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .merge-status.success {
+      background: rgba(79, 255, 79, 0.1);
+      border: 1px solid #4f4;
+      color: #4f4;
+    }
+    
+    .merge-status.error {
+      background: rgba(255, 68, 68, 0.1);
+      border: 1px solid var(--error);
+      color: var(--error);
+    }
+    
+    .merge-status.merging {
+      background: rgba(0, 170, 255, 0.1);
+      border: 1px solid var(--progress);
+      color: var(--progress);
+    }
+
     @media (max-width: 1000px) {
       .board { grid-template-columns: repeat(2, 1fr); }
       .sidebar { display: none; }
@@ -1607,6 +1968,124 @@
               <div class="panel-context" x-text="selectedTask.context"></div>
             </div>
             
+            <!-- PR Review Section (only for review status) -->
+            <div class="panel-section" x-show="selectedTask.status === 'review'" style="padding: 0;">
+              <!-- Loading State -->
+              <div class="pr-loading" x-show="prLoading">
+                <span class="spinner" x-text="spinnerFrame"></span>
+                <span>Loading PR details...</span>
+              </div>
+              
+              <!-- Error State -->
+              <div class="pr-error" x-show="prError && !prLoading" x-text="prError" style="margin: 16px;"></div>
+              
+              <!-- PR Details -->
+              <div x-show="prDetails && !prLoading" style="padding: 16px;">
+                <!-- Merge Status -->
+                <div class="merge-status" :class="mergeStatus?.type" x-show="mergeStatus" x-text="mergeStatus?.message"></div>
+                
+                <!-- PR Header -->
+                <div class="pr-review-section">
+                  <div class="pr-header">
+                    <div class="pr-icon">⎇</div>
+                    <div class="pr-title-section">
+                      <div class="pr-title">
+                        <a :href="prDetails.url" target="_blank" x-text="prDetails.title"></a>
+                      </div>
+                      <div class="pr-number">
+                        #<span x-text="prDetails.number"></span> • 
+                        <span x-text="prDetails.headRef"></span> → <span x-text="prDetails.baseRef"></span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Stats -->
+                  <div class="pr-stats">
+                    <div class="pr-stat">
+                      <span class="pr-stat-value files" x-text="prDetails.changedFiles"></span>
+                      <span class="pr-stat-label">Files</span>
+                    </div>
+                    <div class="pr-stat">
+                      <span class="pr-stat-value additions" x-text="'+' + prDetails.additions"></span>
+                      <span class="pr-stat-label">Added</span>
+                    </div>
+                    <div class="pr-stat">
+                      <span class="pr-stat-value deletions" x-text="'-' + prDetails.deletions"></span>
+                      <span class="pr-stat-label">Removed</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Screenshots (Prominent!) -->
+                <div class="pr-screenshots" x-show="prDetails.screenshots && prDetails.screenshots.length > 0">
+                  <div class="pr-screenshots-title">📸 Screenshots</div>
+                  <div class="pr-screenshot-grid">
+                    <template x-for="(screenshot, idx) in prDetails.screenshots" :key="idx">
+                      <div class="pr-screenshot" @click="openLightbox(screenshot.url)">
+                        <img :src="screenshot.url" :alt="screenshot.alt" loading="lazy">
+                        <div class="pr-screenshot-caption" x-text="screenshot.alt || 'Screenshot ' + (idx + 1)"></div>
+                      </div>
+                    </template>
+                  </div>
+                </div>
+                
+                <!-- PR Description -->
+                <div x-show="prDetails.bodyHtml && prDetails.bodyHtml.trim()">
+                  <div class="pr-screenshots-title" style="margin-bottom: 8px;">📝 Description</div>
+                  <div class="pr-description" x-html="prDetails.bodyHtml"></div>
+                </div>
+                
+                <!-- Files Changed -->
+                <div class="pr-files" x-show="prDetails.files && prDetails.files.length > 0">
+                  <div class="pr-files-header">
+                    <span class="pr-files-title">📁 Files Changed (<span x-text="prDetails.files.length"></span>)</span>
+                    <span class="pr-files-toggle" @click="prFilesExpanded = !prFilesExpanded">
+                      <span x-text="prFilesExpanded ? '▼ Collapse' : '▶ Expand'"></span>
+                    </span>
+                  </div>
+                  <div class="pr-file-list" x-show="prFilesExpanded">
+                    <template x-for="file in prDetails.files" :key="file.name">
+                      <div class="pr-file">
+                        <span class="pr-file-status" :class="file.status" x-text="getFileStatusIcon(file.status)"></span>
+                        <span class="pr-file-name">
+                          <a :href="file.url" target="_blank" x-text="file.name"></a>
+                        </span>
+                        <span class="pr-file-stats">
+                          <span class="pr-file-additions" x-show="file.additions > 0" x-text="'+' + file.additions"></span>
+                          <span class="pr-file-deletions" x-show="file.deletions > 0" x-text="'-' + file.deletions"></span>
+                        </span>
+                      </div>
+                    </template>
+                  </div>
+                </div>
+                
+                <!-- PR Actions -->
+                <div class="pr-actions">
+                  <button class="btn btn-merge" 
+                    @click="approveMergePr()" 
+                    :disabled="merging || prDetails.merged || prDetails.state === 'closed'">
+                    <span x-show="!merging && !prDetails.merged">✓ Approve & Merge</span>
+                    <span x-show="merging">Merging...</span>
+                    <span x-show="prDetails.merged">Already Merged</span>
+                  </button>
+                  <button class="btn btn-changes" @click="requestPrChanges()">
+                    ✎ Request Changes
+                  </button>
+                  <a class="btn" :href="prDetails.url" target="_blank" style="text-decoration: none;">
+                    View on GitHub →
+                  </a>
+                </div>
+              </div>
+              
+              <!-- No PR Found State -->
+              <div class="panel-github-empty" x-show="!prDetails && !prLoading && !prError" style="padding: 24px;">
+                No PR found for this task.<br>
+                <a :href="selectedTask.prUrl" target="_blank" x-show="selectedTask.prUrl" style="color: var(--progress); margin-top: 8px; display: inline-block;">
+                  Open PR URL →
+                </a>
+              </div>
+            </div>
+            
             <!-- Progress Section -->
             <div class="panel-section" x-show="selectedTask.status === 'in-progress' || selectedTask.currentStep || (selectedTask.steps && selectedTask.steps.length > 0)">
               <div class="panel-section-title">Progress</div>
@@ -1639,8 +2118,8 @@
               </div>
             </div>
             
-            <!-- GitHub Section -->
-            <div class="panel-section" x-show="selectedTask.repo">
+            <!-- GitHub Section (hide for review state since PR details are shown) -->
+            <div class="panel-section" x-show="selectedTask.repo && selectedTask.status !== 'review'">
               <div class="panel-section-title">🐙 GitHub</div>
               
               <div class="panel-github-loading" x-show="taskGitHubLoading">
@@ -1705,9 +2184,17 @@
             </div>
           </div>
           
-          <!-- Panel Actions -->
-          <div class="panel-actions" x-show="selectedTask.status === 'review'">
+          <!-- Panel Actions (for review without PR details, or backlog/done) -->
+          <div class="panel-actions" x-show="selectedTask.status === 'review' && !prDetails && !prLoading">
             <button class="btn btn-primary" @click="moveTask(selectedTask.id, 'done'); closePanel()">Mark Done</button>
+            <a class="btn" :href="selectedTask.prUrl" target="_blank" x-show="selectedTask.prUrl" style="text-decoration: none;">
+              View PR →
+            </a>
+          </div>
+          
+          <!-- Panel Actions for Done status -->
+          <div class="panel-actions" x-show="selectedTask.status === 'done'">
+            <button class="btn" @click="moveTask(selectedTask.id, 'backlog'); closePanel()">Move to Backlog</button>
           </div>
         </div>
       </template>
@@ -1767,6 +2254,14 @@
       </div>
     </div>
   </div>
+  
+  <!-- Screenshot Lightbox -->
+  <div class="lightbox-overlay" x-show="lightboxImage" x-cloak @click.self="closeLightbox()" @keydown.escape.window="closeLightbox()">
+    <div class="lightbox-content">
+      <button class="lightbox-close" @click="closeLightbox()">×</button>
+      <img :src="lightboxImage" alt="Screenshot">
+    </div>
+  </div>
 
   <script>
     function dexterDashboard() {
@@ -1812,6 +2307,15 @@
         selectedTask: null,
         taskGitHubData: { branch: null, commits: [], prs: [], issues: [] },
         taskGitHubLoading: false,
+        
+        // PR Review Data
+        prDetails: null,
+        prLoading: false,
+        prError: null,
+        prFilesExpanded: true,
+        lightboxImage: null,
+        mergeStatus: null,
+        merging: false,
         
         // Config from config.js
         config: window.DEXTER_CONFIG || {},
@@ -2007,9 +2511,17 @@
           // Update the selected task with fresh data
           this.selectedTask = { ...task };
           this.taskGitHubData = { branch: null, commits: [], prs: [], issues: [] };
+          this.prDetails = null;
+          this.prError = null;
+          this.mergeStatus = null;
+          
+          // Fetch PR details if task is in review
+          if (task.status === 'review' && (task.prUrl || task.repo)) {
+            this.fetchPrDetails(task);
+          }
           
           // Fetch GitHub data if task has a repo
-          if (task.repo) {
+          if (task.repo && task.status !== 'review') {
             this.fetchTaskGitHub(task);
           }
         },
@@ -2017,6 +2529,10 @@
         closePanel() {
           this.selectedTask = null;
           this.taskGitHubData = { branch: null, commits: [], prs: [], issues: [] };
+          this.prDetails = null;
+          this.prError = null;
+          this.mergeStatus = null;
+          this.lightboxImage = null;
         },
         
         handleOutsideClick(event) {
@@ -2182,6 +2698,249 @@
             console.error('Error fetching task GitHub data:', e);
           } finally {
             this.taskGitHubLoading = false;
+          }
+        },
+        
+        // ============================================
+        // PR Review Functions
+        // ============================================
+        
+        parsePrUrl(prUrl) {
+          if (!prUrl) return null;
+          // Parse URLs like: https://github.com/owner/repo/pull/123
+          const match = prUrl.match(/github\.com\/([^\/]+)\/([^\/]+)\/pull\/(\d+)/);
+          if (match) {
+            return { owner: match[1], repo: match[2], number: parseInt(match[3]) };
+          }
+          return null;
+        },
+        
+        async fetchPrDetails(task) {
+          this.prDetails = null;
+          this.prError = null;
+          this.mergeStatus = null;
+          
+          // First try to use prUrl, then search for PRs
+          let prInfo = this.parsePrUrl(task.prUrl);
+          
+          if (!prInfo && task.repo) {
+            // Search for PR by task ID in the repo
+            this.prLoading = true;
+            try {
+              const res = await fetch(`https://api.github.com/repos/${task.repo}/pulls?state=open&per_page=30`);
+              if (res.ok) {
+                const prs = await res.json();
+                const matchingPr = prs.find(pr => {
+                  const body = (pr.body || '').toLowerCase();
+                  const title = pr.title.toLowerCase();
+                  const branch = (pr.head?.ref || '').toLowerCase();
+                  return body.includes(task.id) || 
+                         branch.includes(task.id.slice(0, 8)) ||
+                         title.includes(task.id.slice(0, 8));
+                });
+                if (matchingPr) {
+                  prInfo = { owner: task.repo.split('/')[0], repo: task.repo.split('/')[1], number: matchingPr.number };
+                }
+              }
+            } catch (e) {
+              console.log('Could not search for PR:', e);
+            }
+          }
+          
+          if (!prInfo) {
+            this.prLoading = false;
+            return;
+          }
+          
+          this.prLoading = true;
+          
+          try {
+            // Fetch PR details
+            const prRes = await fetch(`https://api.github.com/repos/${prInfo.owner}/${prInfo.repo}/pulls/${prInfo.number}`);
+            if (!prRes.ok) throw new Error('Failed to fetch PR');
+            const pr = await prRes.json();
+            
+            // Fetch files changed
+            const filesRes = await fetch(`https://api.github.com/repos/${prInfo.owner}/${prInfo.repo}/pulls/${prInfo.number}/files?per_page=100`);
+            const files = filesRes.ok ? await filesRes.json() : [];
+            
+            // Parse screenshots from PR body
+            const screenshots = this.parseScreenshots(pr.body || '');
+            
+            // Parse description (remove images for markdown rendering)
+            const descriptionWithoutImages = (pr.body || '')
+              .replace(/!\[([^\]]*)\]\([^\)]+\)/g, '') // Remove markdown images
+              .replace(/<img[^>]*>/gi, '') // Remove HTML images
+              .trim();
+            
+            this.prDetails = {
+              number: pr.number,
+              title: pr.title,
+              url: pr.html_url,
+              body: pr.body || '',
+              bodyHtml: marked.parse(descriptionWithoutImages),
+              state: pr.state,
+              merged: pr.merged,
+              mergeable: pr.mergeable,
+              mergeableState: pr.mergeable_state,
+              additions: pr.additions,
+              deletions: pr.deletions,
+              changedFiles: pr.changed_files,
+              author: pr.user?.login,
+              authorAvatar: pr.user?.avatar_url,
+              createdAt: pr.created_at,
+              updatedAt: pr.updated_at,
+              headRef: pr.head?.ref,
+              baseRef: pr.base?.ref,
+              screenshots: screenshots,
+              files: files.map(f => ({
+                name: f.filename,
+                status: f.status,
+                additions: f.additions,
+                deletions: f.deletions,
+                url: f.blob_url,
+                diffUrl: `${pr.html_url}/files#diff-${this.hashString(f.filename)}`
+              })),
+              owner: prInfo.owner,
+              repo: prInfo.repo
+            };
+            
+            if (this.config.debug) console.log('Fetched PR details:', this.prDetails);
+          } catch (e) {
+            console.error('Error fetching PR details:', e);
+            this.prError = 'Failed to load PR details';
+          } finally {
+            this.prLoading = false;
+          }
+        },
+        
+        parseScreenshots(body) {
+          const screenshots = [];
+          
+          // Match markdown images: ![alt](url)
+          const mdRegex = /!\[([^\]]*)\]\(([^\)]+)\)/g;
+          let match;
+          while ((match = mdRegex.exec(body)) !== null) {
+            const url = match[2];
+            // Filter for image URLs (common patterns)
+            if (url.match(/\.(png|jpg|jpeg|gif|webp)($|\?)/i) || 
+                url.includes('user-images.githubusercontent.com') ||
+                url.includes('githubusercontent.com') ||
+                url.includes('imgur.com')) {
+              screenshots.push({
+                alt: match[1] || 'Screenshot',
+                url: url
+              });
+            }
+          }
+          
+          // Match HTML images: <img src="...">
+          const htmlRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi;
+          while ((match = htmlRegex.exec(body)) !== null) {
+            const url = match[1];
+            if (!screenshots.find(s => s.url === url)) {
+              screenshots.push({
+                alt: 'Screenshot',
+                url: url
+              });
+            }
+          }
+          
+          return screenshots;
+        },
+        
+        hashString(str) {
+          // Simple hash for GitHub diff anchors
+          let hash = 0;
+          for (let i = 0; i < str.length; i++) {
+            const char = str.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash;
+          }
+          return Math.abs(hash).toString(16);
+        },
+        
+        openLightbox(imageUrl) {
+          this.lightboxImage = imageUrl;
+        },
+        
+        closeLightbox() {
+          this.lightboxImage = null;
+        },
+        
+        async approveMergePr() {
+          if (!this.prDetails || this.merging) return;
+          
+          // Check if we have an API key for write operations
+          if (!this.config.apiKey) {
+            // Fallback: open GitHub for manual merge
+            window.open(`${this.prDetails.url}/merge`, '_blank');
+            return;
+          }
+          
+          this.merging = true;
+          this.mergeStatus = { type: 'merging', message: 'Merging PR...' };
+          
+          try {
+            // Use a GitHub token if available (would need to be added to config)
+            const githubToken = this.config.githubToken;
+            if (!githubToken) {
+              // No token, redirect to GitHub
+              window.open(this.prDetails.url, '_blank');
+              this.mergeStatus = { type: 'info', message: 'Opened GitHub for manual merge' };
+              return;
+            }
+            
+            const res = await fetch(
+              `https://api.github.com/repos/${this.prDetails.owner}/${this.prDetails.repo}/pulls/${this.prDetails.number}/merge`,
+              {
+                method: 'PUT',
+                headers: {
+                  'Authorization': `token ${githubToken}`,
+                  'Accept': 'application/vnd.github.v3+json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  merge_method: 'squash'
+                })
+              }
+            );
+            
+            if (res.ok) {
+              this.mergeStatus = { type: 'success', message: 'PR merged successfully!' };
+              
+              // Move task to done
+              if (this.selectedTask) {
+                await this.moveTask(this.selectedTask.id, 'done');
+              }
+              
+              // Refresh PR details
+              setTimeout(() => this.fetchPrDetails(this.selectedTask), 1000);
+            } else {
+              const error = await res.json();
+              throw new Error(error.message || 'Merge failed');
+            }
+          } catch (e) {
+            console.error('Merge error:', e);
+            this.mergeStatus = { type: 'error', message: e.message || 'Failed to merge' };
+          } finally {
+            this.merging = false;
+          }
+        },
+        
+        requestPrChanges() {
+          if (this.prDetails) {
+            window.open(this.prDetails.url, '_blank');
+          }
+        },
+        
+        getFileStatusIcon(status) {
+          switch(status) {
+            case 'added': return '+';
+            case 'removed': return '−';
+            case 'modified': return '●';
+            case 'renamed': return '→';
+            default: return '○';
           }
         },
         
