@@ -935,16 +935,21 @@
       <div class="sections">
         <div class="section">
           <div class="section-header">
-            <span class="section-title">📜 Action Log</span>
-            <span class="section-action" @click="actionLog = []; saveActionLog()">Clear</span>
+            <span class="section-title" @click="toggleActionLog()" style="cursor: pointer;">
+              <span x-text="actionLogCollapsed ? '▶' : '▼'" style="display: inline-block; width: 14px;"></span>
+              📜 Action Log
+            </span>
+            <span class="section-action" x-show="!actionLogCollapsed" @click="actionLog = []; saveActionLog()">Clear</span>
           </div>
-          <template x-for="(entry, i) in actionLog.slice().reverse().slice(0, 15)" :key="i">
-            <div class="log-entry">
-              <span class="log-time" x-text="formatLogTime(entry.timestamp)"></span>
-              <span class="log-msg" x-text="entry.message"></span>
-            </div>
-          </template>
-          <div class="empty" x-show="actionLog.length === 0">No actions logged</div>
+          <div x-show="!actionLogCollapsed">
+            <template x-for="(entry, i) in actionLog.slice().reverse().slice(0, 15)" :key="i">
+              <div class="log-entry">
+                <span class="log-time" x-text="formatLogTime(entry.timestamp)"></span>
+                <span class="log-msg" x-text="entry.message"></span>
+              </div>
+            </template>
+            <div class="empty" x-show="actionLog.length === 0">No actions logged</div>
+          </div>
         </div>
         
       </div>
@@ -1109,6 +1114,7 @@
         importDataText: '',
         apiError: null,
         apiConnected: false,
+        actionLogCollapsed: false,
         now: Date.now(),
         spinnerFrame: '⠋',
         spinnerFrames: ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'],
@@ -1129,6 +1135,7 @@
           this.tasks = JSON.parse(localStorage.getItem('dexter-tasks') || '[]');
           this.notes = JSON.parse(localStorage.getItem('dexter-notes') || '[]');
           this.actionLog = JSON.parse(localStorage.getItem('dexter-action-log') || '[]');
+          this.actionLogCollapsed = localStorage.getItem('dexter-action-log-collapsed') === 'true';
           
           // Init kanban
           this.$nextTick(() => this.initKanban());
@@ -1702,6 +1709,10 @@
         save() { localStorage.setItem('dexter-tasks', JSON.stringify(this.tasks)); },
         saveNotes() { localStorage.setItem('dexter-notes', JSON.stringify(this.notes)); },
         saveActionLog() { localStorage.setItem('dexter-action-log', JSON.stringify(this.actionLog)); },
+        toggleActionLog() { 
+          this.actionLogCollapsed = !this.actionLogCollapsed; 
+          localStorage.setItem('dexter-action-log-collapsed', this.actionLogCollapsed); 
+        },
         
         // Export/Import
         exportData() {
