@@ -51,9 +51,9 @@ def parse_natural_command(text: str) -> dict:
         result["repo"] = repo_match.group(1)
     
     # Extract context
-    context_match = re.search(r'Context:\s*(.+?)(?:\n|Task ID:|$)', text, re.IGNORECASE)
+    context_match = re.search(r'\(context:\s*([^)]+)\)', text, re.IGNORECASE)
     if not context_match:
-        context_match = re.search(r'\(context:\s*([^)]+)\)', text, re.IGNORECASE)
+        context_match = re.search(r'Context:\s*(.+?)(?:\n|Task ID:|$)', text, re.IGNORECASE)
     if context_match:
         result["context"] = context_match.group(1).strip()
     

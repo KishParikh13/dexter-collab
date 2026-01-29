@@ -4,6 +4,85 @@ A Klaus-style task collaboration dashboard for working with your AI assistant.
 
 **Live Demo:** https://kishparikh13.github.io/dexter-collab/
 
+## Agent Orchestration
+
+This dashboard integrates with Codex agents to automate task execution. When you start a task from the dashboard, Dexter:
+
+1. Creates a working branch
+2. Spawns a Codex agent to work on the task
+3. Updates `progress.json` with live progress (visible in dashboard)
+4. Commits and pushes changes
+5. Creates a PR for review
+6. Sends a Telegram notification when complete
+
+### Quick Start
+
+```bash
+# From Telegram, send a task command:
+Start task: "Fix the login bug"
+Repo: KishParikh13/my-app
+Task ID: task-123
+
+# Or use the CLI directly:
+./scripts/run-task.sh "Add dark mode" --repo KishParikh13/my-app --context "Use CSS variables"
+```
+
+### CLI Usage
+
+**run-task.sh** - Main entry point:
+```bash
+./scripts/run-task.sh "Task Title" [options]
+
+Options:
+  --repo owner/repo    Target GitHub repository
+  --context "..."      Additional context for the agent
+  --task-id ID         Custom task ID (auto-generated if omitted)
+```
+
+**dexter-task** - Moltbot integration (parses natural language):
+```bash
+# Natural language format (from Telegram):
+./scripts/dexter-task 'Start task: "Fix bug" Repo: owner/repo'
+
+# CLI format:
+./scripts/dexter-task "Add feature" --repo owner/repo --context "details"
+```
+
+### Progress Tracking
+
+The dashboard polls `progress.json` every 15 seconds. Structure:
+
+```json
+{
+  "tasks": {
+    "task-123": {
+      "status": "in-progress",
+      "currentStep": "Codex working",
+      "steps": [
+        {"name": "Clone repository", "status": "done"},
+        {"name": "Create branch", "status": "done"},
+        {"name": "Codex working", "status": "in-progress", "detail": "Analyzing..."}
+      ],
+      "prUrl": null
+    }
+  },
+  "agents": {
+    "codex-1234567890": {
+      "status": "working",
+      "taskIds": ["task-123"]
+    }
+  }
+}
+```
+
+### Testing
+
+```bash
+./scripts/test-orchestrator.sh
+```
+
+---
+
 ## Features
 
 ### 🎭 Agent Status

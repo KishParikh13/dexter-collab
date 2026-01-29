@@ -67,15 +67,48 @@ echo "---------------------------------"
 
 python3 << 'EOF'
 import sys
-sys.path.insert(0, 'scripts')
+import re
 
-# Import directly since dexter-task is not a .py file
-import importlib.util
-spec = importlib.util.spec_from_file_location("dexter_task", "scripts/dexter-task")
-module = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(module)
+# Define the parse function inline (copy from dexter-task)
+def parse_natural_command(text: str) -> dict:
+    result = {
+        "title": None,
+        "repo": None,
+        "context": None,
+        "task_id": None,
+    }
+    
+    # Extract task ID
+    id_match = re.search(r'Task ID:\s*([^\s\n]+)', text, re.IGNORECASE)
+    if id_match:
+        result["task_id"] = id_match.group(1)
+    
+    # Extract repo
+    repo_match = re.search(r'Repo:\s*([^\s\n]+)', text, re.IGNORECASE)
+    if not repo_match:
+        repo_match = re.search(r'in\s+([A-Za-z0-9_-]+/[A-Za-z0-9_.-]+)', text)
+    if repo_match:
+        result["repo"] = repo_match.group(1)
+    
+    # Extract context
+    context_match = re.search(r'\(context:\s*([^)]+)\)', text, re.IGNORECASE)
+    if not context_match:
+        context_match = re.search(r'Context:\s*(.+?)(?:\n|Task ID:|$)', text, re.IGNORECASE)
+    if context_match:
+        result["context"] = context_match.group(1).strip()
+    
+    # Extract title (quoted string or after "Start task:")
+    title_match = re.search(r'["\']([^"\']+)["\']', text)
+    if not title_match:
+        title_match = re.search(r'Start task:\s*["\']?([^"\'\n]+)', text, re.IGNORECASE)
+    if not title_match:
+        title_match = re.search(r'Task:\s*["\']?([^"\'\n(]+)', text, re.IGNORECASE)
+    if title_match:
+        result["title"] = title_match.group(1).strip()
+    
+    return result
 
-parse = module.parse_natural_command
+parse = parse_natural_command
 
 tests = [
     ('Start task: "Fix the login bug"\nRepo: KishParikh13/app\nTask ID: task-123',

@@ -253,23 +253,24 @@ Be thorough but focused. Complete the task efficiently."""
     git_commit_and_push(f"[{task_id}] Starting: Create PR")
     
     try:
-        pr_result = subprocess.run(
-            [
-                "gh", "pr", "create",
-                "--title", f"[Dexter] {title}",
-                "--body", f"""## Task: {title}
+        # Build PR body
+        context_section = f"### Context\n{context}\n\n" if context else ""
+        pr_body = f"""## Task: {title}
 
 **Task ID:** `{task_id}`
 **Branch:** `{branch_name}`
 
-{f'### Context\n{context}' if context else ''}
-
-### Changes
+{context_section}### Changes
 This PR was created by Dexter to complete the above task.
 
 ---
 🤖 *Automated by [Dexter Dashboard](https://kishparikh13.github.io/dexter-collab/)*
-""",
+"""
+        pr_result = subprocess.run(
+            [
+                "gh", "pr", "create",
+                "--title", f"[Dexter] {title}",
+                "--body", pr_body,
                 "--base", "main",
             ],
             capture_output=True,
