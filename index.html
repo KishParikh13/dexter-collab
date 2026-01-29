@@ -39,7 +39,7 @@
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
     </style>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-200">
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-200" @keydown.window="handleKeyboard($event)">
     <div class="container mx-auto px-4 py-8 max-w-6xl">
         <!-- Header -->
         <header class="flex items-center justify-between mb-8">
@@ -127,6 +127,14 @@ Fix the bug in search"></textarea>
                             class="px-4 py-2 bg-primary hover:bg-indigo-600 text-white rounded-lg font-medium transition-colors">
                             Add Tasks
                         </button>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+                        <div class="flex gap-2 text-xs">
+                            <button @click="if(confirm('Mark all as done?')) tasks.forEach(t => t.status = 'done'); save()" class="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded hover:bg-green-200 dark:hover:bg-green-900/50">✅ All Done</button>
+                            <button @click="if(confirm('Clear all completed tasks?')) { tasks = tasks.filter(t => t.status !== 'done'); save(); }" class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded hover:bg-gray-200 dark:hover:bg-gray-600">🗑️ Clear Done</button>
+                        </div>
                     </div>
                 </div>
 
@@ -251,7 +259,7 @@ Or JSON UI:
 
         <!-- Footer -->
         <footer class="mt-12 text-center text-sm text-gray-500 dark:text-gray-400">
-            <p>Built by Dexter 🥸 • <span x-text="new Date().getFullYear()"></span></p>
+            <p>Built by Dexter 🥸 • <span x-text="new Date().getFullYear()"></span> • <button @click="showHelp = true" class="underline hover:text-gray-700 dark:hover:text-gray-300">Press ? for help</button></p>
         </footer>
     </div>
 
@@ -275,6 +283,26 @@ Or JSON UI:
                 <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Human Readable (for Dexter)</label>
                     <textarea readonly :value="generateSyncText()" class="w-full h-40 p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white font-mono text-xs"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div x-show="showHelp" x-cloak class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="showHelp = false">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">⌨️ Keyboard Shortcuts</h3>
+                <button @click="showHelp = false" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">✕</button>
+            </div>
+            <div class="p-4">
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between"><span class="text-gray-600 dark:text-gray-400">Show help</span><kbd class="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs">?</kbd></div>
+                    <div class="flex justify-between"><span class="text-gray-600 dark:text-gray-400">Toggle dark mode</span><kbd class="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs">d</kbd></div>
+                    <div class="flex justify-between"><span class="text-gray-600 dark:text-gray-400">Export</span><kbd class="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs">e</kbd></div>
+                    <div class="flex justify-between"><span class="text-gray-600 dark:text-gray-400">Import</span><kbd class="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs">i</kbd></div>
+                    <div class="flex justify-between"><span class="text-gray-600 dark:text-gray-400">Close modal/deselect</span><kbd class="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs">Esc</kbd></div>
+                    <div class="flex justify-between"><span class="text-gray-600 dark:text-gray-400">Add tasks (in textarea)</span><kbd class="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs">Ctrl+Enter</kbd></div>
                 </div>
             </div>
         </div>
@@ -361,6 +389,37 @@ Or JSON UI:
                     const data = { version: 1, tasks: this.tasks };
                     const encoded = btoa(encodeURIComponent(JSON.stringify(data)));
                     return window.location.origin + window.location.pathname + '#data=' + encoded;
+                },
+                
+                showHelp: false,
+                
+                handleKeyboard(e) {
+                    // Don't trigger if typing in an input
+                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+                    
+                    // ? = show help
+                    if (e.key === '?') {
+                        this.showHelp = !this.showHelp;
+                    }
+                    // d = toggle dark mode
+                    if (e.key === 'd') {
+                        this.darkMode = !this.darkMode;
+                    }
+                    // e = export
+                    if (e.key === 'e') {
+                        this.showExport = true;
+                    }
+                    // i = import
+                    if (e.key === 'i') {
+                        this.showImport = true;
+                    }
+                    // Escape = close modals
+                    if (e.key === 'Escape') {
+                        this.showExport = false;
+                        this.showImport = false;
+                        this.showHelp = false;
+                        this.selectedTask = null;
+                    }
                 },
 
                 initSortable() {
