@@ -9,7 +9,7 @@
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
+    
     :root {
       --bg: #000;
       --fg: #fff;
@@ -17,8 +17,9 @@
       --muted: #666;
       --hover-bg: #111;
       --error: #f44;
+      --progress: #0af;
     }
-
+    
     body {
       font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
       background: var(--bg);
@@ -26,17 +27,16 @@
       font-size: 13px;
       min-height: 100vh;
     }
-
+    
     [x-cloak] { display: none !important; }
-
+    
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: var(--bg); }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
-
+    
     /* Layout */
     .layout { display: flex; min-height: 100vh; }
-
+    
     /* Sidebar */
     .sidebar {
       width: 200px;
@@ -45,13 +45,13 @@
       flex-direction: column;
       flex-shrink: 0;
     }
-
+    
     .avatar-section {
       padding: 24px;
       text-align: center;
       border-bottom: 1px solid var(--border);
     }
-
+    
     .avatar {
       width: 80px;
       height: 80px;
@@ -63,7 +63,7 @@
       font-size: 40px;
       position: relative;
     }
-
+    
     .status-dot {
       position: absolute;
       bottom: -4px;
@@ -72,33 +72,110 @@
       height: 16px;
       border: 3px solid var(--bg);
     }
-
+    
     .status-online { background: #4f4; }
     .status-working { background: #ff0; }
     .status-waiting { background: #0af; }
     .status-idle { background: var(--muted); }
-
-    .avatar-name {
-      font-size: 14px;
-      font-weight: 500;
-      margin-bottom: 4px;
+    
+    .avatar-name { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+    .avatar-status { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); }
+    
+    /* Main */
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    
+    /* Nav */
+    nav {
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-shrink: 0;
     }
-
-    .avatar-status {
+    
+    nav h1 { font-size: 14px; font-weight: 500; letter-spacing: -0.5px; }
+    .nav-meta { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    
+    .nav-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      border: 1px solid var(--border);
       font-size: 10px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      color: var(--muted);
     }
-
-    /* Inline Form */
+    
+    .nav-status-dot { width: 6px; height: 6px; }
+    .nav-actions { margin-left: auto; display: flex; gap: 8px; }
+    
+    .btn {
+      padding: 6px 12px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--fg);
+      cursor: pointer;
+      font-size: 11px;
+      font-family: inherit;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .btn:hover { border-color: var(--fg); }
+    .btn-primary { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+    .btn-primary:hover { background: var(--bg); color: var(--fg); }
+    .btn-danger { color: var(--error); border-color: var(--error); }
+    .btn-danger:hover { background: var(--error); color: var(--bg); }
+    
+    /* Board */
+    .board {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      flex: 1;
+      overflow: hidden;
+    }
+    
+    .column {
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    .column:last-child { border-right: none; }
+    
+    .column-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    
+    .column-header h2 { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; }
+    .column-count { font-size: 11px; color: var(--muted); }
+    
+    .column-body {
+      flex: 1;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      overflow-y: auto;
+    }
+    
+    /* Inline Add Form */
     .inline-form {
       border: 1px solid var(--fg);
       padding: 12px;
       margin: 8px;
       background: var(--bg);
+      flex-shrink: 0;
     }
-
+    
     .inline-form textarea {
       width: 100%;
       padding: 8px;
@@ -111,126 +188,12 @@
       min-height: 80px;
       margin-bottom: 8px;
     }
-
+    
     .inline-form textarea:focus { outline: none; border-color: var(--fg); }
     .inline-form textarea::placeholder { color: var(--muted); }
-
-    .inline-form-actions {
-      display: flex;
-      gap: 8px;
-      justify-content: flex-end;
-    }
-
-    /* Main */
-    .main { flex: 1; display: flex; flex-direction: column; }
-
-    /* Nav */
-    nav {
-      padding: 12px 20px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-
-    nav h1 {
-      font-size: 14px;
-      font-weight: 500;
-      letter-spacing: -0.5px;
-    }
-
-    .nav-meta {
-      font-size: 10px;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .nav-status {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 8px;
-      border: 1px solid var(--border);
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .nav-status-dot {
-      width: 6px;
-      height: 6px;
-    }
-
-    .nav-actions {
-      margin-left: auto;
-      display: flex;
-      gap: 8px;
-    }
-
-    .btn {
-      padding: 6px 12px;
-      border: 1px solid var(--border);
-      background: var(--bg);
-      color: var(--fg);
-      cursor: pointer;
-      font-size: 11px;
-      font-family: inherit;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .btn:hover { border-color: var(--fg); }
-    .btn-primary { background: var(--fg); color: var(--bg); border-color: var(--fg); }
-    .btn-primary:hover { background: var(--bg); color: var(--fg); }
-    .btn-danger { color: var(--error); border-color: var(--error); }
-    .btn-danger:hover { background: var(--error); color: var(--bg); }
-
-    /* Board */
-    .board {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      flex: 1;
-    }
-
-    .column {
-      border-right: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-    }
-
-    .column:last-child { border-right: none; }
-
-    .column-header {
-      padding: 12px 16px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .column-header h2 {
-      font-size: 11px;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .column-count {
-      font-size: 11px;
-      color: var(--muted);
-    }
-
-    .column-body {
-      flex: 1;
-      padding: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
-      overflow-y: auto;
-      max-height: calc(100vh - 200px);
-    }
-
+    .inline-form-actions { display: flex; gap: 8px; justify-content: flex-end; }
+    
+    /* Task Card */
     .task {
       border: 1px solid var(--border);
       padding: 12px;
@@ -238,15 +201,77 @@
       transition: border-color 0.1s;
       background: var(--bg);
     }
-
+    
     .task:hover { border-color: var(--fg); }
     .task:active { cursor: grabbing; }
     .task.dragging { opacity: 0.3; }
-
-    .task-title { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
-    .task-live { font-size: 11px; color: #ff0; margin-top: 4px; }
+    .task.expanded { border-color: var(--fg); }
+    
+    .task-header { display: flex; align-items: flex-start; gap: 8px; }
+    .task-title { font-size: 13px; font-weight: 500; flex: 1; }
     .task-meta { font-size: 10px; color: var(--muted); margin-top: 8px; text-transform: uppercase; }
-
+    
+    /* Progress Indicator */
+    .task-progress {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+    
+    .task-progress-current {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--progress);
+    }
+    
+    .spinner {
+      width: 12px;
+      height: 12px;
+      border: 2px solid var(--border);
+      border-top-color: var(--progress);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin { to { transform: rotate(360deg); } }
+    
+    .task-progress-toggle {
+      font-size: 10px;
+      color: var(--muted);
+      cursor: pointer;
+      margin-top: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .task-progress-toggle:hover { color: var(--fg); }
+    
+    /* Steps List */
+    .task-steps {
+      margin-top: 8px;
+      border-top: 1px solid var(--border);
+      padding-top: 8px;
+    }
+    
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 6px 0;
+      font-size: 11px;
+    }
+    
+    .step-icon { width: 14px; text-align: center; flex-shrink: 0; }
+    .step-done .step-icon { color: #4f4; }
+    .step-in-progress .step-icon { color: var(--progress); }
+    .step-pending .step-icon { color: var(--muted); }
+    
+    .step-content { flex: 1; }
+    .step-name { font-weight: 500; }
+    .step-detail { color: var(--muted); margin-top: 2px; }
+    
     .column-add {
       padding: 8px 16px;
       font-size: 11px;
@@ -254,72 +279,40 @@
       cursor: pointer;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      flex-shrink: 0;
     }
-
+    
     .column-add:hover { color: var(--fg); background: var(--hover-bg); }
-
+    
     /* Sections */
     .sections {
       border-top: 1px solid var(--border);
       display: grid;
       grid-template-columns: 1fr 1fr;
+      flex-shrink: 0;
     }
-
+    
     .section {
       padding: 16px;
       border-right: 1px solid var(--border);
+      max-height: 250px;
+      overflow-y: auto;
     }
-
+    
     .section:last-child { border-right: none; }
-
+    
     .section-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 12px;
     }
-
-    .section-title {
-      font-size: 11px;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .section-action {
-      font-size: 10px;
-      color: var(--muted);
-      cursor: pointer;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
+    
+    .section-title { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; }
+    .section-action { font-size: 10px; color: var(--muted); cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; }
     .section-action:hover { color: var(--fg); }
-
-    /* Deliverables */
-    .deliverables-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-    }
-
-    .deliverable {
-      border: 1px solid var(--border);
-      padding: 12px;
-      cursor: pointer;
-    }
-
-    .deliverable:hover { border-color: var(--fg); }
-    .deliverable-icon { font-size: 18px; margin-bottom: 6px; }
-    .deliverable-name { font-size: 12px; font-weight: 500; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .deliverable-meta { font-size: 10px; color: var(--muted); text-transform: uppercase; }
-
-    /* Action Log */
-    .log-list {
-      max-height: 200px;
-      overflow-y: auto;
-    }
-
+    
+    /* Log */
     .log-entry {
       display: flex;
       gap: 12px;
@@ -327,28 +320,19 @@
       border-bottom: 1px solid var(--border);
       font-size: 12px;
     }
-
-    .log-time {
-      font-size: 10px;
-      color: #0af;
-      white-space: nowrap;
-      text-transform: uppercase;
-    }
-
+    
+    .log-time { font-size: 10px; color: var(--progress); white-space: nowrap; text-transform: uppercase; }
     .log-msg { color: var(--fg); }
-
+    
     /* Notes */
     .notes-section {
       border-top: 1px solid var(--border);
       padding: 16px;
+      flex-shrink: 0;
     }
-
-    .notes-input {
-      display: flex;
-      gap: 8px;
-      margin-top: 12px;
-    }
-
+    
+    .notes-input { display: flex; gap: 8px; margin-top: 12px; }
+    
     .notes-input input {
       flex: 1;
       padding: 8px 12px;
@@ -358,16 +342,12 @@
       font-family: inherit;
       font-size: 12px;
     }
-
+    
     .notes-input input:focus { outline: none; border-color: var(--fg); }
     .notes-input input::placeholder { color: var(--muted); }
-
-    .notes-list {
-      margin-top: 12px;
-      max-height: 150px;
-      overflow-y: auto;
-    }
-
+    
+    .notes-list { margin-top: 12px; max-height: 120px; overflow-y: auto; }
+    
     .note {
       display: flex;
       justify-content: space-between;
@@ -377,12 +357,12 @@
       margin-bottom: 4px;
       font-size: 12px;
     }
-
+    
     .note-text { flex: 1; }
     .note-meta { font-size: 10px; color: var(--muted); text-transform: uppercase; margin-left: 12px; white-space: nowrap; }
     .note-delete { color: var(--muted); cursor: pointer; margin-left: 8px; }
     .note-delete:hover { color: var(--error); }
-
+    
     /* Empty */
     .empty {
       text-align: center;
@@ -392,49 +372,53 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
-
-    /* Detail Panel (inline) */
-    .detail-panel {
-      border-top: 1px solid var(--fg);
-      background: var(--hover-bg);
-    }
-
-    .detail-header {
+    
+    /* Confirm Dialog */
+    .confirm-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.9);
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      padding: 12px 16px;
-      border-bottom: 1px solid var(--border);
+      justify-content: center;
+      z-index: 1000;
     }
-
-    .detail-header h3 {
-      font-size: 14px;
+    
+    .confirm-dialog {
+      background: var(--bg);
+      border: 1px solid var(--fg);
+      padding: 24px;
+      max-width: 400px;
+      width: 90%;
+    }
+    
+    .confirm-title {
+      font-size: 12px;
       font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
     }
-
-    .detail-body {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      padding: 16px;
+    
+    .confirm-body { font-size: 13px; margin-bottom: 8px; }
+    .confirm-task { color: var(--progress); font-weight: 500; }
+    .confirm-note { font-size: 11px; color: var(--muted); margin-top: 12px; }
+    
+    .confirm-field {
+      margin-top: 16px;
     }
-
-    .detail-row {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .detail-row label {
+    
+    .confirm-field label {
+      display: block;
       font-size: 10px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       color: var(--muted);
+      margin-bottom: 6px;
     }
-
-    .detail-row input,
-    .detail-row select,
-    .detail-row textarea {
+    
+    .confirm-field input {
+      width: 100%;
       padding: 8px;
       border: 1px solid var(--border);
       background: var(--bg);
@@ -442,20 +426,17 @@
       font-family: inherit;
       font-size: 12px;
     }
-
-    .detail-row input:focus,
-    .detail-row select:focus,
-    .detail-row textarea:focus {
-      outline: none;
-      border-color: var(--fg);
+    
+    .confirm-field input:focus { outline: none; border-color: var(--fg); }
+    
+    .confirm-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 20px;
     }
-
-    .detail-row textarea {
-      min-height: 60px;
-      resize: vertical;
-    }
-
-    /* Modal */
+    
+    /* Modal (for export/import only) */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -466,27 +447,27 @@
       z-index: 1000;
       padding: 20px;
     }
-
+    
     .modal {
       background: var(--bg);
       border: 1px solid var(--border);
       padding: 24px;
       width: 100%;
-      max-width: 480px;
-      max-height: 90vh;
+      max-width: 500px;
+      max-height: 80vh;
       overflow-y: auto;
     }
-
+    
     .modal-header {
       font-size: 12px;
       font-weight: 500;
       text-transform: uppercase;
       letter-spacing: 1px;
-      margin-bottom: 24px;
+      margin-bottom: 16px;
     }
-
+    
     .form-group { margin-bottom: 16px; }
-
+    
     .form-group label {
       display: block;
       font-size: 10px;
@@ -495,43 +476,33 @@
       color: var(--muted);
       margin-bottom: 6px;
     }
-
-    .form-group input,
-    .form-group textarea,
-    .form-group select {
+    
+    .form-group textarea {
       width: 100%;
-      padding: 10px 12px;
+      padding: 10px;
       border: 1px solid var(--border);
       background: var(--bg);
       color: var(--fg);
       font-family: inherit;
-      font-size: 13px;
+      font-size: 11px;
+      min-height: 150px;
+      resize: vertical;
     }
-
-    .form-group input:focus,
-    .form-group textarea:focus,
-    .form-group select:focus {
-      outline: none;
-      border-color: var(--fg);
-    }
-
-    .form-group textarea { min-height: 100px; resize: vertical; }
-
+    
+    .form-group textarea:focus { outline: none; border-color: var(--fg); }
+    
     .modal-actions {
       display: flex;
       gap: 8px;
       justify-content: flex-end;
-      margin-top: 24px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
+      margin-top: 16px;
     }
-
-    /* Responsive */
+    
     @media (max-width: 1000px) {
       .board { grid-template-columns: repeat(2, 1fr); }
       .sidebar { display: none; }
     }
-
+    
     @media (max-width: 600px) {
       .board { grid-template-columns: 1fr; }
       .sections { grid-template-columns: 1fr; }
@@ -550,9 +521,8 @@
         <div class="avatar-name">Dexter</div>
         <div class="avatar-status" x-text="statusMessage"></div>
       </div>
-
     </aside>
-
+    
     <!-- Main -->
     <main class="main">
       <nav>
@@ -565,10 +535,9 @@
         <div class="nav-actions">
           <button class="btn" @click="showExport = true">Export</button>
           <button class="btn" @click="showImport = true">Import</button>
-          <button class="btn" @click="showHelp = true">?</button>
         </div>
       </nav>
-
+      
       <!-- Kanban Board -->
       <div class="board">
         <!-- Backlog -->
@@ -577,9 +546,8 @@
             <h2>📋 Backlog</h2>
             <span class="column-count" x-text="tasks.filter(t => t.status === 'backlog').length"></span>
           </div>
-          <!-- Inline Add Form -->
           <div class="inline-form" x-show="showAddForm" x-cloak>
-            <textarea x-model="newTaskText" @keydown.ctrl.enter="addTasks(); showAddForm = false" @keydown.escape="showAddForm = false" placeholder="Add tasks (one per line)...&#10;&#10;Press Ctrl+Enter to add, Esc to cancel" x-ref="addInput"></textarea>
+            <textarea x-model="newTaskText" @keydown.ctrl.enter="addTasks(); showAddForm = false" @keydown.escape="showAddForm = false" placeholder="Add tasks (one per line)..." x-ref="addInput"></textarea>
             <div class="inline-form-actions">
               <button class="btn" @click="showAddForm = false">Cancel</button>
               <button class="btn btn-primary" @click="addTasks(); showAddForm = false">Add</button>
@@ -587,15 +555,17 @@
           </div>
           <div id="kanban-backlog" class="column-body">
             <template x-for="task in tasks.filter(t => t.status === 'backlog')" :key="task.id">
-              <div class="task" :data-id="task.id" @click="selectTask(task)">
-                <div class="task-title" x-text="task.title"></div>
+              <div class="task" :class="{'expanded': expandedTask === task.id}" :data-id="task.id" @click="toggleTask(task.id)">
+                <div class="task-header">
+                  <div class="task-title" x-text="task.title"></div>
+                </div>
                 <div class="task-meta" x-text="formatDate(task.createdAt)"></div>
               </div>
             </template>
           </div>
           <div class="column-add" @click="showAddForm = true; $nextTick(() => $refs.addInput.focus())">+ Add Task</div>
         </div>
-
+        
         <!-- In Progress -->
         <div class="column">
           <div class="column-header">
@@ -604,15 +574,62 @@
           </div>
           <div id="kanban-in-progress" class="column-body">
             <template x-for="task in tasks.filter(t => t.status === 'in-progress')" :key="task.id">
-              <div class="task" :data-id="task.id" @click="selectTask(task)">
-                <div class="task-title" x-text="task.title"></div>
-                <div class="task-live" x-show="task.liveStatus" x-text="task.liveStatus"></div>
-                <div class="task-meta" x-text="formatDate(task.updatedAt || task.createdAt)"></div>
+              <div class="task" :class="{'expanded': expandedTask === task.id}" :data-id="task.id" @click="toggleTask(task.id)">
+                <div class="task-header">
+                  <div class="task-title" x-text="task.title"></div>
+                </div>
+                <!-- Progress indicator -->
+                <div class="task-progress" x-show="getProgress(task.id)">
+                  <div class="task-progress-current">
+                    <div class="spinner"></div>
+                    <span x-text="getProgress(task.id)?.currentStep || 'Starting...'"></span>
+                  </div>
+                  <div class="task-progress-toggle" @click.stop="toggleTask(task.id)">
+                    <span x-text="expandedTask === task.id ? '▼ Hide steps' : '▶ Show steps'"></span>
+                  </div>
+                </div>
+                <!-- Expanded steps list -->
+                <div class="task-steps" x-show="expandedTask === task.id && getProgress(task.id)?.steps">
+                  <template x-for="step in getProgress(task.id)?.steps || []" :key="step.name">
+                    <div class="step" :class="'step-' + step.status">
+                      <div class="step-icon">
+                        <span x-show="step.status === 'done'">✓</span>
+                        <span x-show="step.status === 'in-progress'">●</span>
+                        <span x-show="step.status === 'pending'">○</span>
+                      </div>
+                      <div class="step-content">
+                        <div class="step-name" x-text="step.name"></div>
+                        <div class="step-detail" x-show="step.detail" x-text="step.detail"></div>
+                      </div>
+                    </div>
+                  </template>
+                </div>
+                <div class="task-meta" x-show="!getProgress(task.id)" x-text="'Started ' + formatDate(task.startedAt || task.createdAt)"></div>
               </div>
             </template>
           </div>
         </div>
-
+        
+        <!-- Review -->
+        <div class="column">
+          <div class="column-header">
+            <h2>👀 Review</h2>
+            <span class="column-count" x-text="tasks.filter(t => t.status === 'review').length"></span>
+          </div>
+          <div id="kanban-review" class="column-body">
+            <template x-for="task in tasks.filter(t => t.status === 'review')" :key="task.id">
+              <div class="task" :data-id="task.id" @click="toggleTask(task.id)">
+                <div class="task-header">
+                  <div class="task-title" x-text="task.title"></div>
+                </div>
+                <div class="task-meta">
+                  <span x-show="task.prUrl"><a :href="task.prUrl" target="_blank" style="color: var(--progress)">View PR →</a></span>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+        
         <!-- Done -->
         <div class="column">
           <div class="column-header">
@@ -621,105 +638,53 @@
           </div>
           <div id="kanban-done" class="column-body">
             <template x-for="task in tasks.filter(t => t.status === 'done')" :key="task.id">
-              <div class="task" :data-id="task.id" @click="selectTask(task)">
+              <div class="task" :data-id="task.id" style="opacity: 0.6">
                 <div class="task-title" x-text="task.title"></div>
                 <div class="task-meta" x-text="'Done ' + formatDate(task.completedAt)"></div>
               </div>
             </template>
           </div>
         </div>
-
-        <!-- Archived -->
-        <div class="column">
-          <div class="column-header">
-            <h2>📦 Archived</h2>
-            <span class="column-count" x-text="tasks.filter(t => t.status === 'archived').length"></span>
-          </div>
-          <div id="kanban-archived" class="column-body">
-            <template x-for="task in tasks.filter(t => t.status === 'archived')" :key="task.id">
-              <div class="task" :data-id="task.id" @click="selectTask(task)" style="opacity: 0.5">
-                <div class="task-title" x-text="task.title"></div>
-                <div class="task-meta" x-text="formatDate(task.archivedAt)"></div>
-              </div>
-            </template>
-          </div>
-        </div>
       </div>
-
-      <!-- Task Detail Panel (inline) -->
-      <div class="detail-panel" x-show="selectedTask" x-cloak>
-        <div class="detail-header">
-          <h3 x-text="selectedTask?.title"></h3>
-          <button class="btn" @click="selectedTask = null">× Close</button>
-        </div>
-        <div class="detail-body">
-          <div class="detail-row">
-            <label>Status</label>
-            <select x-model="selectedTask.status" @change="updateTask(selectedTask)">
-              <option value="backlog">📋 Backlog</option>
-              <option value="in-progress">⚡ In Progress</option>
-              <option value="done">✅ Done</option>
-              <option value="archived">📦 Archived</option>
-            </select>
-          </div>
-          <div class="detail-row" x-show="selectedTask?.status === 'in-progress'">
-            <label>Live Status</label>
-            <input type="text" x-model="selectedTask.liveStatus" @input="save()" placeholder="What's happening...">
-          </div>
-          <div class="detail-row" style="grid-column: span 2;">
-            <label>Output / Notes</label>
-            <textarea x-model="selectedTask.output" @input="save()" placeholder="Results, notes..."></textarea>
-          </div>
-          <div class="detail-row">
-            <button class="btn btn-danger" @click="deleteTask(selectedTask.id); selectedTask = null">Delete Task</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Deliverables & Log -->
+      
+      <!-- Sections -->
       <div class="sections">
-        <div class="section">
-          <div class="section-header">
-            <span class="section-title">📁 Deliverables</span>
-            <span class="section-action" @click="showAddDeliverable = true">+ Add</span>
-          </div>
-          <div class="deliverables-grid" x-show="deliverables.length > 0">
-            <template x-for="d in deliverables" :key="d.id">
-              <div class="deliverable" @click="selectedDeliverable = d; showDeliverableDetail = true">
-                <div class="deliverable-icon" x-text="d.icon || '📄'"></div>
-                <div class="deliverable-name" x-text="d.name"></div>
-                <div class="deliverable-meta" x-text="d.type"></div>
-              </div>
-            </template>
-          </div>
-          <div class="empty" x-show="deliverables.length === 0">No deliverables</div>
-        </div>
-
         <div class="section">
           <div class="section-header">
             <span class="section-title">📜 Action Log</span>
             <span class="section-action" @click="actionLog = []; saveActionLog()">Clear</span>
           </div>
-          <div class="log-list">
-            <template x-for="(entry, i) in actionLog.slice().reverse().slice(0, 20)" :key="i">
-              <div class="log-entry">
-                <span class="log-time" x-text="formatLogTime(entry.timestamp)"></span>
-                <span class="log-msg" x-text="entry.message"></span>
-              </div>
-            </template>
-          </div>
+          <template x-for="(entry, i) in actionLog.slice().reverse().slice(0, 15)" :key="i">
+            <div class="log-entry">
+              <span class="log-time" x-text="formatLogTime(entry.timestamp)"></span>
+              <span class="log-msg" x-text="entry.message"></span>
+            </div>
+          </template>
           <div class="empty" x-show="actionLog.length === 0">No actions logged</div>
         </div>
+        
+        <div class="section">
+          <div class="section-header">
+            <span class="section-title">🤖 Active Agents</span>
+          </div>
+          <template x-for="(agent, id) in progress.agents" :key="id">
+            <div class="log-entry">
+              <span class="log-time" x-text="agent.status"></span>
+              <span class="log-msg" x-text="agent.taskIds.length + ' task(s)'"></span>
+            </div>
+          </template>
+          <div class="empty" x-show="Object.keys(progress.agents).length === 0">No active agents</div>
+        </div>
       </div>
-
+      
       <!-- Notes -->
       <div class="notes-section">
         <div class="section-header">
           <span class="section-title">📝 Notes for Dexter</span>
-          <span class="nav-meta">Checked on every heartbeat</span>
+          <span class="nav-meta">Checked on heartbeat</span>
         </div>
         <div class="notes-input">
-          <input type="text" x-model="newNote" @keydown.enter="addNote()" placeholder="Type a task or note for Dexter...">
+          <input type="text" x-model="newNote" @keydown.enter="addNote()" placeholder="Type a note for Dexter...">
           <button class="btn btn-primary" @click="addNote()">Add</button>
         </div>
         <div class="notes-list">
@@ -734,78 +699,53 @@
       </div>
     </main>
   </div>
-
-  <!-- Add Deliverable Modal -->
-  <div class="modal-overlay" x-show="showAddDeliverable" x-cloak @click.self="showAddDeliverable = false">
-    <div class="modal">
-      <h3 class="modal-header">Add Deliverable</h3>
-      <div class="form-group">
-        <label>Name</label>
-        <input type="text" x-model="newDeliverable.name">
+  
+  <!-- Start Task Confirmation -->
+  <div class="confirm-overlay" x-show="confirmStart" x-cloak @click.self="confirmStart = null">
+    <div class="confirm-dialog">
+      <div class="confirm-title">Start Task?</div>
+      <div class="confirm-body">
+        Start working on: <span class="confirm-task" x-text="confirmStart?.title"></span>
       </div>
-      <div class="form-group">
-        <label>Icon</label>
-        <input type="text" x-model="newDeliverable.icon" placeholder="📄">
+      <div class="confirm-field">
+        <label>Target Repo (optional)</label>
+        <input type="text" x-model="confirmStart.repo" placeholder="e.g., KishParikh13/my-project or /path/to/repo">
       </div>
-      <div class="form-group">
-        <label>Type</label>
-        <select x-model="newDeliverable.type">
-          <option>Folder</option>
-          <option>File</option>
-          <option>Link</option>
-          <option>Report</option>
-        </select>
+      <div class="confirm-field">
+        <label>Additional Context</label>
+        <input type="text" x-model="confirmStart.context" placeholder="Any extra details for Dexter...">
       </div>
-      <div class="form-group">
-        <label>URL</label>
-        <input type="text" x-model="newDeliverable.url" placeholder="https://...">
-      </div>
-      <div class="modal-actions">
-        <button class="btn" @click="showAddDeliverable = false">Cancel</button>
-        <button class="btn btn-primary" @click="addDeliverable(); showAddDeliverable = false">Add</button>
+      <div class="confirm-note">Dexter will create a branch and start working. You'll be notified when ready for review.</div>
+      <div class="confirm-actions">
+        <button class="btn" @click="cancelStart()">Cancel</button>
+        <button class="btn btn-primary" @click="startTask()">Start Task</button>
       </div>
     </div>
   </div>
-
-  <!-- Deliverable Detail Modal -->
-  <div class="modal-overlay" x-show="showDeliverableDetail" x-cloak @click.self="showDeliverableDetail = false">
-    <div class="modal">
-      <h3 class="modal-header"><span x-text="selectedDeliverable?.icon"></span> <span x-text="selectedDeliverable?.name"></span></h3>
-      <p x-text="selectedDeliverable?.description || 'No description'"></p>
-      <p class="nav-meta" style="margin-top: 12px">Created: <span x-text="selectedDeliverable?.createdAt ? new Date(selectedDeliverable.createdAt).toLocaleString() : ''"></span></p>
-      <template x-if="selectedDeliverable?.url">
-        <a :href="selectedDeliverable?.url" target="_blank" class="btn btn-primary" style="margin-top: 16px; display: inline-block; text-decoration: none">Open Link →</a>
-      </template>
-      <div class="modal-actions">
-        <button class="btn btn-danger" @click="deleteDeliverable(selectedDeliverable.id); showDeliverableDetail = false">Delete</button>
-        <button class="btn" @click="showDeliverableDetail = false">Close</button>
-      </div>
-    </div>
-  </div>
-
+  
   <!-- Export Modal -->
   <div class="modal-overlay" x-show="showExport" x-cloak @click.self="showExport = false">
     <div class="modal">
       <h3 class="modal-header">Export</h3>
       <div class="form-group">
         <label>JSON Data</label>
-        <textarea readonly :value="exportData()" style="font-size: 10px; height: 200px;"></textarea>
+        <textarea readonly :value="exportData()"></textarea>
       </div>
       <div class="modal-actions">
         <button class="btn" @click="copyExport()">Copy</button>
         <button class="btn" @click="downloadExport()">Download</button>
-        <button class="btn btn-primary" @click="navigator.clipboard.writeText(generateShareLink()); alert('Link copied!')">Share Link</button>
+        <button class="btn" @click="showExport = false">Close</button>
       </div>
     </div>
   </div>
-
+  
   <!-- Import Modal -->
   <div class="modal-overlay" x-show="showImport" x-cloak @click.self="showImport = false">
     <div class="modal">
       <h3 class="modal-header">Import</h3>
       <div class="form-group">
         <label>Paste JSON</label>
-        <textarea x-model="importDataText" style="height: 200px;" placeholder='{"tasks": [...]}...'></textarea>
+        <textarea x-model="importDataText" placeholder='{"tasks": [...]}'></textarea>
       </div>
       <div class="modal-actions">
         <button class="btn" @click="showImport = false">Cancel</button>
@@ -814,88 +754,98 @@
     </div>
   </div>
 
-  <!-- Help Modal -->
-  <div class="modal-overlay" x-show="showHelp" x-cloak @click.self="showHelp = false">
-    <div class="modal">
-      <h3 class="modal-header">Keyboard Shortcuts</h3>
-      <div style="font-size: 12px;">
-        <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border);">
-          <span>Show help</span><code style="background: #111; padding: 2px 8px;">?</code>
-        </div>
-        <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border);">
-          <span>Add task</span><code style="background: #111; padding: 2px 8px;">a</code>
-        </div>
-        <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border);">
-          <span>Export</span><code style="background: #111; padding: 2px 8px;">e</code>
-        </div>
-        <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border);">
-          <span>Import</span><code style="background: #111; padding: 2px 8px;">i</code>
-        </div>
-        <div style="display: flex; justify-content: space-between; padding: 6px 0;">
-          <span>Close modal</span><code style="background: #111; padding: 2px 8px;">Esc</code>
-        </div>
-      </div>
-      <div class="modal-actions">
-        <button class="btn" @click="showHelp = false">Close</button>
-      </div>
-    </div>
-  </div>
-
   <script>
     function dexterDashboard() {
       return {
+        // Data
         tasks: [],
-        deliverables: [],
         notes: [],
         actionLog: [],
+        progress: { tasks: {}, agents: {} },
+        
+        // Status (auto-detected)
         status: 'online',
         statusMessage: 'Ready',
         lastSync: new Date().toLocaleTimeString(),
-
-        selectedTask: null,
-        selectedDeliverable: null,
+        
+        // UI State
         showAddForm: false,
-        showAddDeliverable: false,
-        showDeliverableDetail: false,
         showExport: false,
         showImport: false,
-        showHelp: false,
+        expandedTask: null,
+        confirmStart: null,
         newTaskText: '',
-        newTaskStatus: 'backlog',
         newNote: '',
         importDataText: '',
-        newDeliverable: { name: '', icon: '📄', type: 'File', url: '' },
-
+        
+        // GitHub config
+        progressUrl: 'https://raw.githubusercontent.com/KishParikh13/dexter-collab/main/progress.json',
+        
         init() {
-          if (window.location.hash) {
-            try {
-              const hash = window.location.hash.slice(1);
-              if (hash.startsWith('data=')) {
-                const data = JSON.parse(decodeURIComponent(atob(hash.slice(5))));
-                this.tasks = data.tasks || [];
-                this.deliverables = data.deliverables || [];
-                this.notes = data.notes || [];
-                this.actionLog = data.actionLog || [];
-                history.replaceState(null, '', window.location.pathname);
-                this.saveAll();
-              }
-            } catch (e) {}
-          } else {
-            this.tasks = JSON.parse(localStorage.getItem('dexter-tasks') || '[]');
-            this.deliverables = JSON.parse(localStorage.getItem('dexter-deliverables') || '[]');
-            this.notes = JSON.parse(localStorage.getItem('dexter-notes') || '[]');
-            this.actionLog = JSON.parse(localStorage.getItem('dexter-action-log') || '[]');
-          }
-
-          this.status = localStorage.getItem('dexter-status') || 'online';
-          this.statusMessage = localStorage.getItem('dexter-status-message') || 'Ready';
-
+          // Load from localStorage
+          this.tasks = JSON.parse(localStorage.getItem('dexter-tasks') || '[]');
+          this.notes = JSON.parse(localStorage.getItem('dexter-notes') || '[]');
+          this.actionLog = JSON.parse(localStorage.getItem('dexter-action-log') || '[]');
+          
+          // Init kanban
           this.$nextTick(() => this.initKanban());
-          setInterval(() => this.lastSync = new Date().toLocaleTimeString(), 60000);
+          
+          // Fetch progress from GitHub
+          this.fetchProgress();
+          
+          // Poll for progress updates every 15 seconds
+          setInterval(() => {
+            this.fetchProgress();
+            this.lastSync = new Date().toLocaleTimeString();
+          }, 15000);
+          
+          // Update status based on active agents
+          this.updateStatus();
         },
-
+        
+        async fetchProgress() {
+          try {
+            const res = await fetch(this.progressUrl + '?t=' + Date.now());
+            if (res.ok) {
+              this.progress = await res.json();
+              this.updateStatus();
+              this.syncTasksFromProgress();
+            }
+          } catch (e) {
+            console.log('Could not fetch progress:', e);
+          }
+        },
+        
+        syncTasksFromProgress() {
+          // Update task status from progress.json
+          for (const [taskId, prog] of Object.entries(this.progress.tasks || {})) {
+            const task = this.tasks.find(t => t.id === taskId);
+            if (task && prog.status === 'review' && task.status !== 'review') {
+              task.status = 'review';
+              task.prUrl = prog.prUrl;
+              this.save();
+            }
+          }
+        },
+        
+        updateStatus() {
+          const activeAgents = Object.values(this.progress.agents || {}).filter(a => a.status === 'working');
+          if (activeAgents.length > 0) {
+            this.status = 'working';
+            this.statusMessage = `Working on ${activeAgents.length} task(s)`;
+          } else {
+            this.status = 'online';
+            this.statusMessage = 'Ready';
+          }
+        },
+        
+        getProgress(taskId) {
+          return this.progress.tasks?.[taskId];
+        },
+        
         initKanban() {
-          ['backlog', 'in-progress', 'done', 'archived'].forEach(col => {
+          const columns = ['backlog', 'in-progress', 'review', 'done'];
+          columns.forEach(col => {
             const el = document.getElementById(`kanban-${col}`);
             if (el) {
               new Sortable(el, {
@@ -904,157 +854,163 @@
                 onEnd: (evt) => {
                   const taskId = evt.item.dataset.id;
                   const newStatus = evt.to.id.replace('kanban-', '');
-                  this.moveTask(taskId, newStatus);
+                  this.handleDrop(taskId, newStatus);
                 }
               });
             }
           });
         },
-
+        
+        handleDrop(taskId, newStatus) {
+          const task = this.tasks.find(t => t.id === taskId);
+          if (!task) return;
+          
+          // If dropping into in-progress, show confirmation
+          if (newStatus === 'in-progress' && task.status !== 'in-progress') {
+            this.confirmStart = { ...task, repo: '', context: '' };
+            // Revert the visual drop until confirmed
+            this.$nextTick(() => this.initKanban());
+          } else if (task.status !== newStatus) {
+            this.moveTask(taskId, newStatus);
+          }
+        },
+        
         moveTask(taskId, newStatus) {
           const task = this.tasks.find(t => t.id === taskId);
-          if (task && task.status !== newStatus) {
+          if (task) {
             task.status = newStatus;
             task.updatedAt = new Date().toISOString();
             if (newStatus === 'done') task.completedAt = new Date().toISOString();
-            if (newStatus === 'archived') task.archivedAt = new Date().toISOString();
-            this.log(`Moved "${task.title}" to ${newStatus}`);
+            this.log(`Moved "${task.title}" → ${newStatus}`);
             this.save();
           }
         },
-
+        
+        cancelStart() {
+          this.confirmStart = null;
+          this.$nextTick(() => this.initKanban());
+        },
+        
+        startTask() {
+          const task = this.tasks.find(t => t.id === this.confirmStart.id);
+          if (task) {
+            task.status = 'in-progress';
+            task.startedAt = new Date().toISOString();
+            task.repo = this.confirmStart.repo;
+            task.context = this.confirmStart.context;
+            
+            // Generate command for Dexter
+            const cmd = this.generateStartCommand(task);
+            
+            // Copy to clipboard and show notification
+            navigator.clipboard.writeText(cmd).then(() => {
+              this.log(`Started: "${task.title}" - command copied`);
+              alert('Task started! Command copied to clipboard.\\n\\nPaste it to Dexter in Telegram to begin work.');
+            });
+            
+            this.save();
+          }
+          this.confirmStart = null;
+          this.$nextTick(() => this.initKanban());
+        },
+        
+        generateStartCommand(task) {
+          let cmd = `Start task: "${task.title}"`;
+          if (task.repo) cmd += `\\nRepo: ${task.repo}`;
+          if (task.context) cmd += `\\nContext: ${task.context}`;
+          cmd += `\\nTask ID: ${task.id}`;
+          return cmd;
+        },
+        
+        toggleTask(taskId) {
+          this.expandedTask = this.expandedTask === taskId ? null : taskId;
+        },
+        
         addTasks() {
           this.newTaskText.split('\n').filter(l => l.trim()).forEach(line => {
-            const task = {
+            this.tasks.push({
               id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
               title: line.trim(),
-              status: this.newTaskStatus,
-              output: '',
-              liveStatus: '',
+              status: 'backlog',
               createdAt: new Date().toISOString()
-            };
-            this.tasks.push(task);
-            this.log(`Added: "${task.title}"`);
+            });
           });
+          this.log(`Added ${this.newTaskText.split('\n').filter(l => l.trim()).length} task(s)`);
           this.newTaskText = '';
           this.save();
           this.$nextTick(() => this.initKanban());
         },
-
-        selectTask(task) { this.selectedTask = task; },
-
-        updateTask(task) {
-          task.updatedAt = new Date().toISOString();
-          if (task.status === 'done') task.completedAt = new Date().toISOString();
-          if (task.status === 'archived') task.archivedAt = new Date().toISOString();
-          this.log(`Updated "${task.title}" → ${task.status}`);
-          this.save();
-        },
-
-        deleteTask(id) {
-          const task = this.tasks.find(t => t.id === id);
-          if (task) this.log(`Deleted: "${task.title}"`);
-          this.tasks = this.tasks.filter(t => t.id !== id);
-          this.save();
-        },
-
-        addDeliverable() {
-          if (!this.newDeliverable.name) return;
-          this.deliverables.push({ ...this.newDeliverable, id: Date.now().toString(), createdAt: new Date().toISOString() });
-          this.log(`Added deliverable: "${this.newDeliverable.name}"`);
-          this.newDeliverable = { name: '', icon: '📄', type: 'File', url: '' };
-          this.saveDeliverables();
-        },
-
-        deleteDeliverable(id) {
-          const d = this.deliverables.find(d => d.id === id);
-          if (d) this.log(`Deleted deliverable: "${d.name}"`);
-          this.deliverables = this.deliverables.filter(d => d.id !== id);
-          this.saveDeliverables();
-        },
-
+        
         addNote() {
           if (!this.newNote.trim()) return;
-          this.notes.push({ id: Date.now().toString(), text: this.newNote.trim(), createdAt: new Date().toISOString() });
-          this.log('New note added');
+          this.notes.push({
+            id: Date.now().toString(),
+            text: this.newNote.trim(),
+            createdAt: new Date().toISOString()
+          });
+          this.log('Note added');
           this.newNote = '';
           this.saveNotes();
         },
-
-        setStatus(s, m) {
-          this.status = s;
-          this.statusMessage = m;
-          localStorage.setItem('dexter-status', s);
-          localStorage.setItem('dexter-status-message', m);
-          this.log(`Status → ${s}`);
-        },
-
+        
         log(msg) {
           this.actionLog.push({ timestamp: new Date().toISOString(), message: msg });
           if (this.actionLog.length > 100) this.actionLog = this.actionLog.slice(-100);
           this.saveActionLog();
         },
-
+        
+        // Save functions
         save() { localStorage.setItem('dexter-tasks', JSON.stringify(this.tasks)); },
-        saveDeliverables() { localStorage.setItem('dexter-deliverables', JSON.stringify(this.deliverables)); },
         saveNotes() { localStorage.setItem('dexter-notes', JSON.stringify(this.notes)); },
         saveActionLog() { localStorage.setItem('dexter-action-log', JSON.stringify(this.actionLog)); },
-        saveAll() { this.save(); this.saveDeliverables(); this.saveNotes(); this.saveActionLog(); },
-
+        
+        // Export/Import
         exportData() {
-          return JSON.stringify({ version: 2, exported: new Date().toISOString(), tasks: this.tasks, deliverables: this.deliverables, notes: this.notes, actionLog: this.actionLog }, null, 2);
+          return JSON.stringify({ version: 3, tasks: this.tasks, notes: this.notes }, null, 2);
         },
-
+        
         copyExport() { navigator.clipboard.writeText(this.exportData()); alert('Copied!'); },
-
+        
         downloadExport() {
           const blob = new Blob([this.exportData()], { type: 'application/json' });
           const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
           a.download = `dexter-${new Date().toISOString().slice(0,10)}.json`; a.click();
         },
-
-        generateShareLink() {
-          return window.location.origin + window.location.pathname + '#data=' + btoa(encodeURIComponent(JSON.stringify({ version: 2, tasks: this.tasks, deliverables: this.deliverables, notes: this.notes })));
-        },
-
+        
         doImport() {
           try {
             const data = JSON.parse(this.importDataText);
             if (confirm('Replace current data?')) {
               this.tasks = data.tasks || [];
-              this.deliverables = data.deliverables || [];
               this.notes = data.notes || [];
-              this.actionLog = data.actionLog || [];
-              this.saveAll(); this.showImport = false;
+              this.save(); this.saveNotes();
+              this.showImport = false;
               this.log('Data imported');
               this.$nextTick(() => this.initKanban());
             }
           } catch (e) { alert('Invalid JSON'); }
         },
-
+        
         formatDate(iso) {
           if (!iso) return '';
           return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         },
-
+        
         formatLogTime(iso) {
           return new Date(iso).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
         },
-
+        
         handleKeyboard(e) {
-          if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
-          if (e.key === '?') this.showHelp = !this.showHelp;
+          if (['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return;
           if (e.key === 'a') { this.showAddForm = true; this.$nextTick(() => this.$refs.addInput?.focus()); }
           if (e.key === 'e') this.showExport = true;
           if (e.key === 'i') this.showImport = true;
           if (e.key === 'Escape') {
-            this.selectedTask = null;
             this.showAddForm = false;
-            this.showAddDeliverable = false;
-            this.showDeliverableDetail = false;
             this.showExport = false;
             this.showImport = false;
-            this.showHelp = false;
+            this.confirmStart = null;
+            this.expandedTask = null;
           }
         }
       }
