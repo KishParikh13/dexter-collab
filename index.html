@@ -309,32 +309,88 @@
       letter-spacing: 0.5px;
     }
     
-    .sidebar-footer {
-      margin-top: auto;
+    /* Comments Section */
+    .comments-section {
+      border-top: 1px solid var(--border);
+      margin-top: 8px;
+    }
+    
+    .comments-list {
+      max-height: 300px;
+      overflow-y: auto;
+      margin-bottom: 12px;
+    }
+    
+    .comment {
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .comment:last-child {
+      border-bottom: none;
+    }
+    
+    .comment-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    
+    .comment-author {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--progress);
+    }
+    
+    .comment-time {
+      font-size: 10px;
+      color: var(--muted);
+    }
+    
+    .comment-text {
+      font-size: 12px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    
+    .comment-form {
       padding: 12px;
       border-top: 1px solid var(--border);
     }
     
-    .api-indicator {
+    .comment-input {
+      width: 100%;
+      background: var(--hover-bg);
+      border: 1px solid var(--border);
+      color: var(--fg);
+      font-family: inherit;
+      font-size: 12px;
+      padding: 8px;
+      resize: vertical;
+      min-height: 60px;
+      margin-bottom: 8px;
+    }
+    
+    .comment-input:focus {
+      outline: none;
+      border-color: var(--progress);
+    }
+    
+    .comment-actions {
       display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      justify-content: flex-end;
     }
     
-    .api-indicator .api-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
+    .no-comments {
+      padding: 16px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 11px;
     }
-    
-    .api-indicator.connected .api-dot { background: #4f4; }
-    .api-indicator.connected { color: #4f4; }
-    
-    .api-indicator.disconnected .api-dot { background: var(--error); }
-    .api-indicator.disconnected { color: var(--error); }
     
     /* Sidebar Accordion Sections */
     .sidebar-accordion {
@@ -2041,13 +2097,6 @@
         </div>
       </div>
       
-      <!-- API Status Indicator -->
-      <div class="sidebar-footer">
-        <div class="api-indicator" :class="apiConnected ? 'connected' : 'disconnected'">
-          <span class="api-dot"></span>
-          <span x-text="apiConnected ? 'API Connected' : (apiError || 'API Offline')"></span>
-        </div>
-      </div>
     </aside>
     
 <!-- Main Wrapper (for push layout) -->
@@ -2487,6 +2536,44 @@
                 </div>
               </div>
             </div>
+            
+            <!-- Comments Section -->
+            <div class="panel-section comments-section">
+              <div class="panel-section-title">💬 Comments</div>
+              
+              <!-- Comments List -->
+              <div class="comments-list" x-show="selectedTask.comments && selectedTask.comments.length > 0">
+                <template x-for="comment in selectedTask.comments" :key="comment.id">
+                  <div class="comment">
+                    <div class="comment-header">
+                      <span class="comment-author" x-text="comment.author || 'User'"></span>
+                      <span class="comment-time" x-text="formatRelativeTime(comment.createdAt)"></span>
+                    </div>
+                    <div class="comment-text" x-text="comment.text"></div>
+                  </div>
+                </template>
+              </div>
+              
+              <!-- No Comments -->
+              <div class="no-comments" x-show="!selectedTask.comments || selectedTask.comments.length === 0">
+                No comments yet
+              </div>
+              
+              <!-- Add Comment Form -->
+              <div class="comment-form">
+                <textarea 
+                  class="comment-input" 
+                  x-model="newComment" 
+                  placeholder="Add a comment..."
+                  @keydown.ctrl.enter="addComment()"
+                ></textarea>
+                <div class="comment-actions">
+                  <button class="btn btn-primary" @click="addComment()" :disabled="!newComment.trim()">
+                    Add Comment
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
           
           <!-- Panel Actions (for review without PR details, or backlog/done) -->
@@ -2591,6 +2678,7 @@
         taskContext: {},
         newTaskText: '',
         newNote: '',
+        newComment: '',
         noteTaskId: '',
         importDataText: '',
         apiError: null,
@@ -2848,6 +2936,33 @@
           this.prError = null;
           this.mergeStatus = null;
           this.lightboxImage = null;
+          this.newComment = '';
+        },
+        
+        async addComment() {
+          if (!this.selectedTask || !this.newComment.trim()) return;
+          
+          const comment = {
+            id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+            text: this.newComment.trim(),
+            author: 'Kish',
+            createdAt: new Date().toISOString()
+          };
+          
+          // Initialize comments array if needed
+          const comments = this.selectedTask.comments || [];
+          comments.push(comment);
+          
+          // Update task via API
+          await this.updateTaskApi(this.selectedTask.id, { comments });
+          
+          // Update local selectedTask to show the comment immediately
+          this.selectedTask.comments = comments;
+          
+          // Clear input
+          this.newComment = '';
+          
+          this.log(`Comment added to "${this.selectedTask.title}"`);
         },
         
         handleOutsideClick(event) {

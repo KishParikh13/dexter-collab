@@ -14,3 +14,4 @@ config.local.js
 __pycache__/
 *.pyc
 .vercel
+.env*.local
