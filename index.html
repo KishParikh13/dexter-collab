@@ -400,7 +400,20 @@
       flex-shrink: 0;
     }
     
-    .notes-input { display: flex; gap: 8px; margin-top: 12px; }
+    .notes-input { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+    .notes-input-row { display: flex; gap: 8px; }
+    
+    .note-task-select {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--fg);
+      font-family: inherit;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .note-task-select:focus { outline: none; border-color: var(--fg); }
     
     .notes-input input {
       flex: 1;
@@ -419,12 +432,22 @@
     
     .note {
       display: flex;
-      justify-content: space-between;
+      flex-wrap: wrap;
       align-items: flex-start;
       padding: 8px;
       border: 1px solid var(--border);
       margin-bottom: 4px;
       font-size: 12px;
+      gap: 4px;
+    }
+    
+    .note-task-tag {
+      font-size: 10px;
+      color: var(--progress);
+      background: rgba(255, 165, 0, 0.1);
+      padding: 2px 6px;
+      width: 100%;
+      margin-bottom: 4px;
     }
     
     .note-text { flex: 1; }
@@ -767,12 +790,23 @@
           <span class="nav-meta">Checked on heartbeat</span>
         </div>
         <div class="notes-input">
-          <input type="text" x-model="newNote" @keydown.enter="addNote()" placeholder="Type a note for Dexter...">
-          <button class="btn btn-primary" @click="addNote()">Add</button>
+          <div class="notes-input-row">
+            <select x-model="noteTaskId" class="note-task-select">
+              <option value="">All Tasks (General)</option>
+              <template x-for="task in tasks.filter(t => t.status !== 'done')" :key="task.id">
+                <option :value="task.id" x-text="task.title.substring(0, 30) + (task.title.length > 30 ? '...' : '')"></option>
+              </template>
+            </select>
+          </div>
+          <div class="notes-input-row">
+            <input type="text" x-model="newNote" @keydown.enter="addNote()" placeholder="Type a note for Dexter...">
+            <button class="btn btn-primary" @click="addNote()">Add</button>
+          </div>
         </div>
         <div class="notes-list">
           <template x-for="note in notes" :key="note.id">
             <div class="note">
+              <span class="note-task-tag" x-show="note.taskTitle" x-text="'📌 ' + (note.taskTitle || '').substring(0, 20)"></span>
               <span class="note-text" x-text="note.text"></span>
               <span class="note-meta" x-text="formatDate(note.createdAt)"></span>
               <span class="note-delete" @click="notes = notes.filter(n => n.id !== note.id); saveNotes()">×</span>
@@ -859,6 +893,7 @@
         confirmStart: null,
         newTaskText: '',
         newNote: '',
+        noteTaskId: '',
         importDataText: '',
         apiError: null,
         apiConnected: false,
@@ -1243,13 +1278,17 @@
         
         addNote() {
           if (!this.newNote.trim()) return;
+          const task = this.noteTaskId ? this.tasks.find(t => t.id === this.noteTaskId) : null;
           this.notes.push({
             id: Date.now().toString(),
             text: this.newNote.trim(),
+            taskId: this.noteTaskId || null,
+            taskTitle: task?.title || null,
             createdAt: new Date().toISOString()
           });
-          this.log('Note added');
+          this.log(task ? `Note added for "${task.title}"` : 'Note added');
           this.newNote = '';
+          this.noteTaskId = '';
           this.saveNotes();
         },
         
