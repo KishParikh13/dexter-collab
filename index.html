@@ -2651,8 +2651,17 @@
             await this.fetchSessions();
             
             // Adaptive polling - faster when tasks are in progress
+            let prCheckCounter = 0;
             const pollTasks = async () => {
               await this.fetchTasksFromApi();
+              
+              // Check for merged PRs every 3rd poll (to avoid GitHub rate limits)
+              prCheckCounter++;
+              if (prCheckCounter >= 3) {
+                prCheckCounter = 0;
+                await this.checkMergedPRs();
+              }
+              
               const hasActive = this.tasks.some(t => t.status === 'in-progress');
               // 3s when active, 10s when idle
               const nextPoll = hasActive ? 3000 : (this.config.taskPollInterval || 10000);
@@ -3019,6 +3028,43 @@
             return { owner: match[1], repo: match[2], number: parseInt(match[3]) };
           }
           return null;
+        },
+        
+        // Check if PRs for review tasks have been merged and auto-complete them
+        async checkMergedPRs() {
+          const reviewTasks = this.tasks.filter(t => t.status === 'review' && t.prUrl);
+          
+          for (const task of reviewTasks) {
+            const prInfo = this.parsePrUrl(task.prUrl);
+            if (!prInfo) continue;
+            
+            try {
+              const res = await fetch(`https://api.github.com/repos/${prInfo.owner}/${prInfo.repo}/pulls/${prInfo.number}`);
+              if (!res.ok) continue;
+              
+              const pr = await res.json();
+              
+              if (pr.merged === true) {
+                // PR is merged - auto-complete the task
+                const updates = {
+                  status: 'done',
+                  completedAt: new Date().toISOString()
+                };
+                
+                await this.updateTaskApi(task.id, updates);
+                this.log(`✓ PR merged - task auto-completed: "${task.title}"`);
+                
+                if (this.config.debug) {
+                  console.log(`PR #${prInfo.number} merged - auto-completed task: ${task.id}`);
+                }
+              }
+            } catch (e) {
+              // Silently skip if we can't check the PR (rate limit, network error, etc.)
+              if (this.config.debug) {
+                console.log(`Could not check PR merge status for task ${task.id}:`, e);
+              }
+            }
+          }
         },
         
         async fetchPrDetails(task) {
