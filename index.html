@@ -8,6 +8,7 @@
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     
@@ -1898,6 +1899,235 @@
       color: var(--progress);
     }
 
+    /* Task Comments */
+    .panel-comments {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .comment-item {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      background: var(--hover-bg);
+    }
+    
+    .comment-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    
+    .comment-author {
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--progress);
+    }
+    
+    .comment-time {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .comment-text {
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--fg);
+      white-space: pre-wrap;
+    }
+    
+    .comment-input-wrapper {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .comment-input {
+      flex: 1;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--fg);
+      font-family: inherit;
+      font-size: 12px;
+      resize: none;
+      min-height: 36px;
+    }
+    
+    .comment-input:focus {
+      outline: none;
+      border-color: var(--fg);
+    }
+    
+    .comment-input::placeholder {
+      color: var(--muted);
+    }
+    
+    .comment-btn {
+      padding: 8px 14px;
+      border: 1px solid var(--fg);
+      background: var(--fg);
+      color: var(--bg);
+      font-family: inherit;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    
+    .comment-btn:hover {
+      background: var(--bg);
+      color: var(--fg);
+    }
+    
+    .comment-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .panel-comments-empty {
+      padding: 16px 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    /* Cost Display */
+    .task-cost {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      color: var(--muted);
+      background: var(--hover-bg);
+      padding: 2px 6px;
+      border: 1px solid var(--border);
+      margin-left: 8px;
+    }
+    
+    .task-cost-icon {
+      color: #4f4;
+    }
+    
+    .panel-cost {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      background: var(--hover-bg);
+    }
+    
+    .panel-cost-icon {
+      font-size: 16px;
+    }
+    
+    .panel-cost-value {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--fg);
+    }
+    
+    .panel-cost-breakdown {
+      font-size: 11px;
+      color: var(--muted);
+      margin-left: auto;
+    }
+    
+    /* Agent Reasoning */
+    .reasoning-section {
+      border: 1px solid var(--border);
+      background: var(--hover-bg);
+    }
+    
+    .reasoning-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--fg);
+      transition: background 0.15s;
+    }
+    
+    .reasoning-header:hover {
+      background: var(--bg);
+    }
+    
+    .reasoning-icon {
+      font-size: 14px;
+    }
+    
+    .reasoning-title {
+      flex: 1;
+    }
+    
+    .reasoning-chevron {
+      color: var(--muted);
+      font-size: 10px;
+      transition: transform 0.2s;
+    }
+    
+    .reasoning-chevron.expanded {
+      transform: rotate(90deg);
+    }
+    
+    .reasoning-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    
+    .reasoning-body.expanded {
+      max-height: 500px;
+      overflow-y: auto;
+    }
+    
+    .reasoning-content {
+      padding: 12px;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--fg);
+    }
+    
+    .reasoning-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .reasoning-step:last-child {
+      border-bottom: none;
+    }
+    
+    .reasoning-step-num {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border);
+      font-size: 10px;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+    
+    .reasoning-step-text {
+      flex: 1;
+    }
+
     @media (max-width: 1000px) {
       .board { grid-template-columns: repeat(2, 1fr); }
       .sidebar { display: none; }
@@ -2195,7 +2425,13 @@
               <div class="task" :class="{'selected': selectedTask?.id === task.id}" :data-id="task.id" @click="selectTask(task)" style="opacity: 0.6">
                 <div class="task-repo" x-show="task.repo" style="font-size: 10px; color: var(--muted); font-family: var(--font-mono); margin-bottom: 4px;" x-text="task.repo.replace('KishParikh13/', '')"></div>
                 <div class="task-title" x-text="task.title"></div>
-                <div class="task-meta" x-text="'Done ' + formatDate(task.completedAt)"></div>
+                <div class="task-meta">
+                  <span x-text="'Done ' + formatDate(task.completedAt)"></span>
+                  <span class="task-cost" x-show="task.cost && (task.cost.tokens || task.cost.usd)">
+                    <span class="task-cost-icon">⚡</span>
+                    <span x-text="formatCost(task.cost)"></span>
+                  </span>
+                </div>
               </div>
             </template>
           </div>
@@ -2271,6 +2507,44 @@
             <div class="panel-section" x-show="selectedTask.context">
               <div class="panel-section-title">Context Notes</div>
               <div class="panel-context" x-text="selectedTask.context"></div>
+            </div>
+            
+            <!-- Cost Section -->
+            <div class="panel-section" x-show="selectedTask.cost && (selectedTask.cost.tokens || selectedTask.cost.usd)">
+              <div class="panel-section-title">💰 Cost</div>
+              <div class="panel-cost">
+                <span class="panel-cost-icon">⚡</span>
+                <span class="panel-cost-value" x-text="formatCost(selectedTask.cost)"></span>
+                <span class="panel-cost-breakdown" x-text="formatCostBreakdown(selectedTask.cost)"></span>
+              </div>
+            </div>
+            
+            <!-- Agent Reasoning Section -->
+            <div class="panel-section" x-show="selectedTask.reasoning" style="padding: 16px 20px;">
+              <div class="reasoning-section">
+                <div class="reasoning-header" @click="reasoningExpanded = !reasoningExpanded">
+                  <span class="reasoning-icon">🧠</span>
+                  <span class="reasoning-title">Agent Reasoning</span>
+                  <span class="reasoning-chevron" :class="{'expanded': reasoningExpanded}">▶</span>
+                </div>
+                <div class="reasoning-body" :class="{'expanded': reasoningExpanded}">
+                  <div class="reasoning-content">
+                    <!-- String reasoning -->
+                    <div x-show="typeof selectedTask.reasoning === 'string'" x-text="selectedTask.reasoning" style="white-space: pre-wrap;"></div>
+                    <!-- Array of steps -->
+                    <template x-if="Array.isArray(selectedTask.reasoning)">
+                      <div>
+                        <template x-for="(step, idx) in selectedTask.reasoning" :key="idx">
+                          <div class="reasoning-step">
+                            <span class="reasoning-step-num" x-text="idx + 1"></span>
+                            <span class="reasoning-step-text" x-text="step"></span>
+                          </div>
+                        </template>
+                      </div>
+                    </template>
+                  </div>
+                </div>
+              </div>
             </div>
             
             <!-- PR Review Section (only for review status) -->
@@ -2487,6 +2761,37 @@
                 </div>
               </div>
             </div>
+            
+            <!-- Comments Section -->
+            <div class="panel-section">
+              <div class="panel-section-title">💬 Comments</div>
+              <div class="panel-comments">
+                <!-- Comment Input -->
+                <div class="comment-input-wrapper">
+                  <input type="text" 
+                    x-model="newComment" 
+                    @keydown.enter="addComment()" 
+                    placeholder="Add a comment..." 
+                    class="comment-input">
+                  <button class="comment-btn" @click="addComment()" :disabled="!newComment.trim()">Post</button>
+                </div>
+                
+                <!-- Comments List -->
+                <template x-for="comment in (selectedTask.comments || []).slice().reverse()" :key="comment.id">
+                  <div class="comment-item">
+                    <div class="comment-header">
+                      <span class="comment-author" x-text="comment.author || 'User'"></span>
+                      <span class="comment-time" x-text="formatRelativeTime(comment.timestamp)"></span>
+                    </div>
+                    <div class="comment-text" x-text="comment.text"></div>
+                  </div>
+                </template>
+                
+                <div class="panel-comments-empty" x-show="!selectedTask.comments || selectedTask.comments.length === 0">
+                  No comments yet
+                </div>
+              </div>
+            </div>
           </div>
           
           <!-- Panel Actions (for review without PR details, or backlog/done) -->
@@ -2622,6 +2927,15 @@
         lightboxImage: null,
         mergeStatus: null,
         merging: false,
+        
+        // Comments
+        newComment: '',
+        
+        // Reasoning
+        reasoningExpanded: false,
+        
+        // Track completed tasks for confetti (prevent double-trigger)
+        completedTaskIds: new Set(),
         
         // Config from config.js
         config: window.DEXTER_CONFIG || {},
@@ -2829,6 +3143,8 @@
           this.prDetails = null;
           this.prError = null;
           this.mergeStatus = null;
+          this.newComment = '';
+          this.reasoningExpanded = false;
           
           // Fetch PR details if task is in review
           if (task.status === 'review' && (task.prUrl || task.repo)) {
@@ -3053,6 +3369,12 @@
                 
                 await this.updateTaskApi(task.id, updates);
                 this.log(`✓ PR merged - task auto-completed: "${task.title}"`);
+                
+                // Trigger confetti for the completion
+                if (!this.completedTaskIds.has(task.id)) {
+                  this.completedTaskIds.add(task.id);
+                  this.triggerConfetti();
+                }
                 
                 if (this.config.debug) {
                   console.log(`PR #${prInfo.number} merged - auto-completed task: ${task.id}`);
@@ -3297,6 +3619,113 @@
         },
         
         // ============================================
+        // Comments
+        // ============================================
+        
+        async addComment() {
+          if (!this.newComment.trim() || !this.selectedTask) return;
+          
+          const comment = {
+            id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+            text: this.newComment.trim(),
+            author: 'User',
+            timestamp: new Date().toISOString()
+          };
+          
+          // Initialize comments array if needed
+          const comments = [...(this.selectedTask.comments || []), comment];
+          
+          // Update via API
+          if (this.config.useApi && this.config.apiEndpoint) {
+            await this.updateTaskApi(this.selectedTask.id, { comments });
+          } else {
+            const task = this.tasks.find(t => t.id === this.selectedTask.id);
+            if (task) {
+              task.comments = comments;
+              this.save();
+            }
+          }
+          
+          // Update selectedTask locally for immediate feedback
+          this.selectedTask.comments = comments;
+          this.newComment = '';
+          this.log(`Comment added on "${this.selectedTask.title}"`);
+        },
+        
+        // ============================================
+        // Cost Formatting
+        // ============================================
+        
+        formatCost(cost) {
+          if (!cost) return '';
+          if (cost.usd) {
+            return `$${cost.usd.toFixed(2)}`;
+          }
+          if (cost.tokens) {
+            return this.formatTokens(cost.tokens);
+          }
+          return '';
+        },
+        
+        formatCostBreakdown(cost) {
+          if (!cost) return '';
+          const parts = [];
+          if (cost.tokens) {
+            parts.push(this.formatTokens(cost.tokens) + ' tokens');
+          }
+          if (cost.usd && cost.tokens) {
+            // Already showing USD as main, show tokens as breakdown
+            return parts.join('');
+          }
+          if (cost.usd && !cost.tokens) {
+            return '';
+          }
+          if (cost.tokens && cost.usd) {
+            return `($${cost.usd.toFixed(2)})`;
+          }
+          return '';
+        },
+        
+        formatTokens(tokens) {
+          if (!tokens) return '0';
+          if (tokens >= 1000000) {
+            return (tokens / 1000000).toFixed(1) + 'M';
+          }
+          if (tokens >= 1000) {
+            return (tokens / 1000).toFixed(1) + 'k';
+          }
+          return tokens.toString();
+        },
+        
+        // ============================================
+        // Confetti
+        // ============================================
+        
+        triggerConfetti() {
+          if (typeof confetti === 'function') {
+            // Subtle but delightful confetti burst
+            confetti({
+              particleCount: 80,
+              spread: 60,
+              origin: { y: 0.7 },
+              colors: ['#ffffff', '#0af', '#4f4', '#a0f'],
+              disableForReducedMotion: true
+            });
+            
+            // Second smaller burst for extra delight
+            setTimeout(() => {
+              confetti({
+                particleCount: 40,
+                spread: 40,
+                origin: { y: 0.65 },
+                colors: ['#ffffff', '#0af'],
+                disableForReducedMotion: true
+              });
+            }, 150);
+          }
+        },
+        
+        // ============================================
         // API Methods
         // ============================================
         
@@ -3331,10 +3760,27 @@
         
         async fetchTasksFromApi() {
           try {
+            // Store previous task statuses to detect completions
+            const previousStatuses = {};
+            this.tasks.forEach(t => { previousStatuses[t.id] = t.status; });
+            
             const data = await this.apiRequest('GET', '/tasks');
             this.tasks = data.tasks || [];
             this.apiError = null;
             this.apiConnected = true;
+            
+            // Check for newly completed tasks and trigger confetti
+            for (const task of this.tasks) {
+              if (task.status === 'done' && 
+                  previousStatuses[task.id] && 
+                  previousStatuses[task.id] !== 'done' && 
+                  !this.completedTaskIds.has(task.id)) {
+                this.completedTaskIds.add(task.id);
+                this.triggerConfetti();
+                this.log(`✓ Completed: "${task.title}"`);
+                break; // Only one confetti at a time
+              }
+            }
             
             // Update selectedTask if it exists with fresh data
             if (this.selectedTask) {
@@ -3547,6 +3993,7 @@
           const task = this.tasks.find(t => t.id === taskId);
           if (!task) return;
           
+          const previousStatus = task.status;
           const updates = {
             status: newStatus,
             updatedAt: new Date().toISOString()
@@ -3564,6 +4011,12 @@
             Object.assign(task, updates);
             this.log(`Moved "${task.title}" → ${newStatus}`);
             this.save();
+          }
+          
+          // Trigger confetti when task moves to Done (only once per task)
+          if (newStatus === 'done' && previousStatus !== 'done' && !this.completedTaskIds.has(taskId)) {
+            this.completedTaskIds.add(taskId);
+            this.triggerConfetti();
           }
         },
         
