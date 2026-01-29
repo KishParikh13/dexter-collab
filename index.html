@@ -2392,6 +2392,470 @@
       color: var(--fg);
     }
 
+    /* Calendar View Styles */
+    .calendar-view {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      overflow: hidden;
+    }
+    
+    .calendar-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    
+    .calendar-title {
+      font-size: 12px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .calendar-meta {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-right: auto;
+    }
+    
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      flex: 1;
+      overflow-y: auto;
+    }
+    
+    .calendar-day {
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .calendar-day-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--hover-bg);
+    }
+    
+    .calendar-day-date {
+      font-size: 13px;
+      font-weight: 500;
+    }
+    
+    .calendar-day-count {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .calendar-day-events {
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+    }
+    
+    .calendar-event {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      transition: border-color 0.1s;
+    }
+    
+    .calendar-event:hover {
+      border-color: var(--fg);
+    }
+    
+    .calendar-event-time {
+      font-size: 11px;
+      color: var(--muted);
+      min-width: 50px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .calendar-event-content {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .calendar-event-title {
+      font-size: 12px;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .calendar-event-meta {
+      display: flex;
+      gap: 12px;
+      font-size: 10px;
+      color: var(--muted);
+    }
+    
+    .calendar-event-calendar {
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 2px 6px;
+      border: 1px solid var(--border);
+    }
+    
+    /* Calendar colors */
+    .cal-work { color: #0af; border-color: #0af; }
+    .cal-personal { color: #4f4; border-color: #4f4; }
+    .cal-projects { color: #f0a; border-color: #f0a; }
+    .cal-volunteering { color: #fa0; border-color: #fa0; }
+    .cal-finances { color: #f44; border-color: #f44; }
+    
+    .calendar-event-location {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .calendar-event-link {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 12px;
+      padding: 4px;
+    }
+    
+    .calendar-event-link:hover {
+      color: var(--fg);
+    }
+    
+    .calendar-loading,
+    .calendar-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      padding: 60px 20px;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      gap: 12px;
+    }
+    
+    .calendar-empty-icon {
+      font-size: 48px;
+      opacity: 0.5;
+    }
+    
+    .calendar-error {
+      padding: 24px;
+      text-align: center;
+      color: var(--error);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .calendar-error-hint {
+      margin-top: 12px;
+      font-size: 10px;
+      color: var(--muted);
+    }
+    
+    .calendar-error-hint code {
+      background: var(--hover-bg);
+      padding: 2px 6px;
+      display: inline-block;
+      margin-top: 4px;
+    }
+
+    /* Finance View Styles */
+    .finance-view {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto 1fr;
+      gap: 1px;
+      background: var(--border);
+      flex: 1;
+      overflow: hidden;
+    }
+    
+    .finance-section {
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    .finance-section.full-width {
+      grid-column: 1 / -1;
+    }
+    
+    .finance-section-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    
+    .finance-section-title {
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .finance-section-meta {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .finance-section-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+    }
+    
+    /* Finance Summary Cards */
+    .finance-summary {
+      display: flex;
+      gap: 16px;
+      padding: 16px;
+      flex-wrap: wrap;
+    }
+    
+    .finance-summary-card {
+      flex: 1;
+      min-width: 150px;
+      padding: 16px;
+      border: 1px solid var(--border);
+    }
+    
+    .finance-summary-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    
+    .finance-summary-value {
+      font-size: 24px;
+      font-weight: 500;
+    }
+    
+    .finance-summary-value.positive {
+      color: #4f4;
+    }
+    
+    .finance-summary-value.negative {
+      color: var(--error);
+    }
+    
+    /* Transactions List */
+    .finance-transaction {
+      display: flex;
+      align-items: center;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      margin-bottom: 4px;
+      gap: 12px;
+      transition: border-color 0.1s;
+    }
+    
+    .finance-transaction:hover {
+      border-color: var(--fg);
+    }
+    
+    .finance-transaction-date {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      width: 60px;
+      flex-shrink: 0;
+    }
+    
+    .finance-transaction-payee {
+      flex: 1;
+      font-size: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .finance-transaction-category {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 2px 6px;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    
+    .finance-transaction-amount {
+      font-size: 13px;
+      font-weight: 500;
+      min-width: 80px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+    
+    .finance-transaction-amount.income {
+      color: #4f4;
+    }
+    
+    .finance-transaction-amount.expense {
+      color: var(--fg);
+    }
+    
+    /* Budget Progress */
+    .finance-budget {
+      padding: 12px;
+      border: 1px solid var(--border);
+      margin-bottom: 8px;
+    }
+    
+    .finance-budget-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    
+    .finance-budget-name {
+      font-size: 12px;
+      font-weight: 500;
+    }
+    
+    .finance-budget-amounts {
+      font-size: 11px;
+      color: var(--muted);
+    }
+    
+    .finance-budget-amounts .spent {
+      color: var(--fg);
+    }
+    
+    .finance-budget-bar {
+      height: 6px;
+      background: var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .finance-budget-fill {
+      height: 100%;
+      background: var(--progress);
+      transition: width 0.3s ease;
+    }
+    
+    .finance-budget-fill.warning {
+      background: #fa0;
+    }
+    
+    .finance-budget-fill.danger {
+      background: var(--error);
+    }
+    
+    .finance-budget-percent {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 4px;
+      text-align: right;
+    }
+    
+    /* Category Spending */
+    .finance-category {
+      display: flex;
+      align-items: center;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      margin-bottom: 4px;
+      gap: 12px;
+    }
+    
+    .finance-category-name {
+      flex: 1;
+      font-size: 12px;
+    }
+    
+    .finance-category-count {
+      font-size: 10px;
+      color: var(--muted);
+    }
+    
+    .finance-category-amount {
+      font-size: 13px;
+      font-weight: 500;
+      min-width: 80px;
+      text-align: right;
+    }
+    
+    /* Finance Loading/Error States */
+    .finance-loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .finance-error {
+      padding: 16px;
+      text-align: center;
+      color: var(--error);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .finance-error-hint {
+      margin-top: 12px;
+      font-size: 10px;
+      color: var(--muted);
+    }
+    
+    .finance-error-hint code {
+      background: var(--hover-bg);
+      padding: 2px 6px;
+      display: inline-block;
+      margin-top: 4px;
+    }
+    
+    .finance-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
     @media (max-width: 1000px) {
       .board { grid-template-columns: repeat(2, 1fr); }
       .sidebar { display: none; }
@@ -2402,6 +2866,10 @@
       
       .chat-sessions-list {
         width: 250px;
+      }
+      
+      .finance-view {
+        grid-template-columns: 1fr;
       }
     }
     
@@ -2422,6 +2890,18 @@
       
       .chat-history-view {
         flex-direction: column;
+      }
+      
+      .finance-view {
+        grid-template-columns: 1fr;
+      }
+      
+      .finance-summary {
+        flex-direction: column;
+      }
+      
+      .finance-summary-card {
+        min-width: 100%;
       }
     }
   </style>
@@ -2561,6 +3041,8 @@
         <div class="nav-tabs">
           <button class="nav-tab" :class="{'active': currentView === 'tasks'}" @click="switchView('tasks')">📋 Tasks</button>
           <button class="nav-tab" :class="{'active': currentView === 'chat'}" @click="switchView('chat')">💬 Chat History</button>
+          <button class="nav-tab" :class="{'active': currentView === 'calendar'}" @click="switchView('calendar')">📅 Calendar</button>
+          <button class="nav-tab" :class="{'active': currentView === 'finance'}" @click="switchView('finance')">💰 Finance</button>
         </div>
         <span class="nav-status">
           <span class="nav-status-dot" :class="'status-' + status"></span>
@@ -2813,6 +3295,215 @@
           <div class="chat-empty" x-show="!selectedChatSession && !chatMessagesLoading">
             <div class="chat-empty-icon">👈</div>
             <div>Select a session to view messages</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Calendar View -->
+      <div class="calendar-view" x-show="currentView === 'calendar'" x-cloak>
+        <!-- Header -->
+        <div class="calendar-header">
+          <div class="calendar-title">📅 UPCOMING EVENTS</div>
+          <span class="calendar-meta" x-text="'Next 7 days • ' + calendarEventCount + ' events'"></span>
+          <button class="btn btn-small" @click="loadCalendarEvents()" :disabled="calendarLoading">
+            <span x-show="!calendarLoading">Refresh</span>
+            <span x-show="calendarLoading"><span class="spinner" x-text="spinnerFrame"></span></span>
+          </button>
+        </div>
+        
+        <!-- Loading State -->
+        <div class="calendar-loading" x-show="calendarLoading && !calendarError">
+          <span class="spinner" x-text="spinnerFrame"></span>
+          <span>Loading calendar...</span>
+        </div>
+        
+        <!-- Error State -->
+        <div class="calendar-error" x-show="calendarError && !calendarLoading">
+          <div x-text="calendarError"></div>
+          <div class="calendar-error-hint">
+            Make sure the calendar server is running:
+            <code>node scripts/calendar-server.js</code>
+          </div>
+        </div>
+        
+        <!-- Events Grid -->
+        <div class="calendar-grid" x-show="!calendarLoading && !calendarError">
+          <template x-for="(events, date) in calendarEvents" :key="date">
+            <div class="calendar-day">
+              <div class="calendar-day-header">
+                <div class="calendar-day-date" x-text="formatCalendarDate(date)"></div>
+                <div class="calendar-day-count" x-text="events.length + ' event' + (events.length !== 1 ? 's' : '')"></div>
+              </div>
+              <div class="calendar-day-events">
+                <template x-for="event in events" :key="event.id">
+                  <div class="calendar-event" :class="'calendar-' + event.calendar.toLowerCase()">
+                    <div class="calendar-event-time">
+                      <span x-show="!event.allDay" x-text="formatEventTime(event.start)"></span>
+                      <span x-show="event.allDay">All Day</span>
+                    </div>
+                    <div class="calendar-event-content">
+                      <div class="calendar-event-title" x-text="event.title"></div>
+                      <div class="calendar-event-meta">
+                        <span class="calendar-event-calendar" :class="'cal-' + event.calendar.toLowerCase()" x-text="event.calendar"></span>
+                        <span class="calendar-event-location" x-show="event.location" x-text="'📍 ' + (event.location || '').slice(0, 30)"></span>
+                      </div>
+                    </div>
+                    <a class="calendar-event-link" :href="event.htmlLink" target="_blank" @click.stop title="Open in Google Calendar">↗</a>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </template>
+          
+          <!-- Empty State -->
+          <div class="calendar-empty" x-show="Object.keys(calendarEvents).length === 0 && !calendarLoading && !calendarError">
+            <div class="calendar-empty-icon">📅</div>
+            <div>No upcoming events</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Finance View -->
+      <div class="finance-view" x-show="currentView === 'finance'" x-cloak>
+        <!-- Summary Section -->
+        <div class="finance-section full-width">
+          <div class="finance-summary">
+            <div class="finance-summary-card">
+              <div class="finance-summary-label">Spending (30 days)</div>
+              <div class="finance-summary-value" x-text="'$' + (financeSummary?.total_spending?.toLocaleString() || '0')"></div>
+            </div>
+            <div class="finance-summary-card">
+              <div class="finance-summary-label">Income (30 days)</div>
+              <div class="finance-summary-value positive" x-text="'$' + (financeSummary?.total_income?.toLocaleString() || '0')"></div>
+            </div>
+            <div class="finance-summary-card">
+              <div class="finance-summary-label">Net</div>
+              <div class="finance-summary-value" 
+                   :class="financeSummary?.net >= 0 ? 'positive' : 'negative'"
+                   x-text="(financeSummary?.net >= 0 ? '+$' : '-$') + Math.abs(financeSummary?.net || 0).toLocaleString()"></div>
+            </div>
+            <div style="margin-left: auto; display: flex; align-items: center;">
+              <button class="btn btn-small" @click="loadFinanceData()" :disabled="financeLoading">
+                <span x-show="!financeLoading">Refresh</span>
+                <span x-show="financeLoading"><span class="spinner" x-text="spinnerFrame"></span></span>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Budget Progress -->
+        <div class="finance-section">
+          <div class="finance-section-header">
+            <div class="finance-section-title">📊 Budget Progress</div>
+            <div class="finance-section-meta" x-text="financeBudgets.length + ' active budgets'"></div>
+          </div>
+          <div class="finance-section-body">
+            <!-- Loading -->
+            <div class="finance-loading" x-show="financeLoading">
+              <span class="spinner" x-text="spinnerFrame"></span>
+              <span>Loading budgets...</span>
+            </div>
+            
+            <!-- Error -->
+            <div class="finance-error" x-show="financeError && !financeLoading">
+              <div x-text="financeError"></div>
+              <div class="finance-error-hint">
+                Make sure the finance server is running:
+                <code>LUNCHMONEY_API_KEY="..." node scripts/finance-server.js</code>
+              </div>
+            </div>
+            
+            <!-- Budgets List -->
+            <div x-show="!financeLoading && !financeError">
+              <template x-for="budget in financeBudgets" :key="budget.category_id">
+                <div class="finance-budget">
+                  <div class="finance-budget-header">
+                    <div class="finance-budget-name" x-text="budget.category_name"></div>
+                    <div class="finance-budget-amounts">
+                      <span class="spent" x-text="'$' + budget.spending.toLocaleString()"></span>
+                      <span>/ $<span x-text="budget.budget_amount.toLocaleString()"></span></span>
+                    </div>
+                  </div>
+                  <div class="finance-budget-bar">
+                    <div class="finance-budget-fill" 
+                         :class="{'warning': budget.percent_used >= 80, 'danger': budget.percent_used >= 100}"
+                         :style="'width: ' + Math.min(budget.percent_used, 100) + '%'"></div>
+                  </div>
+                  <div class="finance-budget-percent">
+                    <span x-text="budget.percent_used + '%'"></span>
+                    <span x-show="budget.remaining > 0" x-text="' • $' + budget.remaining.toLocaleString() + ' remaining'"></span>
+                    <span x-show="budget.remaining < 0" style="color: var(--error);" x-text="' • $' + Math.abs(budget.remaining).toLocaleString() + ' over'"></span>
+                  </div>
+                </div>
+              </template>
+              
+              <div class="finance-empty" x-show="financeBudgets.length === 0">
+                <div>No budgets set up</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Spending by Category -->
+        <div class="finance-section">
+          <div class="finance-section-header">
+            <div class="finance-section-title">📈 Spending by Category</div>
+            <div class="finance-section-meta">Last 30 days</div>
+          </div>
+          <div class="finance-section-body">
+            <!-- Loading -->
+            <div class="finance-loading" x-show="financeLoading">
+              <span class="spinner" x-text="spinnerFrame"></span>
+              <span>Loading...</span>
+            </div>
+            
+            <!-- Category List -->
+            <div x-show="!financeLoading && !financeError">
+              <template x-for="cat in (financeSummary?.by_category || []).filter(c => c.total > 0).slice(0, 10)" :key="cat.category">
+                <div class="finance-category">
+                  <div class="finance-category-name" x-text="cat.category"></div>
+                  <div class="finance-category-count" x-text="cat.count + ' txn'"></div>
+                  <div class="finance-category-amount" x-text="'$' + cat.total.toLocaleString()"></div>
+                </div>
+              </template>
+              
+              <div class="finance-empty" x-show="!financeSummary?.by_category?.length">
+                <div>No spending data</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Recent Transactions -->
+        <div class="finance-section full-width">
+          <div class="finance-section-header">
+            <div class="finance-section-title">💳 Recent Transactions</div>
+            <div class="finance-section-meta" x-text="financeTransactions.length + ' transactions'"></div>
+          </div>
+          <div class="finance-section-body">
+            <!-- Loading -->
+            <div class="finance-loading" x-show="financeLoading">
+              <span class="spinner" x-text="spinnerFrame"></span>
+              <span>Loading transactions...</span>
+            </div>
+            
+            <!-- Transactions List -->
+            <div x-show="!financeLoading && !financeError">
+              <template x-for="txn in financeTransactions.slice(0, 30)" :key="txn.id">
+                <div class="finance-transaction">
+                  <div class="finance-transaction-date" x-text="formatFinanceDate(txn.date)"></div>
+                  <div class="finance-transaction-payee" x-text="txn.payee"></div>
+                  <div class="finance-transaction-category" x-show="txn.category_name" x-text="txn.category_name"></div>
+                  <div class="finance-transaction-amount" 
+                       :class="txn.amount < 0 ? 'income' : 'expense'"
+                       x-text="(txn.amount < 0 ? '+' : '-') + '$' + Math.abs(txn.amount).toLocaleString()"></div>
+                </div>
+              </template>
+              
+              <div class="finance-empty" x-show="financeTransactions.length === 0">
+                <div>No recent transactions</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -3324,6 +4015,19 @@
         chatMessagesLoading: false,
         chatSearchQuery: '',
         chatSearchResults: [],
+        
+        // Calendar
+        calendarEvents: {},
+        calendarEventCount: 0,
+        calendarLoading: false,
+        calendarError: null,
+        
+        // Finance
+        financeTransactions: [],
+        financeBudgets: [],
+        financeSummary: null,
+        financeLoading: false,
+        financeError: null,
         
         // Track completed tasks for confetti (prevent double-trigger)
         completedTaskIds: new Set(),
@@ -4613,6 +5317,12 @@
           if (view === 'chat') {
             this.loadChatSessions();
           }
+          if (view === 'calendar') {
+            this.loadCalendarEvents();
+          }
+          if (view === 'finance') {
+            this.loadFinanceData();
+          }
         },
         
         async loadChatSessions() {
@@ -4715,6 +5425,96 @@
           return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
         },
         
+        // ============================================
+        // Calendar Methods
+        // ============================================
+        
+        async loadCalendarEvents() {
+          if (!this.config.calendarServerUrl) {
+            this.calendarError = 'Calendar server URL not configured';
+            return;
+          }
+          
+          this.calendarLoading = true;
+          this.calendarError = null;
+          
+          try {
+            const res = await fetch(`${this.config.calendarServerUrl}/events?days=7&grouped=true`);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json();
+            this.calendarEvents = data.events || {};
+            this.calendarEventCount = data.totalCount || 0;
+            if (this.config.debug) console.log('Loaded calendar events:', this.calendarEventCount);
+          } catch (e) {
+            console.error('Failed to load calendar events:', e);
+            this.calendarError = 'Failed to connect to calendar server';
+          } finally {
+            this.calendarLoading = false;
+          }
+        },
+        
+        formatCalendarDate(dateStr) {
+          const date = new Date(dateStr + 'T00:00:00');
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const tomorrow = new Date(today);
+          tomorrow.setDate(tomorrow.getDate() + 1);
+          
+          if (date.getTime() === today.getTime()) {
+            return 'Today — ' + date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+          }
+          if (date.getTime() === tomorrow.getTime()) {
+            return 'Tomorrow — ' + date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+          }
+          return date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+        },
+        
+        formatEventTime(iso) {
+          if (!iso) return '';
+          const date = new Date(iso);
+          return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).toLowerCase();
+        },
+        
+        // ============================================
+        // Finance Methods
+        // ============================================
+        
+        async loadFinanceData() {
+          if (!this.config.financeServerUrl) {
+            this.financeError = 'Finance server URL not configured';
+            return;
+          }
+          
+          this.financeLoading = true;
+          this.financeError = null;
+          
+          try {
+            const res = await fetch(`${this.config.financeServerUrl}/dashboard`);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json();
+            
+            this.financeTransactions = data.transactions || [];
+            this.financeBudgets = data.budgets || [];
+            this.financeSummary = data.summary || null;
+            
+            if (this.config.debug) console.log('Loaded finance data:', {
+              transactions: this.financeTransactions.length,
+              budgets: this.financeBudgets.length
+            });
+          } catch (e) {
+            console.error('Failed to load finance data:', e);
+            this.financeError = 'Failed to connect to finance server';
+          } finally {
+            this.financeLoading = false;
+          }
+        },
+        
+        formatFinanceDate(dateStr) {
+          if (!dateStr) return '';
+          const date = new Date(dateStr + 'T00:00:00');
+          return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        },
+        
         handleKeyboard(e) {
           if (['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return;
           if (e.key === 'a' && this.currentView === 'tasks') { this.showAddForm = true; this.$nextTick(() => this.$refs.addInput?.focus()); }
@@ -4722,6 +5522,8 @@
           if (e.key === 'i' && this.currentView === 'tasks') this.showImport = true;
           if (e.key === '1') this.switchView('tasks');
           if (e.key === '2') this.switchView('chat');
+          if (e.key === '3') this.switchView('calendar');
+          if (e.key === '4') this.switchView('finance');
           if (e.key === 'Escape') {
             this.showAddForm = false;
             this.showExport = false;
