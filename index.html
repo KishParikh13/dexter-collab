@@ -564,18 +564,22 @@
         <div class="avatar-status" x-text="statusMessage"></div>
       </div>
       
-      <!-- Active Agents -->
+      <!-- Active Sessions -->
       <div class="sidebar-section">
-        <div class="sidebar-title">🤖 Agents</div>
-        <template x-for="(agent, id) in progress.agents" :key="id">
+        <div class="sidebar-title">🤖 Sessions</div>
+        <template x-for="session in sessions" :key="session.id">
           <div class="agent-item">
-            <span class="agent-status" :class="'status-' + agent.status"></span>
-            <span class="agent-info">
-              <span x-text="agent.taskIds?.length || 0"></span> task(s)
-            </span>
+            <span class="agent-status" :class="session.status === 'active' ? 'status-working' : 'status-idle'"></span>
+            <span class="agent-info" x-text="session.id === 'main' ? 'Dexter' : session.id"></span>
           </div>
         </template>
-        <div class="sidebar-empty" x-show="Object.keys(progress.agents || {}).length === 0">No active agents</div>
+        <div class="sidebar-empty" x-show="sessions.length === 0">No active sessions</div>
+      </div>
+      
+      <!-- API Status -->
+      <div class="sidebar-section" x-show="apiError">
+        <div class="sidebar-title" style="color: var(--error);">⚠️ API Error</div>
+        <div class="sidebar-empty" style="color: var(--error); font-size: 10px;" x-text="apiError"></div>
       </div>
     </aside>
     
@@ -588,6 +592,8 @@
           <span x-text="status"></span>
         </span>
         <span class="nav-meta">Last sync: <span x-text="lastSync"></span></span>
+        <span class="nav-meta" x-show="config.useApi && config.apiEndpoint" style="color: #4f4;">● API</span>
+        <span class="nav-meta" x-show="apiError" style="color: var(--error);">⚠️ API Error</span>
         <div class="nav-actions">
           <button class="btn" @click="showExport = true">Export</button>
           <button class="btn" @click="showImport = true">Import</button>
@@ -809,7 +815,7 @@
         tasks: [],
         notes: [],
         actionLog: [],
-        progress: { tasks: {}, agents: {} },
+        sessions: [],
         
         // Status (auto-detected)
         status: 'online',
@@ -825,12 +831,13 @@
         newTaskText: '',
         newNote: '',
         importDataText: '',
+        apiError: null,
         
-        // GitHub config - use API for no CDN cache
-        progressApiUrl: 'https://api.github.com/repos/KishParikh13/dexter-collab/contents/progress.json',
+        // Config from config.js
+        config: window.DEXTER_CONFIG || {},
         
-        init() {
-          // Load from localStorage
+        async init() {
+          // Load from localStorage (fallback)
           this.tasks = JSON.parse(localStorage.getItem('dexter-tasks') || '[]');
           this.notes = JSON.parse(localStorage.getItem('dexter-notes') || '[]');
           this.actionLog = JSON.parse(localStorage.getItem('dexter-action-log') || '[]');
@@ -838,41 +845,177 @@
           // Init kanban
           this.$nextTick(() => this.initKanban());
           
-          // Fetch progress from GitHub
-          this.fetchProgress();
-          
-          // Poll for progress updates every 10 seconds
-          setInterval(() => {
+          // Fetch from API if enabled
+          if (this.config.useApi && this.config.apiEndpoint) {
+            await this.fetchTasksFromApi();
+            await this.fetchSessions();
+            
+            // Poll for updates
+            setInterval(() => this.fetchTasksFromApi(), this.config.taskPollInterval || 10000);
+            setInterval(() => {
+              this.fetchSessions();
+              this.lastSync = new Date().toLocaleTimeString();
+            }, this.config.sessionPollInterval || 5000);
+          } else {
+            // Legacy: poll GitHub for progress
             this.fetchProgress();
-            this.lastSync = new Date().toLocaleTimeString();
-          }, 10000);
+            setInterval(() => {
+              this.fetchProgress();
+              this.lastSync = new Date().toLocaleTimeString();
+            }, 10000);
+          }
           
-          // Update status based on active agents
           this.updateStatus();
         },
         
-        async fetchProgress() {
+        // ============================================
+        // API Methods
+        // ============================================
+        
+        async apiRequest(method, path, body = null) {
+          if (!this.config.apiEndpoint) {
+            throw new Error('API endpoint not configured');
+          }
+          
+          const headers = {
+            'Content-Type': 'application/json'
+          };
+          
+          // Add API key for write operations
+          if (['POST', 'PUT', 'DELETE'].includes(method) && this.config.apiKey) {
+            headers['x-api-key'] = this.config.apiKey;
+          }
+          
+          const options = { method, headers };
+          if (body) {
+            options.body = JSON.stringify(body);
+          }
+          
+          const response = await fetch(`${this.config.apiEndpoint}${path}`, options);
+          const data = await response.json();
+          
+          if (!response.ok) {
+            throw new Error(data.error || `API error: ${response.status}`);
+          }
+          
+          return data;
+        },
+        
+        async fetchTasksFromApi() {
           try {
-            const res = await fetch(this.progressApiUrl, {
+            const data = await this.apiRequest('GET', '/tasks');
+            this.tasks = data.tasks || [];
+            this.apiError = null;
+            
+            // Also save to localStorage as backup
+            if (this.config.fallbackToLocalStorage) {
+              localStorage.setItem('dexter-tasks', JSON.stringify(this.tasks));
+            }
+            
+            this.$nextTick(() => this.initKanban());
+            if (this.config.debug) console.log('Fetched tasks:', this.tasks.length);
+          } catch (e) {
+            console.error('Failed to fetch tasks from API:', e);
+            this.apiError = e.message;
+            
+            // Fallback to localStorage
+            if (this.config.fallbackToLocalStorage) {
+              this.tasks = JSON.parse(localStorage.getItem('dexter-tasks') || '[]');
+            }
+          }
+        },
+        
+        async fetchSessions() {
+          try {
+            const data = await this.apiRequest('GET', '/sessions');
+            this.sessions = data.sessions || [];
+            this.updateStatus();
+            if (this.config.debug) console.log('Fetched sessions:', this.sessions);
+          } catch (e) {
+            console.error('Failed to fetch sessions:', e);
+          }
+        },
+        
+        async createTaskApi(task) {
+          try {
+            const data = await this.apiRequest('POST', '/tasks', task);
+            this.log(`Created: "${data.task.title}"`);
+            await this.fetchTasksFromApi();
+            return data.task;
+          } catch (e) {
+            console.error('Failed to create task:', e);
+            this.log(`Error creating task: ${e.message}`);
+            
+            // Fallback: save locally
+            if (this.config.fallbackToLocalStorage) {
+              this.tasks.push(task);
+              this.save();
+            }
+            return null;
+          }
+        },
+        
+        async updateTaskApi(taskId, updates) {
+          try {
+            const data = await this.apiRequest('PUT', `/tasks/${taskId}`, updates);
+            this.log(`Updated: "${data.task.title}"`);
+            await this.fetchTasksFromApi();
+            return data.task;
+          } catch (e) {
+            console.error('Failed to update task:', e);
+            this.log(`Error updating task: ${e.message}`);
+            
+            // Fallback: save locally
+            if (this.config.fallbackToLocalStorage) {
+              const task = this.tasks.find(t => t.id === taskId);
+              if (task) {
+                Object.assign(task, updates);
+                this.save();
+              }
+            }
+            return null;
+          }
+        },
+        
+        async deleteTaskApi(taskId) {
+          try {
+            await this.apiRequest('DELETE', `/tasks/${taskId}`);
+            this.log('Task deleted');
+            await this.fetchTasksFromApi();
+            return true;
+          } catch (e) {
+            console.error('Failed to delete task:', e);
+            this.log(`Error deleting task: ${e.message}`);
+            return false;
+          }
+        },
+        
+        // ============================================
+        // Legacy GitHub Progress (fallback)
+        // ============================================
+        
+        async fetchProgress() {
+          // Only used when API is not configured
+          if (this.config.useApi && this.config.apiEndpoint) return;
+          
+          try {
+            const res = await fetch('https://api.github.com/repos/KishParikh13/dexter-collab/contents/progress.json', {
               headers: { 'Accept': 'application/vnd.github.v3+json' }
             });
             if (res.ok) {
               const data = await res.json();
-              // GitHub API returns base64 encoded content
               const content = atob(data.content.replace(/\n/g, ''));
-              this.progress = JSON.parse(content);
-              this.updateStatus();
-              this.syncTasksFromProgress();
-              this.loadBacklogFromProgress();
+              const progress = JSON.parse(content);
+              this.syncTasksFromProgress(progress);
+              this.loadBacklogFromProgress(progress);
             }
           } catch (e) {
             console.log('Could not fetch progress:', e);
           }
         },
         
-        syncTasksFromProgress() {
-          // Update task status from progress.json
-          for (const [taskId, prog] of Object.entries(this.progress.tasks || {})) {
+        syncTasksFromProgress(progress = {}) {
+          for (const [taskId, prog] of Object.entries(progress.tasks || {})) {
             const task = this.tasks.find(t => t.id === taskId);
             if (task && prog.status === 'review' && task.status !== 'review') {
               task.status = 'review';
@@ -882,9 +1025,8 @@
           }
         },
         
-        loadBacklogFromProgress() {
-          // Load backlog items from progress.json if not already in tasks
-          const backlog = this.progress.backlog || [];
+        loadBacklogFromProgress(progress = {}) {
+          const backlog = progress.backlog || [];
           let added = 0;
           for (const item of backlog) {
             if (!this.tasks.find(t => t.id === item.id)) {
@@ -906,10 +1048,16 @@
         },
         
         updateStatus() {
-          const activeAgents = Object.values(this.progress.agents || {}).filter(a => a.status === 'working');
-          if (activeAgents.length > 0) {
+          // Check sessions for active Dexter status
+          const mainSession = this.sessions.find(s => s.id === 'main');
+          const activeAgents = this.sessions.filter(s => s.status === 'active' && s.id !== 'main');
+          
+          if (mainSession?.status === 'active') {
             this.status = 'working';
-            this.statusMessage = `Working on ${activeAgents.length} task(s)`;
+            this.statusMessage = mainSession.currentAction || 'Dexter is thinking...';
+          } else if (activeAgents.length > 0) {
+            this.status = 'working';
+            this.statusMessage = `${activeAgents.length} agent(s) working`;
           } else {
             this.status = 'online';
             this.statusMessage = 'Ready';
@@ -917,7 +1065,14 @@
         },
         
         getProgress(taskId) {
-          return this.progress.tasks?.[taskId];
+          // Get progress from task's steps if available
+          const task = this.tasks.find(t => t.id === taskId);
+          if (!task || !task.steps || task.steps.length === 0) return null;
+          
+          return {
+            currentStep: task.currentStep,
+            steps: task.steps
+          };
         },
         
         initKanban() {
@@ -944,7 +1099,7 @@
           
           // If dropping into in-progress, show confirmation
           if (newStatus === 'in-progress' && task.status !== 'in-progress') {
-            this.confirmStart = { ...task, repo: '', context: '' };
+            this.confirmStart = { ...task, repo: task.repo || '', context: '' };
             // Revert the visual drop until confirmed
             this.$nextTick(() => this.initKanban());
           } else if (task.status !== newStatus) {
@@ -952,12 +1107,25 @@
           }
         },
         
-        moveTask(taskId, newStatus) {
+        async moveTask(taskId, newStatus) {
           const task = this.tasks.find(t => t.id === taskId);
-          if (task) {
-            task.status = newStatus;
-            task.updatedAt = new Date().toISOString();
-            if (newStatus === 'done') task.completedAt = new Date().toISOString();
+          if (!task) return;
+          
+          const updates = {
+            status: newStatus,
+            updatedAt: new Date().toISOString()
+          };
+          
+          if (newStatus === 'done') {
+            updates.completedAt = new Date().toISOString();
+          }
+          
+          // Update via API if enabled
+          if (this.config.useApi && this.config.apiEndpoint) {
+            await this.updateTaskApi(taskId, updates);
+          } else {
+            // Local update
+            Object.assign(task, updates);
             this.log(`Moved "${task.title}" → ${newStatus}`);
             this.save();
           }
@@ -968,24 +1136,34 @@
           this.$nextTick(() => this.initKanban());
         },
         
-        startTask() {
-          const task = this.tasks.find(t => t.id === this.confirmStart.id);
+        async startTask() {
+          const taskId = this.confirmStart.id;
+          const task = this.tasks.find(t => t.id === taskId);
+          
           if (task) {
-            task.status = 'in-progress';
-            task.startedAt = new Date().toISOString();
-            task.repo = this.confirmStart.repo;
-            task.context = this.confirmStart.context;
+            const updates = {
+              status: 'in-progress',
+              startedAt: new Date().toISOString(),
+              repo: this.confirmStart.repo,
+              context: this.confirmStart.context
+            };
+            
+            // Update via API if enabled
+            if (this.config.useApi && this.config.apiEndpoint) {
+              await this.updateTaskApi(taskId, updates);
+            } else {
+              Object.assign(task, updates);
+              this.save();
+            }
             
             // Generate command for Dexter
-            const cmd = this.generateStartCommand(task);
+            const cmd = this.generateStartCommand({ ...task, ...updates });
             
             // Copy to clipboard and show notification
             navigator.clipboard.writeText(cmd).then(() => {
               this.log(`Started: "${task.title}" - command copied`);
               alert('Task started! Command copied to clipboard.\\n\\nPaste it to Dexter in Telegram to begin work.');
             });
-            
-            this.save();
           }
           this.confirmStart = null;
           this.$nextTick(() => this.initKanban());
@@ -1003,18 +1181,31 @@
           this.expandedTask = this.expandedTask === taskId ? null : taskId;
         },
         
-        addTasks() {
-          this.newTaskText.split('\n').filter(l => l.trim()).forEach(line => {
-            this.tasks.push({
+        async addTasks() {
+          const lines = this.newTaskText.split('\n').filter(l => l.trim());
+          
+          for (const line of lines) {
+            const task = {
               id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
               title: line.trim(),
               status: 'backlog',
               createdAt: new Date().toISOString()
-            });
-          });
-          this.log(`Added ${this.newTaskText.split('\n').filter(l => l.trim()).length} task(s)`);
+            };
+            
+            // Create via API if enabled
+            if (this.config.useApi && this.config.apiEndpoint) {
+              await this.createTaskApi(task);
+            } else {
+              this.tasks.push(task);
+            }
+          }
+          
+          if (!(this.config.useApi && this.config.apiEndpoint)) {
+            this.log(`Added ${lines.length} task(s)`);
+            this.save();
+          }
+          
           this.newTaskText = '';
-          this.save();
           this.$nextTick(() => this.initKanban());
         },
         

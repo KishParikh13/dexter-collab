@@ -1,1 +1,15 @@
 scripts/__pycache__/
+
+# AWS deployment configs (contain API keys)
+aws/config-*.json
+aws/.aws-sam/
+
+# Local config overrides (API keys)
+config.local.js
+
+# SAM build artifacts
+.aws-sam/
+
+# Python
+__pycache__/
+*.pyc
