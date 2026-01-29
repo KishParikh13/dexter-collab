@@ -90,6 +90,30 @@
       overflow: visible;
     }
     
+    .dexter-sprite {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .dexter-sprite.sprite-working {
+      animation: sprite-bounce 1s ease-in-out infinite;
+    }
+    
+    .dexter-sprite.sprite-idle {
+      animation: sprite-breathe 3s ease-in-out infinite;
+    }
+    
+    @keyframes sprite-bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+    
+    @keyframes sprite-breathe {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    
     .dexter-avatar .face {
       fill: none;
       stroke: var(--fg);
@@ -1586,43 +1610,11 @@
     <aside class="sidebar">
       <div class="avatar-section">
         <div class="avatar" :class="'status-' + status">
-          <!-- Animated Dexter Avatar -->
-          <svg class="dexter-avatar" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-            <!-- Face outline -->
-            <circle class="face" cx="30" cy="32" r="24"/>
-            
-            <!-- Glasses frame -->
-            <g class="glasses">
-              <rect x="14" y="24" width="13" height="11" rx="2"/>
-              <rect x="33" y="24" width="13" height="11" rx="2"/>
-              <line x1="27" y1="29.5" x2="33" y2="29.5"/>
-              <line x1="6" y1="29.5" x2="14" y2="29.5"/>
-              <line x1="46" y1="29.5" x2="54" y2="29.5"/>
-            </g>
-            
-            <!-- Eyes (inside glasses) - group for animation -->
-            <g class="eyes" style="transform-origin: 30px 29px;">
-              <ellipse class="eye" cx="20.5" cy="29" rx="2.5" ry="3"/>
-              <ellipse class="eye" cx="39.5" cy="29" rx="2.5" ry="3"/>
-            </g>
-            
-            <!-- Mouth - slight smile -->
-            <path class="mouth" d="M24 44 Q30 48 36 44"/>
-            
-            <!-- Sleeping Zzz (only visible when idle) -->
-            <g class="zzz-group">
-              <text class="zzz" x="46" y="20">z</text>
-              <text class="zzz" x="50" y="13">z</text>
-              <text class="zzz" x="54" y="6">Z</text>
-            </g>
-            
-            <!-- Thinking dots (only visible when working) -->
-            <g class="thinking-dots">
-              <circle class="thought-dot" cx="50" cy="14" r="2"/>
-              <circle class="thought-dot" cx="55" cy="9" r="2.5"/>
-              <circle class="thought-dot" cx="60" cy="4" r="3"/>
-            </g>
-          </svg>
+          <!-- Dexter Avatar Sprites -->
+          <img :src="'assets/dexter-' + (status === 'working' ? 'working' : status === 'idle' ? 'idle' : status === 'waiting' ? 'thinking' : 'online') + '.png'" 
+               alt="Dexter" 
+               class="dexter-sprite"
+               :class="'sprite-' + status">
           <div class="status-dot" :class="'status-' + status"></div>
         </div>
         <div class="avatar-name">Dexter</div>
