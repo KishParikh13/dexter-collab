@@ -782,8 +782,8 @@
         newNote: '',
         importDataText: '',
         
-        // GitHub config
-        progressUrl: 'https://raw.githubusercontent.com/KishParikh13/dexter-collab/main/progress.json',
+        // GitHub config - use API for no CDN cache
+        progressApiUrl: 'https://api.github.com/repos/KishParikh13/dexter-collab/contents/progress.json',
         
         init() {
           // Load from localStorage
@@ -797,11 +797,11 @@
           // Fetch progress from GitHub
           this.fetchProgress();
           
-          // Poll for progress updates every 15 seconds
+          // Poll for progress updates every 10 seconds
           setInterval(() => {
             this.fetchProgress();
             this.lastSync = new Date().toLocaleTimeString();
-          }, 15000);
+          }, 10000);
           
           // Update status based on active agents
           this.updateStatus();
@@ -809,9 +809,14 @@
         
         async fetchProgress() {
           try {
-            const res = await fetch(this.progressUrl + '?t=' + Date.now());
+            const res = await fetch(this.progressApiUrl, {
+              headers: { 'Accept': 'application/vnd.github.v3+json' }
+            });
             if (res.ok) {
-              this.progress = await res.json();
+              const data = await res.json();
+              // GitHub API returns base64 encoded content
+              const content = atob(data.content.replace(/\n/g, ''));
+              this.progress = JSON.parse(content);
               this.updateStatus();
               this.syncTasksFromProgress();
               this.loadBacklogFromProgress();
