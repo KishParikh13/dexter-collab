@@ -2392,6 +2392,196 @@
       color: var(--fg);
     }
 
+    /* Calendar View Styles */
+    .calendar-view {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      overflow: hidden;
+    }
+    
+    .calendar-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    
+    .calendar-title {
+      font-size: 12px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .calendar-meta {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-right: auto;
+    }
+    
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      flex: 1;
+      overflow-y: auto;
+    }
+    
+    .calendar-day {
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .calendar-day-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--hover-bg);
+    }
+    
+    .calendar-day-date {
+      font-size: 13px;
+      font-weight: 500;
+    }
+    
+    .calendar-day-count {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .calendar-day-events {
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+    }
+    
+    .calendar-event {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      transition: border-color 0.1s;
+    }
+    
+    .calendar-event:hover {
+      border-color: var(--fg);
+    }
+    
+    .calendar-event-time {
+      font-size: 11px;
+      color: var(--muted);
+      min-width: 50px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .calendar-event-content {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .calendar-event-title {
+      font-size: 12px;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .calendar-event-meta {
+      display: flex;
+      gap: 12px;
+      font-size: 10px;
+      color: var(--muted);
+    }
+    
+    .calendar-event-calendar {
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 2px 6px;
+      border: 1px solid var(--border);
+    }
+    
+    /* Calendar colors */
+    .cal-work { color: #0af; border-color: #0af; }
+    .cal-personal { color: #4f4; border-color: #4f4; }
+    .cal-projects { color: #f0a; border-color: #f0a; }
+    .cal-volunteering { color: #fa0; border-color: #fa0; }
+    .cal-finances { color: #f44; border-color: #f44; }
+    
+    .calendar-event-location {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .calendar-event-link {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 12px;
+      padding: 4px;
+    }
+    
+    .calendar-event-link:hover {
+      color: var(--fg);
+    }
+    
+    .calendar-loading,
+    .calendar-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      padding: 60px 20px;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      gap: 12px;
+    }
+    
+    .calendar-empty-icon {
+      font-size: 48px;
+      opacity: 0.5;
+    }
+    
+    .calendar-error {
+      padding: 24px;
+      text-align: center;
+      color: var(--error);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .calendar-error-hint {
+      margin-top: 12px;
+      font-size: 10px;
+      color: var(--muted);
+    }
+    
+    .calendar-error-hint code {
+      background: var(--hover-bg);
+      padding: 2px 6px;
+      display: inline-block;
+      margin-top: 4px;
+    }
+
     @media (max-width: 1000px) {
       .board { grid-template-columns: repeat(2, 1fr); }
       .sidebar { display: none; }
@@ -2561,6 +2751,7 @@
         <div class="nav-tabs">
           <button class="nav-tab" :class="{'active': currentView === 'tasks'}" @click="switchView('tasks')">📋 Tasks</button>
           <button class="nav-tab" :class="{'active': currentView === 'chat'}" @click="switchView('chat')">💬 Chat History</button>
+          <button class="nav-tab" :class="{'active': currentView === 'calendar'}" @click="switchView('calendar')">📅 Calendar</button>
         </div>
         <span class="nav-status">
           <span class="nav-status-dot" :class="'status-' + status"></span>
@@ -2813,6 +3004,70 @@
           <div class="chat-empty" x-show="!selectedChatSession && !chatMessagesLoading">
             <div class="chat-empty-icon">👈</div>
             <div>Select a session to view messages</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Calendar View -->
+      <div class="calendar-view" x-show="currentView === 'calendar'" x-cloak>
+        <!-- Header -->
+        <div class="calendar-header">
+          <div class="calendar-title">📅 UPCOMING EVENTS</div>
+          <span class="calendar-meta" x-text="'Next 7 days • ' + calendarEventCount + ' events'"></span>
+          <button class="btn btn-small" @click="loadCalendarEvents()" :disabled="calendarLoading">
+            <span x-show="!calendarLoading">Refresh</span>
+            <span x-show="calendarLoading"><span class="spinner" x-text="spinnerFrame"></span></span>
+          </button>
+        </div>
+        
+        <!-- Loading State -->
+        <div class="calendar-loading" x-show="calendarLoading && !calendarError">
+          <span class="spinner" x-text="spinnerFrame"></span>
+          <span>Loading calendar...</span>
+        </div>
+        
+        <!-- Error State -->
+        <div class="calendar-error" x-show="calendarError && !calendarLoading">
+          <div x-text="calendarError"></div>
+          <div class="calendar-error-hint">
+            Make sure the calendar server is running:
+            <code>node scripts/calendar-server.js</code>
+          </div>
+        </div>
+        
+        <!-- Events Grid -->
+        <div class="calendar-grid" x-show="!calendarLoading && !calendarError">
+          <template x-for="(events, date) in calendarEvents" :key="date">
+            <div class="calendar-day">
+              <div class="calendar-day-header">
+                <div class="calendar-day-date" x-text="formatCalendarDate(date)"></div>
+                <div class="calendar-day-count" x-text="events.length + ' event' + (events.length !== 1 ? 's' : '')"></div>
+              </div>
+              <div class="calendar-day-events">
+                <template x-for="event in events" :key="event.id">
+                  <div class="calendar-event" :class="'calendar-' + event.calendar.toLowerCase()">
+                    <div class="calendar-event-time">
+                      <span x-show="!event.allDay" x-text="formatEventTime(event.start)"></span>
+                      <span x-show="event.allDay">All Day</span>
+                    </div>
+                    <div class="calendar-event-content">
+                      <div class="calendar-event-title" x-text="event.title"></div>
+                      <div class="calendar-event-meta">
+                        <span class="calendar-event-calendar" :class="'cal-' + event.calendar.toLowerCase()" x-text="event.calendar"></span>
+                        <span class="calendar-event-location" x-show="event.location" x-text="'📍 ' + (event.location || '').slice(0, 30)"></span>
+                      </div>
+                    </div>
+                    <a class="calendar-event-link" :href="event.htmlLink" target="_blank" @click.stop title="Open in Google Calendar">↗</a>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </template>
+          
+          <!-- Empty State -->
+          <div class="calendar-empty" x-show="Object.keys(calendarEvents).length === 0 && !calendarLoading && !calendarError">
+            <div class="calendar-empty-icon">📅</div>
+            <div>No upcoming events</div>
           </div>
         </div>
       </div>
@@ -3324,6 +3579,12 @@
         chatMessagesLoading: false,
         chatSearchQuery: '',
         chatSearchResults: [],
+        
+        // Calendar
+        calendarEvents: {},
+        calendarEventCount: 0,
+        calendarLoading: false,
+        calendarError: null,
         
         // Track completed tasks for confetti (prevent double-trigger)
         completedTaskIds: new Set(),
@@ -4613,6 +4874,9 @@
           if (view === 'chat') {
             this.loadChatSessions();
           }
+          if (view === 'calendar') {
+            this.loadCalendarEvents();
+          }
         },
         
         async loadChatSessions() {
@@ -4715,6 +4979,56 @@
           return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
         },
         
+        // ============================================
+        // Calendar Methods
+        // ============================================
+        
+        async loadCalendarEvents() {
+          if (!this.config.calendarServerUrl) {
+            this.calendarError = 'Calendar server URL not configured';
+            return;
+          }
+          
+          this.calendarLoading = true;
+          this.calendarError = null;
+          
+          try {
+            const res = await fetch(`${this.config.calendarServerUrl}/events?days=7&grouped=true`);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json();
+            this.calendarEvents = data.events || {};
+            this.calendarEventCount = data.totalCount || 0;
+            if (this.config.debug) console.log('Loaded calendar events:', this.calendarEventCount);
+          } catch (e) {
+            console.error('Failed to load calendar events:', e);
+            this.calendarError = 'Failed to connect to calendar server';
+          } finally {
+            this.calendarLoading = false;
+          }
+        },
+        
+        formatCalendarDate(dateStr) {
+          const date = new Date(dateStr + 'T00:00:00');
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const tomorrow = new Date(today);
+          tomorrow.setDate(tomorrow.getDate() + 1);
+          
+          if (date.getTime() === today.getTime()) {
+            return 'Today — ' + date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+          }
+          if (date.getTime() === tomorrow.getTime()) {
+            return 'Tomorrow — ' + date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+          }
+          return date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+        },
+        
+        formatEventTime(iso) {
+          if (!iso) return '';
+          const date = new Date(iso);
+          return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).toLowerCase();
+        },
+        
         handleKeyboard(e) {
           if (['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return;
           if (e.key === 'a' && this.currentView === 'tasks') { this.showAddForm = true; this.$nextTick(() => this.$refs.addInput?.focus()); }
@@ -4722,6 +5036,7 @@
           if (e.key === 'i' && this.currentView === 'tasks') this.showImport = true;
           if (e.key === '1') this.switchView('tasks');
           if (e.key === '2') this.switchView('chat');
+          if (e.key === '3') this.switchView('calendar');
           if (e.key === 'Escape') {
             this.showAddForm = false;
             this.showExport = false;

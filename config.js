@@ -13,6 +13,10 @@ window.DEXTER_CONFIG = {
   // Run: node scripts/chat-server.js
   chatServerUrl: 'http://localhost:3847',
   
+  // Calendar Server (local)
+  // Run: node scripts/calendar-server.js
+  calendarServerUrl: 'http://localhost:3849',
+  
   // Polling intervals (ms)
   sessionPollInterval: 5000,
   taskPollInterval: 10000,
