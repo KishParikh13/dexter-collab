@@ -1,29 +1,19 @@
 /**
  * Dexter Dashboard Configuration
- * 
- * This file contains API configuration for the dashboard.
- * Do NOT commit API keys to public repos - use environment-specific overrides.
- * 
- * For local development, create config.local.js with your API key:
- * window.DEXTER_CONFIG = { ...window.DEXTER_CONFIG, apiKey: 'your-key' };
  */
 
 window.DEXTER_CONFIG = {
-  // API Endpoint - Update after deployment
-  // Format: https://{api-id}.execute-api.{region}.amazonaws.com/{stage}
-  apiEndpoint: '',  // Will be populated after AWS deployment
+  // API Endpoint
+  apiEndpoint: 'https://d0kzdquajc.execute-api.us-east-1.amazonaws.com/prod',
   
-  // API Key for write operations (POST/PUT/DELETE)
-  // In production, this should be loaded securely, not hardcoded
-  apiKey: '',  // Will be populated after AWS deployment
+  // API Key for write operations
+  apiKey: 'Ak5YL5VOFt1xXnABMEygg4MeKRyS1UGs6zVU1M6U',
   
-  // Polling interval for session status (ms)
+  // Polling intervals (ms)
   sessionPollInterval: 5000,
-  
-  // Polling interval for tasks (ms)
   taskPollInterval: 10000,
   
-  // Enable/disable API (set to false to use localStorage only)
+  // Enable API
   useApi: true,
   
   // Fallback to localStorage if API fails
@@ -32,8 +22,3 @@ window.DEXTER_CONFIG = {
   // Debug mode
   debug: false
 };
-
-// Allow local config override (not committed to repo)
-if (typeof window.DEXTER_CONFIG_LOCAL !== 'undefined') {
-  window.DEXTER_CONFIG = { ...window.DEXTER_CONFIG, ...window.DEXTER_CONFIG_LOCAL };
-}
