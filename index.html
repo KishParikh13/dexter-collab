@@ -1624,9 +1624,9 @@
       <!-- Active Sessions -->
       <div class="sidebar-section">
         <div class="sidebar-title">🤖 Sessions</div>
-        <template x-for="session in sessions" :key="session.id">
+        <template x-for="session in sessions.filter(s => s.status === 'active')" :key="session.id">
           <div class="agent-item">
-            <span class="agent-status" :class="session.status === 'active' ? 'status-working' : 'status-idle'"></span>
+            <span class="agent-status status-working"></span>
             <span class="agent-info" x-text="session.id === 'main' ? 'Dexter' : session.id"></span>
           </div>
         </template>
