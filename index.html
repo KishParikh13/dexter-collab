@@ -1,796 +1,1023 @@
 <!DOCTYPE html>
-<html lang="en" x-data="dexterDashboard()" x-init="init()" :class="{ 'dark': darkMode }">
+<html lang="en" x-data="dexterDashboard()" x-init="init()">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dexter Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#6366f1',
-                        secondary: '#8b5cf6',
-                        surface: '#1a1a2e',
-                        'surface-light': '#16213e',
-                        accent: '#0f3460'
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        [x-cloak] { display: none !important; }
-        .kanban-column { min-height: 200px; }
-        .task-card { transition: all 0.15s ease; }
-        .task-card:hover { transform: translateY(-2px); }
-        .sortable-ghost { opacity: 0.4; }
-        .sortable-chosen { box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4); }
-        .status-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
-        .avatar-glow { box-shadow: 0 0 20px rgba(99, 102, 241, 0.5); }
-        .log-entry { animation: slideIn 0.3s ease; }
-        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #1a1a2e; }
-        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dexter Dashboard</title>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --bg: #000;
+      --fg: #fff;
+      --border: #333;
+      --muted: #666;
+      --hover-bg: #111;
+      --error: #f44;
+    }
+    
+    body {
+      font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
+      background: var(--bg);
+      color: var(--fg);
+      font-size: 13px;
+      min-height: 100vh;
+    }
+    
+    [x-cloak] { display: none !important; }
+    
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+    
+    /* Layout */
+    .layout { display: flex; min-height: 100vh; }
+    
+    /* Sidebar */
+    .sidebar {
+      width: 200px;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+    
+    .avatar-section {
+      padding: 24px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .avatar {
+      width: 80px;
+      height: 80px;
+      border: 2px solid var(--fg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
+      font-size: 40px;
+      position: relative;
+    }
+    
+    .status-dot {
+      position: absolute;
+      bottom: -4px;
+      right: -4px;
+      width: 16px;
+      height: 16px;
+      border: 3px solid var(--bg);
+    }
+    
+    .status-online { background: #4f4; }
+    .status-working { background: #ff0; }
+    .status-waiting { background: #0af; }
+    .status-idle { background: var(--muted); }
+    
+    .avatar-name {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+    
+    .avatar-status {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+    }
+    
+    .status-controls {
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .status-controls h3 {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    
+    .status-btns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+    }
+    
+    .status-btn {
+      padding: 6px;
+      font-size: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--muted);
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-family: inherit;
+    }
+    
+    .status-btn:hover { border-color: var(--fg); color: var(--fg); }
+    
+    /* Main */
+    .main { flex: 1; display: flex; flex-direction: column; }
+    
+    /* Nav */
+    nav {
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    
+    nav h1 {
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: -0.5px;
+    }
+    
+    .nav-meta {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .nav-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      border: 1px solid var(--border);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .nav-status-dot {
+      width: 6px;
+      height: 6px;
+    }
+    
+    .nav-actions {
+      margin-left: auto;
+      display: flex;
+      gap: 8px;
+    }
+    
+    .btn {
+      padding: 6px 12px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--fg);
+      cursor: pointer;
+      font-size: 11px;
+      font-family: inherit;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .btn:hover { border-color: var(--fg); }
+    .btn-primary { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+    .btn-primary:hover { background: var(--bg); color: var(--fg); }
+    .btn-danger { color: var(--error); border-color: var(--error); }
+    .btn-danger:hover { background: var(--error); color: var(--bg); }
+    
+    /* Board */
+    .board {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      flex: 1;
+    }
+    
+    .column {
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .column:last-child { border-right: none; }
+    
+    .column-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .column-header h2 {
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .column-count {
+      font-size: 11px;
+      color: var(--muted);
+    }
+    
+    .column-body {
+      flex: 1;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      overflow-y: auto;
+      max-height: calc(100vh - 200px);
+    }
+    
+    .task {
+      border: 1px solid var(--border);
+      padding: 12px;
+      cursor: grab;
+      transition: border-color 0.1s;
+      background: var(--bg);
+    }
+    
+    .task:hover { border-color: var(--fg); }
+    .task:active { cursor: grabbing; }
+    .task.dragging { opacity: 0.3; }
+    
+    .task-title { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+    .task-live { font-size: 11px; color: #ff0; margin-top: 4px; }
+    .task-meta { font-size: 10px; color: var(--muted); margin-top: 8px; text-transform: uppercase; }
+    
+    .column-add {
+      padding: 8px 16px;
+      font-size: 11px;
+      color: var(--muted);
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .column-add:hover { color: var(--fg); background: var(--hover-bg); }
+    
+    /* Sections */
+    .sections {
+      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+    
+    .section {
+      padding: 16px;
+      border-right: 1px solid var(--border);
+    }
+    
+    .section:last-child { border-right: none; }
+    
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    
+    .section-title {
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .section-action {
+      font-size: 10px;
+      color: var(--muted);
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .section-action:hover { color: var(--fg); }
+    
+    /* Deliverables */
+    .deliverables-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    
+    .deliverable {
+      border: 1px solid var(--border);
+      padding: 12px;
+      cursor: pointer;
+    }
+    
+    .deliverable:hover { border-color: var(--fg); }
+    .deliverable-icon { font-size: 18px; margin-bottom: 6px; }
+    .deliverable-name { font-size: 12px; font-weight: 500; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .deliverable-meta { font-size: 10px; color: var(--muted); text-transform: uppercase; }
+    
+    /* Action Log */
+    .log-list {
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    
+    .log-entry {
+      display: flex;
+      gap: 12px;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+    }
+    
+    .log-time {
+      font-size: 10px;
+      color: #0af;
+      white-space: nowrap;
+      text-transform: uppercase;
+    }
+    
+    .log-msg { color: var(--fg); }
+    
+    /* Notes */
+    .notes-section {
+      border-top: 1px solid var(--border);
+      padding: 16px;
+    }
+    
+    .notes-input {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    
+    .notes-input input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--fg);
+      font-family: inherit;
+      font-size: 12px;
+    }
+    
+    .notes-input input:focus { outline: none; border-color: var(--fg); }
+    .notes-input input::placeholder { color: var(--muted); }
+    
+    .notes-list {
+      margin-top: 12px;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+    
+    .note {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 8px;
+      border: 1px solid var(--border);
+      margin-bottom: 4px;
+      font-size: 12px;
+    }
+    
+    .note-text { flex: 1; }
+    .note-meta { font-size: 10px; color: var(--muted); text-transform: uppercase; margin-left: 12px; white-space: nowrap; }
+    .note-delete { color: var(--muted); cursor: pointer; margin-left: 8px; }
+    .note-delete:hover { color: var(--error); }
+    
+    /* Empty */
+    .empty {
+      text-align: center;
+      padding: 24px;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    
+    .modal {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 24px;
+      width: 100%;
+      max-width: 480px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    
+    .modal-header {
+      font-size: 12px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 24px;
+    }
+    
+    .form-group { margin-bottom: 16px; }
+    
+    .form-group label {
+      display: block;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--fg);
+      font-family: inherit;
+      font-size: 13px;
+    }
+    
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--fg);
+    }
+    
+    .form-group textarea { min-height: 100px; resize: vertical; }
+    
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    
+    /* Responsive */
+    @media (max-width: 1000px) {
+      .board { grid-template-columns: repeat(2, 1fr); }
+      .sidebar { display: none; }
+    }
+    
+    @media (max-width: 600px) {
+      .board { grid-template-columns: 1fr; }
+      .sections { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
-<body class="bg-gray-900 min-h-screen text-gray-100" @keydown.window="handleKeyboard($event)">
-    <div class="flex min-h-screen">
-        <!-- Left Sidebar - Dexter Status -->
-        <aside class="w-48 bg-gray-950 border-r border-gray-800 p-4 flex flex-col items-center">
-            <div class="relative mb-3">
-                <div class="w-24 h-24 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-5xl avatar-glow">
-                    🥸
-                </div>
-                <div class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full border-4 border-gray-950"
-                     :class="{
-                         'bg-green-500': status === 'online',
-                         'bg-yellow-500 status-pulse': status === 'working',
-                         'bg-blue-500': status === 'waiting',
-                         'bg-gray-500': status === 'idle'
-                     }"></div>
-            </div>
-            <h2 class="text-lg font-bold text-white">Dexter</h2>
-            <div class="flex items-center gap-1.5 text-sm mt-1">
-                <span class="w-2 h-2 rounded-full"
-                      :class="{
-                          'bg-green-500': status === 'online',
-                          'bg-yellow-500': status === 'working',
-                          'bg-blue-500': status === 'waiting',
-                          'bg-gray-500': status === 'idle'
-                      }"></span>
-                <span class="text-gray-400 capitalize" x-text="status"></span>
-            </div>
-            <p class="text-xs text-gray-500 mt-2 text-center" x-text="statusMessage"></p>
-            
-            <!-- Status Controls (for demo/manual) -->
-            <div class="mt-6 w-full">
-                <p class="text-xs text-gray-600 mb-2 text-center">Set Status:</p>
-                <div class="grid grid-cols-2 gap-1 text-xs">
-                    <button @click="setStatus('online', 'Ready for tasks')" class="px-2 py-1 rounded bg-green-900/50 hover:bg-green-900 text-green-400">Online</button>
-                    <button @click="setStatus('working', 'Working on task...')" class="px-2 py-1 rounded bg-yellow-900/50 hover:bg-yellow-900 text-yellow-400">Working</button>
-                    <button @click="setStatus('waiting', 'Waiting for input')" class="px-2 py-1 rounded bg-blue-900/50 hover:bg-blue-900 text-blue-400">Waiting</button>
-                    <button @click="setStatus('idle', 'Away')" class="px-2 py-1 rounded bg-gray-700/50 hover:bg-gray-700 text-gray-400">Idle</button>
-                </div>
-            </div>
-
-            <div class="mt-auto pt-4 w-full">
-                <button @click="darkMode = !darkMode" class="w-full px-3 py-2 text-xs rounded bg-gray-800 hover:bg-gray-700 text-gray-400">
-                    <span x-show="darkMode">☀️ Light</span>
-                    <span x-show="!darkMode">🌙 Dark</span>
-                </button>
-            </div>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="flex-1 p-6 overflow-auto">
-            <!-- Header -->
-            <header class="flex items-center justify-between mb-6">
-                <div class="flex items-center gap-3">
-                    <span class="text-2xl">🥸</span>
-                    <div>
-                        <h1 class="text-xl font-bold text-white">Dexter Dashboard</h1>
-                        <p class="text-xs text-gray-500">Last sync: <span x-text="lastSync"></span></p>
-                    </div>
-                    <span class="ml-2 px-2 py-0.5 text-xs rounded-full"
-                          :class="{
-                              'bg-green-900/50 text-green-400': status === 'online',
-                              'bg-yellow-900/50 text-yellow-400': status === 'working',
-                              'bg-blue-900/50 text-blue-400': status === 'waiting',
-                              'bg-gray-700 text-gray-400': status === 'idle'
-                          }">
-                        <span class="inline-block w-1.5 h-1.5 rounded-full mr-1"
-                              :class="{
-                                  'bg-green-400': status === 'online',
-                                  'bg-yellow-400': status === 'working',
-                                  'bg-blue-400': status === 'waiting',
-                                  'bg-gray-400': status === 'idle'
-                              }"></span>
-                        <span x-text="status.charAt(0).toUpperCase() + status.slice(1)"></span>
-                    </span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <button @click="showExport = true" class="px-3 py-1.5 text-xs rounded bg-gray-800 hover:bg-gray-700 text-gray-300">📤 Export</button>
-                    <button @click="showImport = true" class="px-3 py-1.5 text-xs rounded bg-gray-800 hover:bg-gray-700 text-gray-300">📥 Import</button>
-                    <button @click="showHelp = true" class="px-3 py-1.5 text-xs rounded bg-gray-800 hover:bg-gray-700 text-gray-300">❓ Help</button>
-                </div>
-            </header>
-
-            <!-- Kanban Board -->
-            <div class="grid grid-cols-4 gap-4 mb-6">
-                <!-- To Do -->
-                <div class="bg-gray-800/50 rounded-xl p-4">
-                    <div class="flex items-center gap-2 mb-3">
-                        <span class="text-gray-400">📋</span>
-                        <h3 class="font-semibold text-white">To Do</h3>
-                        <span class="ml-auto text-xs bg-gray-700 px-2 py-0.5 rounded-full text-gray-400" x-text="tasks.filter(t => t.status === 'todo').length"></span>
-                    </div>
-                    <div id="kanban-todo" class="kanban-column space-y-2 min-h-[150px]">
-                        <template x-for="task in tasks.filter(t => t.status === 'todo')" :key="task.id">
-                            <div class="task-card bg-gray-700/50 rounded-lg p-3 cursor-move border border-gray-600/50 hover:border-gray-500" :data-id="task.id" @click="selectTask(task)">
-                                <p class="text-sm text-white" x-text="task.title"></p>
-                                <p class="text-xs text-gray-500 mt-1" x-text="formatDate(task.createdAt)"></p>
-                            </div>
-                        </template>
-                    </div>
-                    <button @click="showAddTask = true; newTaskStatus = 'todo'" class="w-full mt-2 py-2 text-xs text-gray-500 hover:text-gray-300 hover:bg-gray-700/50 rounded transition-colors">+ Add Task</button>
-                </div>
-
-                <!-- In Progress -->
-                <div class="bg-yellow-900/20 rounded-xl p-4 border border-yellow-900/30">
-                    <div class="flex items-center gap-2 mb-3">
-                        <span class="text-yellow-500">⚡</span>
-                        <h3 class="font-semibold text-white">In Progress</h3>
-                        <span class="ml-auto text-xs bg-yellow-900/50 px-2 py-0.5 rounded-full text-yellow-400" x-text="tasks.filter(t => t.status === 'in-progress').length"></span>
-                    </div>
-                    <div id="kanban-in-progress" class="kanban-column space-y-2 min-h-[150px]">
-                        <template x-for="task in tasks.filter(t => t.status === 'in-progress')" :key="task.id">
-                            <div class="task-card bg-yellow-900/30 rounded-lg p-3 cursor-move border border-yellow-700/50 hover:border-yellow-600" :data-id="task.id" @click="selectTask(task)">
-                                <div class="flex items-start justify-between">
-                                    <p class="text-sm text-white" x-text="task.title"></p>
-                                    <span class="w-2 h-2 rounded-full bg-yellow-500 status-pulse flex-shrink-0 mt-1"></span>
-                                </div>
-                                <p class="text-xs text-yellow-600 mt-1" x-text="task.liveStatus || 'Working...'"></p>
-                                <p class="text-xs text-gray-500 mt-1" x-text="formatDate(task.updatedAt || task.createdAt)"></p>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-
-                <!-- Done -->
-                <div class="bg-green-900/20 rounded-xl p-4 border border-green-900/30">
-                    <div class="flex items-center gap-2 mb-3">
-                        <span class="text-green-500">✅</span>
-                        <h3 class="font-semibold text-white">Done</h3>
-                        <span class="ml-auto text-xs bg-green-900/50 px-2 py-0.5 rounded-full text-green-400" x-text="tasks.filter(t => t.status === 'done').length"></span>
-                    </div>
-                    <div id="kanban-done" class="kanban-column space-y-2 min-h-[150px]">
-                        <template x-for="task in tasks.filter(t => t.status === 'done')" :key="task.id">
-                            <div class="task-card bg-green-900/30 rounded-lg p-3 cursor-move border border-green-700/50 hover:border-green-600" :data-id="task.id" @click="selectTask(task)">
-                                <p class="text-sm text-white" x-text="task.title"></p>
-                                <p class="text-xs text-green-600 mt-1" x-text="task.completedAt ? 'Completed ' + formatDate(task.completedAt) : ''"></p>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-
-                <!-- Archived -->
-                <div class="bg-gray-800/30 rounded-xl p-4">
-                    <div class="flex items-center gap-2 mb-3">
-                        <span class="text-gray-500">📦</span>
-                        <h3 class="font-semibold text-gray-400">Archived</h3>
-                        <span class="ml-auto text-xs bg-gray-700 px-2 py-0.5 rounded-full text-gray-500" x-text="tasks.filter(t => t.status === 'archived').length"></span>
-                    </div>
-                    <div id="kanban-archived" class="kanban-column space-y-2 min-h-[150px] max-h-[300px] overflow-y-auto">
-                        <template x-for="task in tasks.filter(t => t.status === 'archived')" :key="task.id">
-                            <div class="task-card bg-gray-800/50 rounded-lg p-3 cursor-move border border-gray-700/50 opacity-60" :data-id="task.id" @click="selectTask(task)">
-                                <p class="text-sm text-gray-400" x-text="task.title"></p>
-                                <p class="text-xs text-gray-600 mt-1" x-text="formatDate(task.archivedAt || task.createdAt)"></p>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Deliverables & Action Log Row -->
-            <div class="grid grid-cols-2 gap-6 mb-6">
-                <!-- Deliverables -->
-                <div class="bg-gray-800/50 rounded-xl p-4">
-                    <div class="flex items-center gap-2 mb-4">
-                        <span class="text-yellow-500">📁</span>
-                        <h3 class="font-semibold text-white">Deliverables</h3>
-                        <button @click="showAddDeliverable = true" class="ml-auto text-xs text-gray-500 hover:text-gray-300">+ Add</button>
-                    </div>
-                    <div class="grid grid-cols-3 gap-3">
-                        <template x-for="deliverable in deliverables" :key="deliverable.id">
-                            <div class="bg-gray-700/50 rounded-lg p-3 hover:bg-gray-700 transition-colors cursor-pointer" @click="selectedDeliverable = deliverable; showDeliverableDetail = true">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <span class="text-xl" x-text="deliverable.icon || '📄'"></span>
-                                    <span class="text-xs px-1.5 py-0.5 rounded bg-gray-600 text-gray-400" x-text="deliverable.type || 'File'"></span>
-                                </div>
-                                <p class="text-sm text-white font-medium truncate" x-text="deliverable.name"></p>
-                                <p class="text-xs text-gray-500 mt-1" x-text="formatDate(deliverable.createdAt)"></p>
-                            </div>
-                        </template>
-                        <div x-show="deliverables.length === 0" class="col-span-3 text-center py-8 text-gray-600 text-sm">
-                            No deliverables yet
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Action Log -->
-                <div class="bg-gray-800/50 rounded-xl p-4">
-                    <div class="flex items-center gap-2 mb-4">
-                        <span class="text-blue-500">📜</span>
-                        <h3 class="font-semibold text-white">Action Log</h3>
-                        <button @click="actionLog = []; saveActionLog()" class="ml-auto text-xs text-gray-500 hover:text-red-400">Clear</button>
-                    </div>
-                    <div class="space-y-2 max-h-[250px] overflow-y-auto">
-                        <template x-for="(entry, index) in actionLog.slice().reverse()" :key="index">
-                            <div class="log-entry flex gap-3 text-sm py-1.5 border-b border-gray-700/50">
-                                <span class="text-xs text-primary whitespace-nowrap" x-text="formatLogTime(entry.timestamp)"></span>
-                                <span class="text-gray-300" x-text="entry.message"></span>
-                            </div>
-                        </template>
-                        <div x-show="actionLog.length === 0" class="text-center py-8 text-gray-600 text-sm">
-                            No actions logged yet
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Notes Section -->
-            <div class="bg-gray-800/50 rounded-xl p-4">
-                <div class="flex items-center gap-2 mb-4">
-                    <span class="text-purple-500">📝</span>
-                    <h3 class="font-semibold text-white">Notes for Dexter</h3>
-                    <span class="text-xs text-gray-500">— Dexter checks on every heartbeat</span>
-                </div>
-                <div class="space-y-3">
-                    <div class="flex gap-2">
-                        <input type="text" x-model="newNote" @keydown.enter="addNote()" 
-                               class="flex-1 px-3 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-500 text-sm focus:outline-none focus:border-primary"
-                               placeholder="Type a task or note for Dexter...">
-                        <button @click="addNote()" class="px-4 py-2 bg-primary hover:bg-indigo-600 text-white rounded-lg text-sm font-medium">Add Note</button>
-                    </div>
-                    <div class="space-y-2 max-h-[200px] overflow-y-auto">
-                        <template x-for="note in notes" :key="note.id">
-                            <div class="flex items-start gap-3 bg-gray-700/30 rounded-lg p-3">
-                                <p class="flex-1 text-sm text-gray-200" x-text="note.text"></p>
-                                <div class="flex flex-col items-end gap-1 flex-shrink-0">
-                                    <span class="text-xs text-gray-500" x-text="formatDate(note.createdAt)"></span>
-                                    <span x-show="note.seen" class="text-xs text-green-500">(seen by Dexter)</span>
-                                </div>
-                                <button @click="notes = notes.filter(n => n.id !== note.id); saveNotes()" class="text-gray-500 hover:text-red-400">×</button>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <!-- Task Detail Modal -->
-    <div x-show="selectedTask" x-cloak class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" @click.self="selectedTask = null">
-        <div class="bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col">
-            <div class="p-4 border-b border-gray-700 flex justify-between items-center">
-                <div class="flex items-center gap-3">
-                    <span x-text="getStatusIcon(selectedTask?.status)"></span>
-                    <h3 class="text-lg font-semibold text-white" x-text="selectedTask?.title"></h3>
-                </div>
-                <button @click="selectedTask = null" class="text-gray-500 hover:text-white">✕</button>
-            </div>
-            <div class="p-4 flex-1 overflow-auto space-y-4">
-                <!-- Status -->
-                <div>
-                    <label class="block text-xs text-gray-500 mb-1">Status</label>
-                    <select x-model="selectedTask.status" @change="updateTaskStatus(selectedTask)" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm">
-                        <option value="todo">📋 To Do</option>
-                        <option value="in-progress">⚡ In Progress</option>
-                        <option value="done">✅ Done</option>
-                        <option value="archived">📦 Archived</option>
-                    </select>
-                </div>
-                
-                <!-- Live Status (for in-progress) -->
-                <div x-show="selectedTask?.status === 'in-progress'">
-                    <label class="block text-xs text-gray-500 mb-1">Live Status Update</label>
-                    <input type="text" x-model="selectedTask.liveStatus" @input="save()"
-                           class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-yellow-400 text-sm"
-                           placeholder="What's happening right now...">
-                </div>
-
-                <!-- Output -->
-                <div>
-                    <label class="block text-xs text-gray-500 mb-1">Output / Notes</label>
-                    <textarea x-model="selectedTask.output" @input="save()"
-                              class="w-full h-40 px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm font-mono resize-none"
-                              placeholder="Add output, results, or notes here..."></textarea>
-                </div>
-
-                <!-- Output Preview -->
-                <div x-show="selectedTask?.output">
-                    <label class="block text-xs text-gray-500 mb-1">Preview</label>
-                    <div class="bg-gray-900 rounded-lg p-4 prose prose-invert prose-sm max-w-none" x-html="renderMarkdown(selectedTask?.output || '')"></div>
-                </div>
-
-                <!-- Timestamps -->
-                <div class="flex gap-4 text-xs text-gray-500">
-                    <span>Created: <span x-text="selectedTask?.createdAt ? new Date(selectedTask.createdAt).toLocaleString() : ''"></span></span>
-                    <span x-show="selectedTask?.completedAt">Completed: <span x-text="selectedTask?.completedAt ? new Date(selectedTask.completedAt).toLocaleString() : ''"></span></span>
-                </div>
-            </div>
-            <div class="p-4 border-t border-gray-700 flex justify-between">
-                <button @click="deleteTask(selectedTask.id); selectedTask = null" class="px-4 py-2 bg-red-900/50 hover:bg-red-900 text-red-400 rounded-lg text-sm">Delete</button>
-                <button @click="selectedTask = null" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-sm">Close</button>
-            </div>
+<body @keydown.window="handleKeyboard($event)">
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="avatar-section">
+        <div class="avatar">
+          🥸
+          <div class="status-dot" :class="'status-' + status"></div>
         </div>
-    </div>
-
-    <!-- Add Task Modal -->
-    <div x-show="showAddTask" x-cloak class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" @click.self="showAddTask = false">
-        <div class="bg-gray-800 rounded-xl shadow-2xl max-w-lg w-full">
-            <div class="p-4 border-b border-gray-700">
-                <h3 class="text-lg font-semibold text-white">Add Tasks</h3>
-            </div>
-            <div class="p-4">
-                <textarea x-model="newTaskText" @keydown.ctrl.enter="addTasks(); showAddTask = false"
-                          class="w-full h-32 px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm resize-none"
-                          placeholder="Enter tasks, one per line..."></textarea>
-                <p class="text-xs text-gray-500 mt-2">Ctrl+Enter to add</p>
-            </div>
-            <div class="p-4 border-t border-gray-700 flex justify-end gap-2">
-                <button @click="showAddTask = false" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-sm">Cancel</button>
-                <button @click="addTasks(); showAddTask = false" class="px-4 py-2 bg-primary hover:bg-indigo-600 text-white rounded-lg text-sm">Add Tasks</button>
-            </div>
+        <div class="avatar-name">Dexter</div>
+        <div class="avatar-status" x-text="statusMessage"></div>
+      </div>
+      
+      <div class="status-controls">
+        <h3>Set Status</h3>
+        <div class="status-btns">
+          <button class="status-btn" @click="setStatus('online', 'Ready')">Online</button>
+          <button class="status-btn" @click="setStatus('working', 'Working...')">Working</button>
+          <button class="status-btn" @click="setStatus('waiting', 'Waiting')">Waiting</button>
+          <button class="status-btn" @click="setStatus('idle', 'Away')">Idle</button>
         </div>
-    </div>
-
-    <!-- Add Deliverable Modal -->
-    <div x-show="showAddDeliverable" x-cloak class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" @click.self="showAddDeliverable = false">
-        <div class="bg-gray-800 rounded-xl shadow-2xl max-w-lg w-full">
-            <div class="p-4 border-b border-gray-700">
-                <h3 class="text-lg font-semibold text-white">Add Deliverable</h3>
-            </div>
-            <div class="p-4 space-y-4">
-                <div>
-                    <label class="block text-xs text-gray-500 mb-1">Name</label>
-                    <input type="text" x-model="newDeliverable.name" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm" placeholder="Deliverable name...">
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs text-gray-500 mb-1">Icon</label>
-                        <input type="text" x-model="newDeliverable.icon" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm" placeholder="📄">
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-500 mb-1">Type</label>
-                        <select x-model="newDeliverable.type" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm">
-                            <option value="Folder">Folder</option>
-                            <option value="File">File</option>
-                            <option value="Link">Link</option>
-                            <option value="Report">Report</option>
-                        </select>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs text-gray-500 mb-1">URL (optional)</label>
-                    <input type="text" x-model="newDeliverable.url" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm" placeholder="https://...">
-                </div>
-                <div>
-                    <label class="block text-xs text-gray-500 mb-1">Description</label>
-                    <textarea x-model="newDeliverable.description" class="w-full h-20 px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm resize-none" placeholder="Description..."></textarea>
-                </div>
-            </div>
-            <div class="p-4 border-t border-gray-700 flex justify-end gap-2">
-                <button @click="showAddDeliverable = false" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-sm">Cancel</button>
-                <button @click="addDeliverable(); showAddDeliverable = false" class="px-4 py-2 bg-primary hover:bg-indigo-600 text-white rounded-lg text-sm">Add</button>
-            </div>
+      </div>
+    </aside>
+    
+    <!-- Main -->
+    <main class="main">
+      <nav>
+        <h1>DEXTER DASHBOARD</h1>
+        <span class="nav-status">
+          <span class="nav-status-dot" :class="'status-' + status"></span>
+          <span x-text="status"></span>
+        </span>
+        <span class="nav-meta">Last sync: <span x-text="lastSync"></span></span>
+        <div class="nav-actions">
+          <button class="btn" @click="showExport = true">Export</button>
+          <button class="btn" @click="showImport = true">Import</button>
+          <button class="btn" @click="showHelp = true">?</button>
         </div>
-    </div>
-
-    <!-- Deliverable Detail Modal -->
-    <div x-show="showDeliverableDetail" x-cloak class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" @click.self="showDeliverableDetail = false">
-        <div class="bg-gray-800 rounded-xl shadow-2xl max-w-lg w-full">
-            <div class="p-4 border-b border-gray-700 flex justify-between items-center">
-                <div class="flex items-center gap-2">
-                    <span class="text-2xl" x-text="selectedDeliverable?.icon || '📄'"></span>
-                    <h3 class="text-lg font-semibold text-white" x-text="selectedDeliverable?.name"></h3>
-                </div>
-                <button @click="showDeliverableDetail = false" class="text-gray-500 hover:text-white">✕</button>
-            </div>
-            <div class="p-4 space-y-3">
-                <p class="text-sm text-gray-300" x-text="selectedDeliverable?.description || 'No description'"></p>
-                <p class="text-xs text-gray-500">Created: <span x-text="selectedDeliverable?.createdAt ? new Date(selectedDeliverable.createdAt).toLocaleString() : ''"></span></p>
-                <a x-show="selectedDeliverable?.url" :href="selectedDeliverable?.url" target="_blank" class="inline-block px-4 py-2 bg-primary hover:bg-indigo-600 text-white rounded-lg text-sm">Open Link →</a>
-            </div>
-            <div class="p-4 border-t border-gray-700 flex justify-between">
-                <button @click="deleteDeliverable(selectedDeliverable.id); showDeliverableDetail = false" class="px-4 py-2 bg-red-900/50 hover:bg-red-900 text-red-400 rounded-lg text-sm">Delete</button>
-                <button @click="showDeliverableDetail = false" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-sm">Close</button>
-            </div>
+      </nav>
+      
+      <!-- Kanban Board -->
+      <div class="board">
+        <!-- Backlog -->
+        <div class="column">
+          <div class="column-header">
+            <h2>📋 Backlog</h2>
+            <span class="column-count" x-text="tasks.filter(t => t.status === 'backlog').length"></span>
+          </div>
+          <div id="kanban-backlog" class="column-body">
+            <template x-for="task in tasks.filter(t => t.status === 'backlog')" :key="task.id">
+              <div class="task" :data-id="task.id" @click="selectTask(task)">
+                <div class="task-title" x-text="task.title"></div>
+                <div class="task-meta" x-text="formatDate(task.createdAt)"></div>
+              </div>
+            </template>
+          </div>
+          <div class="column-add" @click="showAddTask = true; newTaskStatus = 'backlog'">+ Add Task</div>
         </div>
-    </div>
-
-    <!-- Export Modal -->
-    <div x-show="showExport" x-cloak class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" @click.self="showExport = false">
-        <div class="bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
-            <div class="p-4 border-b border-gray-700 flex justify-between items-center">
-                <h3 class="text-lg font-semibold text-white">Export Data</h3>
-                <button @click="showExport = false" class="text-gray-500 hover:text-white">✕</button>
-            </div>
-            <div class="p-4 space-y-4 overflow-auto">
-                <textarea readonly :value="exportData()" class="w-full h-48 px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-gray-300 text-xs font-mono resize-none"></textarea>
-                <div class="flex gap-2">
-                    <button @click="copyExport()" class="px-4 py-2 bg-primary hover:bg-indigo-600 text-white rounded-lg text-sm">Copy JSON</button>
-                    <button @click="downloadExport()" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-sm">Download</button>
-                    <button @click="navigator.clipboard.writeText(generateShareLink()); alert('Share link copied!')" class="px-4 py-2 bg-green-700 hover:bg-green-600 text-white rounded-lg text-sm">🔗 Share Link</button>
-                </div>
-            </div>
+        
+        <!-- In Progress -->
+        <div class="column">
+          <div class="column-header">
+            <h2>⚡ In Progress</h2>
+            <span class="column-count" x-text="tasks.filter(t => t.status === 'in-progress').length"></span>
+          </div>
+          <div id="kanban-in-progress" class="column-body">
+            <template x-for="task in tasks.filter(t => t.status === 'in-progress')" :key="task.id">
+              <div class="task" :data-id="task.id" @click="selectTask(task)">
+                <div class="task-title" x-text="task.title"></div>
+                <div class="task-live" x-show="task.liveStatus" x-text="task.liveStatus"></div>
+                <div class="task-meta" x-text="formatDate(task.updatedAt || task.createdAt)"></div>
+              </div>
+            </template>
+          </div>
         </div>
-    </div>
-
-    <!-- Import Modal -->
-    <div x-show="showImport" x-cloak class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" @click.self="showImport = false">
-        <div class="bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full">
-            <div class="p-4 border-b border-gray-700 flex justify-between items-center">
-                <h3 class="text-lg font-semibold text-white">Import Data</h3>
-                <button @click="showImport = false" class="text-gray-500 hover:text-white">✕</button>
-            </div>
-            <div class="p-4 space-y-4">
-                <textarea x-model="importDataText" class="w-full h-48 px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-gray-300 text-xs font-mono resize-none" placeholder="Paste JSON export here..."></textarea>
-                <div class="flex gap-2">
-                    <button @click="doImport()" class="px-4 py-2 bg-primary hover:bg-indigo-600 text-white rounded-lg text-sm">Import</button>
-                    <button @click="showImport = false" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-sm">Cancel</button>
-                </div>
-            </div>
+        
+        <!-- Done -->
+        <div class="column">
+          <div class="column-header">
+            <h2>✅ Done</h2>
+            <span class="column-count" x-text="tasks.filter(t => t.status === 'done').length"></span>
+          </div>
+          <div id="kanban-done" class="column-body">
+            <template x-for="task in tasks.filter(t => t.status === 'done')" :key="task.id">
+              <div class="task" :data-id="task.id" @click="selectTask(task)">
+                <div class="task-title" x-text="task.title"></div>
+                <div class="task-meta" x-text="'Done ' + formatDate(task.completedAt)"></div>
+              </div>
+            </template>
+          </div>
         </div>
-    </div>
-
-    <!-- Help Modal -->
-    <div x-show="showHelp" x-cloak class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" @click.self="showHelp = false">
-        <div class="bg-gray-800 rounded-xl shadow-2xl max-w-md w-full">
-            <div class="p-4 border-b border-gray-700 flex justify-between items-center">
-                <h3 class="text-lg font-semibold text-white">⌨️ Keyboard Shortcuts</h3>
-                <button @click="showHelp = false" class="text-gray-500 hover:text-white">✕</button>
-            </div>
-            <div class="p-4">
-                <div class="space-y-2 text-sm">
-                    <div class="flex justify-between"><span class="text-gray-400">Show help</span><kbd class="px-2 py-1 bg-gray-700 rounded text-xs">?</kbd></div>
-                    <div class="flex justify-between"><span class="text-gray-400">Add task</span><kbd class="px-2 py-1 bg-gray-700 rounded text-xs">a</kbd></div>
-                    <div class="flex justify-between"><span class="text-gray-400">Export</span><kbd class="px-2 py-1 bg-gray-700 rounded text-xs">e</kbd></div>
-                    <div class="flex justify-between"><span class="text-gray-400">Import</span><kbd class="px-2 py-1 bg-gray-700 rounded text-xs">i</kbd></div>
-                    <div class="flex justify-between"><span class="text-gray-400">Close modal</span><kbd class="px-2 py-1 bg-gray-700 rounded text-xs">Esc</kbd></div>
-                </div>
-            </div>
+        
+        <!-- Archived -->
+        <div class="column">
+          <div class="column-header">
+            <h2>📦 Archived</h2>
+            <span class="column-count" x-text="tasks.filter(t => t.status === 'archived').length"></span>
+          </div>
+          <div id="kanban-archived" class="column-body">
+            <template x-for="task in tasks.filter(t => t.status === 'archived')" :key="task.id">
+              <div class="task" :data-id="task.id" @click="selectTask(task)" style="opacity: 0.5">
+                <div class="task-title" x-text="task.title"></div>
+                <div class="task-meta" x-text="formatDate(task.archivedAt)"></div>
+              </div>
+            </template>
+          </div>
         </div>
+      </div>
+      
+      <!-- Deliverables & Log -->
+      <div class="sections">
+        <div class="section">
+          <div class="section-header">
+            <span class="section-title">📁 Deliverables</span>
+            <span class="section-action" @click="showAddDeliverable = true">+ Add</span>
+          </div>
+          <div class="deliverables-grid" x-show="deliverables.length > 0">
+            <template x-for="d in deliverables" :key="d.id">
+              <div class="deliverable" @click="selectedDeliverable = d; showDeliverableDetail = true">
+                <div class="deliverable-icon" x-text="d.icon || '📄'"></div>
+                <div class="deliverable-name" x-text="d.name"></div>
+                <div class="deliverable-meta" x-text="d.type"></div>
+              </div>
+            </template>
+          </div>
+          <div class="empty" x-show="deliverables.length === 0">No deliverables</div>
+        </div>
+        
+        <div class="section">
+          <div class="section-header">
+            <span class="section-title">📜 Action Log</span>
+            <span class="section-action" @click="actionLog = []; saveActionLog()">Clear</span>
+          </div>
+          <div class="log-list">
+            <template x-for="(entry, i) in actionLog.slice().reverse().slice(0, 20)" :key="i">
+              <div class="log-entry">
+                <span class="log-time" x-text="formatLogTime(entry.timestamp)"></span>
+                <span class="log-msg" x-text="entry.message"></span>
+              </div>
+            </template>
+          </div>
+          <div class="empty" x-show="actionLog.length === 0">No actions logged</div>
+        </div>
+      </div>
+      
+      <!-- Notes -->
+      <div class="notes-section">
+        <div class="section-header">
+          <span class="section-title">📝 Notes for Dexter</span>
+          <span class="nav-meta">Checked on every heartbeat</span>
+        </div>
+        <div class="notes-input">
+          <input type="text" x-model="newNote" @keydown.enter="addNote()" placeholder="Type a task or note for Dexter...">
+          <button class="btn btn-primary" @click="addNote()">Add</button>
+        </div>
+        <div class="notes-list">
+          <template x-for="note in notes" :key="note.id">
+            <div class="note">
+              <span class="note-text" x-text="note.text"></span>
+              <span class="note-meta" x-text="formatDate(note.createdAt)"></span>
+              <span class="note-delete" @click="notes = notes.filter(n => n.id !== note.id); saveNotes()">×</span>
+            </div>
+          </template>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <!-- Task Modal -->
+  <div class="modal-overlay" x-show="selectedTask" x-cloak @click.self="selectedTask = null">
+    <div class="modal">
+      <h3 class="modal-header" x-text="selectedTask?.title"></h3>
+      
+      <div class="form-group">
+        <label>Status</label>
+        <select x-model="selectedTask.status" @change="updateTask(selectedTask)">
+          <option value="backlog">📋 Backlog</option>
+          <option value="in-progress">⚡ In Progress</option>
+          <option value="done">✅ Done</option>
+          <option value="archived">📦 Archived</option>
+        </select>
+      </div>
+      
+      <div class="form-group" x-show="selectedTask?.status === 'in-progress'">
+        <label>Live Status</label>
+        <input type="text" x-model="selectedTask.liveStatus" @input="save()" placeholder="What's happening...">
+      </div>
+      
+      <div class="form-group">
+        <label>Output / Notes</label>
+        <textarea x-model="selectedTask.output" @input="save()" placeholder="Results, notes..."></textarea>
+      </div>
+      
+      <div class="modal-actions">
+        <button class="btn btn-danger" @click="deleteTask(selectedTask.id); selectedTask = null">Delete</button>
+        <button class="btn" @click="selectedTask = null">Close</button>
+      </div>
     </div>
+  </div>
+  
+  <!-- Add Task Modal -->
+  <div class="modal-overlay" x-show="showAddTask" x-cloak @click.self="showAddTask = false">
+    <div class="modal">
+      <h3 class="modal-header">Add Tasks</h3>
+      <div class="form-group">
+        <label>Tasks (one per line)</label>
+        <textarea x-model="newTaskText" placeholder="Enter tasks..."></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn" @click="showAddTask = false">Cancel</button>
+        <button class="btn btn-primary" @click="addTasks(); showAddTask = false">Add</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Add Deliverable Modal -->
+  <div class="modal-overlay" x-show="showAddDeliverable" x-cloak @click.self="showAddDeliverable = false">
+    <div class="modal">
+      <h3 class="modal-header">Add Deliverable</h3>
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" x-model="newDeliverable.name">
+      </div>
+      <div class="form-group">
+        <label>Icon</label>
+        <input type="text" x-model="newDeliverable.icon" placeholder="📄">
+      </div>
+      <div class="form-group">
+        <label>Type</label>
+        <select x-model="newDeliverable.type">
+          <option>Folder</option>
+          <option>File</option>
+          <option>Link</option>
+          <option>Report</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>URL</label>
+        <input type="text" x-model="newDeliverable.url" placeholder="https://...">
+      </div>
+      <div class="modal-actions">
+        <button class="btn" @click="showAddDeliverable = false">Cancel</button>
+        <button class="btn btn-primary" @click="addDeliverable(); showAddDeliverable = false">Add</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Deliverable Detail Modal -->
+  <div class="modal-overlay" x-show="showDeliverableDetail" x-cloak @click.self="showDeliverableDetail = false">
+    <div class="modal">
+      <h3 class="modal-header"><span x-text="selectedDeliverable?.icon"></span> <span x-text="selectedDeliverable?.name"></span></h3>
+      <p x-text="selectedDeliverable?.description || 'No description'"></p>
+      <p class="nav-meta" style="margin-top: 12px">Created: <span x-text="selectedDeliverable?.createdAt ? new Date(selectedDeliverable.createdAt).toLocaleString() : ''"></span></p>
+      <template x-if="selectedDeliverable?.url">
+        <a :href="selectedDeliverable?.url" target="_blank" class="btn btn-primary" style="margin-top: 16px; display: inline-block; text-decoration: none">Open Link →</a>
+      </template>
+      <div class="modal-actions">
+        <button class="btn btn-danger" @click="deleteDeliverable(selectedDeliverable.id); showDeliverableDetail = false">Delete</button>
+        <button class="btn" @click="showDeliverableDetail = false">Close</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Export Modal -->
+  <div class="modal-overlay" x-show="showExport" x-cloak @click.self="showExport = false">
+    <div class="modal">
+      <h3 class="modal-header">Export</h3>
+      <div class="form-group">
+        <label>JSON Data</label>
+        <textarea readonly :value="exportData()" style="font-size: 10px; height: 200px;"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn" @click="copyExport()">Copy</button>
+        <button class="btn" @click="downloadExport()">Download</button>
+        <button class="btn btn-primary" @click="navigator.clipboard.writeText(generateShareLink()); alert('Link copied!')">Share Link</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Import Modal -->
+  <div class="modal-overlay" x-show="showImport" x-cloak @click.self="showImport = false">
+    <div class="modal">
+      <h3 class="modal-header">Import</h3>
+      <div class="form-group">
+        <label>Paste JSON</label>
+        <textarea x-model="importDataText" style="height: 200px;" placeholder='{"tasks": [...]}...'></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn" @click="showImport = false">Cancel</button>
+        <button class="btn btn-primary" @click="doImport()">Import</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Help Modal -->
+  <div class="modal-overlay" x-show="showHelp" x-cloak @click.self="showHelp = false">
+    <div class="modal">
+      <h3 class="modal-header">Keyboard Shortcuts</h3>
+      <div style="font-size: 12px;">
+        <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border);">
+          <span>Show help</span><code style="background: #111; padding: 2px 8px;">?</code>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border);">
+          <span>Add task</span><code style="background: #111; padding: 2px 8px;">a</code>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border);">
+          <span>Export</span><code style="background: #111; padding: 2px 8px;">e</code>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border);">
+          <span>Import</span><code style="background: #111; padding: 2px 8px;">i</code>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding: 6px 0;">
+          <span>Close modal</span><code style="background: #111; padding: 2px 8px;">Esc</code>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn" @click="showHelp = false">Close</button>
+      </div>
+    </div>
+  </div>
 
-    <script>
-        function dexterDashboard() {
-            return {
-                // State
-                tasks: [],
-                deliverables: [],
-                notes: [],
-                actionLog: [],
-                status: 'online',
-                statusMessage: 'Ready for tasks',
-                darkMode: true,
-                lastSync: new Date().toLocaleTimeString(),
-
-                // UI State
-                selectedTask: null,
-                selectedDeliverable: null,
-                showAddTask: false,
-                showAddDeliverable: false,
-                showDeliverableDetail: false,
-                showExport: false,
-                showImport: false,
-                showHelp: false,
-                newTaskText: '',
-                newTaskStatus: 'todo',
-                newNote: '',
-                importDataText: '',
-                newDeliverable: { name: '', icon: '📄', type: 'File', url: '', description: '' },
-
-                init() {
-                    // Load from URL hash first
-                    if (window.location.hash) {
-                        const hashData = this.parseHashData();
-                        if (hashData) {
-                            this.tasks = hashData.tasks || [];
-                            this.deliverables = hashData.deliverables || [];
-                            this.notes = hashData.notes || [];
-                            this.actionLog = hashData.actionLog || [];
-                            history.replaceState(null, '', window.location.pathname);
-                            this.saveAll();
-                        }
-                    } else {
-                        // Load from localStorage
-                        this.tasks = JSON.parse(localStorage.getItem('dexter-tasks') || '[]');
-                        this.deliverables = JSON.parse(localStorage.getItem('dexter-deliverables') || '[]');
-                        this.notes = JSON.parse(localStorage.getItem('dexter-notes') || '[]');
-                        this.actionLog = JSON.parse(localStorage.getItem('dexter-action-log') || '[]');
-                    }
-
-                    this.status = localStorage.getItem('dexter-status') || 'online';
-                    this.statusMessage = localStorage.getItem('dexter-status-message') || 'Ready for tasks';
-
-                    // Init Kanban drag-drop
-                    this.$nextTick(() => this.initKanban());
-                    
-                    // Update sync time periodically
-                    setInterval(() => {
-                        this.lastSync = new Date().toLocaleTimeString();
-                    }, 60000);
-                },
-
-                initKanban() {
-                    const columns = ['todo', 'in-progress', 'done', 'archived'];
-                    columns.forEach(col => {
-                        const el = document.getElementById(`kanban-${col}`);
-                        if (el) {
-                            new Sortable(el, {
-                                group: 'kanban',
-                                animation: 150,
-                                ghostClass: 'sortable-ghost',
-                                chosenClass: 'sortable-chosen',
-                                onEnd: (evt) => {
-                                    const taskId = evt.item.dataset.id;
-                                    const newStatus = evt.to.id.replace('kanban-', '');
-                                    this.moveTask(taskId, newStatus);
-                                }
-                            });
-                        }
-                    });
-                },
-
-                moveTask(taskId, newStatus) {
-                    const task = this.tasks.find(t => t.id === taskId);
-                    if (task && task.status !== newStatus) {
-                        const oldStatus = task.status;
-                        task.status = newStatus;
-                        task.updatedAt = new Date().toISOString();
-                        
-                        if (newStatus === 'done') {
-                            task.completedAt = new Date().toISOString();
-                        }
-                        if (newStatus === 'archived') {
-                            task.archivedAt = new Date().toISOString();
-                        }
-                        
-                        this.log(`Moved "${task.title}" from ${oldStatus} to ${newStatus}`);
-                        this.save();
-                    }
-                },
-
-                addTasks() {
-                    const lines = this.newTaskText.split('\n').filter(l => l.trim());
-                    lines.forEach(line => {
-                        const task = {
-                            id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-                            title: line.trim(),
-                            status: this.newTaskStatus,
-                            output: '',
-                            liveStatus: '',
-                            createdAt: new Date().toISOString()
-                        };
-                        this.tasks.push(task);
-                        this.log(`Added task: "${task.title}"`);
-                    });
-                    this.newTaskText = '';
-                    this.save();
-                    this.$nextTick(() => this.initKanban());
-                },
-
-                selectTask(task) {
-                    this.selectedTask = task;
-                },
-
-                updateTaskStatus(task) {
-                    task.updatedAt = new Date().toISOString();
-                    if (task.status === 'done') {
-                        task.completedAt = new Date().toISOString();
-                    }
-                    this.log(`Updated "${task.title}" status to ${task.status}`);
-                    this.save();
-                },
-
-                deleteTask(id) {
-                    const task = this.tasks.find(t => t.id === id);
-                    if (task) {
-                        this.log(`Deleted task: "${task.title}"`);
-                    }
-                    this.tasks = this.tasks.filter(t => t.id !== id);
-                    this.save();
-                },
-
-                addDeliverable() {
-                    if (!this.newDeliverable.name) return;
-                    const deliverable = {
-                        ...this.newDeliverable,
-                        id: Date.now().toString(),
-                        createdAt: new Date().toISOString()
-                    };
-                    this.deliverables.push(deliverable);
-                    this.log(`Added deliverable: "${deliverable.name}"`);
-                    this.newDeliverable = { name: '', icon: '📄', type: 'File', url: '', description: '' };
-                    this.saveDeliverables();
-                },
-
-                deleteDeliverable(id) {
-                    const d = this.deliverables.find(d => d.id === id);
-                    if (d) {
-                        this.log(`Deleted deliverable: "${d.name}"`);
-                    }
-                    this.deliverables = this.deliverables.filter(d => d.id !== id);
-                    this.saveDeliverables();
-                },
-
-                addNote() {
-                    if (!this.newNote.trim()) return;
-                    this.notes.push({
-                        id: Date.now().toString(),
-                        text: this.newNote.trim(),
-                        seen: false,
-                        createdAt: new Date().toISOString()
-                    });
-                    this.log(`New note added`);
-                    this.newNote = '';
-                    this.saveNotes();
-                },
-
-                setStatus(status, message) {
-                    this.status = status;
-                    this.statusMessage = message;
-                    localStorage.setItem('dexter-status', status);
-                    localStorage.setItem('dexter-status-message', message);
-                    this.log(`Status changed to ${status}: ${message}`);
-                },
-
-                log(message) {
-                    this.actionLog.push({
-                        timestamp: new Date().toISOString(),
-                        message
-                    });
-                    // Keep only last 100 entries
-                    if (this.actionLog.length > 100) {
-                        this.actionLog = this.actionLog.slice(-100);
-                    }
-                    this.saveActionLog();
-                },
-
-                // Save functions
-                save() {
-                    localStorage.setItem('dexter-tasks', JSON.stringify(this.tasks));
-                },
-                saveDeliverables() {
-                    localStorage.setItem('dexter-deliverables', JSON.stringify(this.deliverables));
-                },
-                saveNotes() {
-                    localStorage.setItem('dexter-notes', JSON.stringify(this.notes));
-                },
-                saveActionLog() {
-                    localStorage.setItem('dexter-action-log', JSON.stringify(this.actionLog));
-                },
-                saveAll() {
-                    this.save();
-                    this.saveDeliverables();
-                    this.saveNotes();
-                    this.saveActionLog();
-                },
-
-                // Export/Import
-                exportData() {
-                    return JSON.stringify({
-                        version: 2,
-                        exported: new Date().toISOString(),
-                        tasks: this.tasks,
-                        deliverables: this.deliverables,
-                        notes: this.notes,
-                        actionLog: this.actionLog
-                    }, null, 2);
-                },
-
-                copyExport() {
-                    navigator.clipboard.writeText(this.exportData());
-                    alert('Copied!');
-                },
-
-                downloadExport() {
-                    const blob = new Blob([this.exportData()], { type: 'application/json' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `dexter-dashboard-${new Date().toISOString().slice(0,10)}.json`;
-                    a.click();
-                },
-
-                generateShareLink() {
-                    const data = { version: 2, tasks: this.tasks, deliverables: this.deliverables, notes: this.notes };
-                    const encoded = btoa(encodeURIComponent(JSON.stringify(data)));
-                    return window.location.origin + window.location.pathname + '#data=' + encoded;
-                },
-
-                parseHashData() {
-                    try {
-                        const hash = window.location.hash.slice(1);
-                        if (hash.startsWith('data=')) {
-                            return JSON.parse(decodeURIComponent(atob(hash.slice(5))));
-                        }
-                    } catch (e) {}
-                    return null;
-                },
-
-                doImport() {
-                    try {
-                        const data = JSON.parse(this.importDataText);
-                        if (confirm('Import will replace current data. Continue?')) {
-                            this.tasks = data.tasks || [];
-                            this.deliverables = data.deliverables || [];
-                            this.notes = data.notes || [];
-                            this.actionLog = data.actionLog || [];
-                            this.saveAll();
-                            this.showImport = false;
-                            this.log('Data imported');
-                            this.$nextTick(() => this.initKanban());
-                        }
-                    } catch (e) {
-                        alert('Invalid JSON');
-                    }
-                },
-
-                // Utilities
-                formatDate(iso) {
-                    if (!iso) return '';
-                    const d = new Date(iso);
-                    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-                },
-
-                formatLogTime(iso) {
-                    const d = new Date(iso);
-                    return d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-                },
-
-                getStatusIcon(status) {
-                    const icons = { 'todo': '📋', 'in-progress': '⚡', 'done': '✅', 'archived': '📦' };
-                    return icons[status] || '📋';
-                },
-
-                renderMarkdown(text) {
-                    if (!text) return '';
-                    try {
-                        return marked.parse(text);
-                    } catch (e) {
-                        return text;
-                    }
-                },
-
-                handleKeyboard(e) {
-                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
-                    if (e.key === '?') this.showHelp = !this.showHelp;
-                    if (e.key === 'a') this.showAddTask = true;
-                    if (e.key === 'e') this.showExport = true;
-                    if (e.key === 'i') this.showImport = true;
-                    if (e.key === 'Escape') {
-                        this.selectedTask = null;
-                        this.showAddTask = false;
-                        this.showAddDeliverable = false;
-                        this.showDeliverableDetail = false;
-                        this.showExport = false;
-                        this.showImport = false;
-                        this.showHelp = false;
-                    }
+  <script>
+    function dexterDashboard() {
+      return {
+        tasks: [],
+        deliverables: [],
+        notes: [],
+        actionLog: [],
+        status: 'online',
+        statusMessage: 'Ready',
+        lastSync: new Date().toLocaleTimeString(),
+        
+        selectedTask: null,
+        selectedDeliverable: null,
+        showAddTask: false,
+        showAddDeliverable: false,
+        showDeliverableDetail: false,
+        showExport: false,
+        showImport: false,
+        showHelp: false,
+        newTaskText: '',
+        newTaskStatus: 'backlog',
+        newNote: '',
+        importDataText: '',
+        newDeliverable: { name: '', icon: '📄', type: 'File', url: '' },
+        
+        init() {
+          if (window.location.hash) {
+            try {
+              const hash = window.location.hash.slice(1);
+              if (hash.startsWith('data=')) {
+                const data = JSON.parse(decodeURIComponent(atob(hash.slice(5))));
+                this.tasks = data.tasks || [];
+                this.deliverables = data.deliverables || [];
+                this.notes = data.notes || [];
+                this.actionLog = data.actionLog || [];
+                history.replaceState(null, '', window.location.pathname);
+                this.saveAll();
+              }
+            } catch (e) {}
+          } else {
+            this.tasks = JSON.parse(localStorage.getItem('dexter-tasks') || '[]');
+            this.deliverables = JSON.parse(localStorage.getItem('dexter-deliverables') || '[]');
+            this.notes = JSON.parse(localStorage.getItem('dexter-notes') || '[]');
+            this.actionLog = JSON.parse(localStorage.getItem('dexter-action-log') || '[]');
+          }
+          
+          this.status = localStorage.getItem('dexter-status') || 'online';
+          this.statusMessage = localStorage.getItem('dexter-status-message') || 'Ready';
+          
+          this.$nextTick(() => this.initKanban());
+          setInterval(() => this.lastSync = new Date().toLocaleTimeString(), 60000);
+        },
+        
+        initKanban() {
+          ['backlog', 'in-progress', 'done', 'archived'].forEach(col => {
+            const el = document.getElementById(`kanban-${col}`);
+            if (el) {
+              new Sortable(el, {
+                group: 'kanban',
+                animation: 150,
+                onEnd: (evt) => {
+                  const taskId = evt.item.dataset.id;
+                  const newStatus = evt.to.id.replace('kanban-', '');
+                  this.moveTask(taskId, newStatus);
                 }
+              });
             }
+          });
+        },
+        
+        moveTask(taskId, newStatus) {
+          const task = this.tasks.find(t => t.id === taskId);
+          if (task && task.status !== newStatus) {
+            task.status = newStatus;
+            task.updatedAt = new Date().toISOString();
+            if (newStatus === 'done') task.completedAt = new Date().toISOString();
+            if (newStatus === 'archived') task.archivedAt = new Date().toISOString();
+            this.log(`Moved "${task.title}" to ${newStatus}`);
+            this.save();
+          }
+        },
+        
+        addTasks() {
+          this.newTaskText.split('\n').filter(l => l.trim()).forEach(line => {
+            const task = {
+              id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+              title: line.trim(),
+              status: this.newTaskStatus,
+              output: '',
+              liveStatus: '',
+              createdAt: new Date().toISOString()
+            };
+            this.tasks.push(task);
+            this.log(`Added: "${task.title}"`);
+          });
+          this.newTaskText = '';
+          this.save();
+          this.$nextTick(() => this.initKanban());
+        },
+        
+        selectTask(task) { this.selectedTask = task; },
+        
+        updateTask(task) {
+          task.updatedAt = new Date().toISOString();
+          if (task.status === 'done') task.completedAt = new Date().toISOString();
+          if (task.status === 'archived') task.archivedAt = new Date().toISOString();
+          this.log(`Updated "${task.title}" → ${task.status}`);
+          this.save();
+        },
+        
+        deleteTask(id) {
+          const task = this.tasks.find(t => t.id === id);
+          if (task) this.log(`Deleted: "${task.title}"`);
+          this.tasks = this.tasks.filter(t => t.id !== id);
+          this.save();
+        },
+        
+        addDeliverable() {
+          if (!this.newDeliverable.name) return;
+          this.deliverables.push({ ...this.newDeliverable, id: Date.now().toString(), createdAt: new Date().toISOString() });
+          this.log(`Added deliverable: "${this.newDeliverable.name}"`);
+          this.newDeliverable = { name: '', icon: '📄', type: 'File', url: '' };
+          this.saveDeliverables();
+        },
+        
+        deleteDeliverable(id) {
+          const d = this.deliverables.find(d => d.id === id);
+          if (d) this.log(`Deleted deliverable: "${d.name}"`);
+          this.deliverables = this.deliverables.filter(d => d.id !== id);
+          this.saveDeliverables();
+        },
+        
+        addNote() {
+          if (!this.newNote.trim()) return;
+          this.notes.push({ id: Date.now().toString(), text: this.newNote.trim(), createdAt: new Date().toISOString() });
+          this.log('New note added');
+          this.newNote = '';
+          this.saveNotes();
+        },
+        
+        setStatus(s, m) {
+          this.status = s;
+          this.statusMessage = m;
+          localStorage.setItem('dexter-status', s);
+          localStorage.setItem('dexter-status-message', m);
+          this.log(`Status → ${s}`);
+        },
+        
+        log(msg) {
+          this.actionLog.push({ timestamp: new Date().toISOString(), message: msg });
+          if (this.actionLog.length > 100) this.actionLog = this.actionLog.slice(-100);
+          this.saveActionLog();
+        },
+        
+        save() { localStorage.setItem('dexter-tasks', JSON.stringify(this.tasks)); },
+        saveDeliverables() { localStorage.setItem('dexter-deliverables', JSON.stringify(this.deliverables)); },
+        saveNotes() { localStorage.setItem('dexter-notes', JSON.stringify(this.notes)); },
+        saveActionLog() { localStorage.setItem('dexter-action-log', JSON.stringify(this.actionLog)); },
+        saveAll() { this.save(); this.saveDeliverables(); this.saveNotes(); this.saveActionLog(); },
+        
+        exportData() {
+          return JSON.stringify({ version: 2, exported: new Date().toISOString(), tasks: this.tasks, deliverables: this.deliverables, notes: this.notes, actionLog: this.actionLog }, null, 2);
+        },
+        
+        copyExport() { navigator.clipboard.writeText(this.exportData()); alert('Copied!'); },
+        
+        downloadExport() {
+          const blob = new Blob([this.exportData()], { type: 'application/json' });
+          const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+          a.download = `dexter-${new Date().toISOString().slice(0,10)}.json`; a.click();
+        },
+        
+        generateShareLink() {
+          return window.location.origin + window.location.pathname + '#data=' + btoa(encodeURIComponent(JSON.stringify({ version: 2, tasks: this.tasks, deliverables: this.deliverables, notes: this.notes })));
+        },
+        
+        doImport() {
+          try {
+            const data = JSON.parse(this.importDataText);
+            if (confirm('Replace current data?')) {
+              this.tasks = data.tasks || [];
+              this.deliverables = data.deliverables || [];
+              this.notes = data.notes || [];
+              this.actionLog = data.actionLog || [];
+              this.saveAll(); this.showImport = false;
+              this.log('Data imported');
+              this.$nextTick(() => this.initKanban());
+            }
+          } catch (e) { alert('Invalid JSON'); }
+        },
+        
+        formatDate(iso) {
+          if (!iso) return '';
+          return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        },
+        
+        formatLogTime(iso) {
+          return new Date(iso).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        },
+        
+        handleKeyboard(e) {
+          if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
+          if (e.key === '?') this.showHelp = !this.showHelp;
+          if (e.key === 'a') this.showAddTask = true;
+          if (e.key === 'e') this.showExport = true;
+          if (e.key === 'i') this.showImport = true;
+          if (e.key === 'Escape') {
+            this.selectedTask = null;
+            this.showAddTask = false;
+            this.showAddDeliverable = false;
+            this.showDeliverableDetail = false;
+            this.showExport = false;
+            this.showImport = false;
+            this.showHelp = false;
+          }
         }
-    </script>
+      }
+    }
+  </script>
 </body>
 </html>
