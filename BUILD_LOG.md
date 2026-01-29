@@ -71,3 +71,15 @@ Build an MVP web app that lets Kish give me multiple tasks and see my output in 
 - Keyboard shortcuts (?, d, e, i, Esc)
 - Help modal
 
+### 08:35 UTC - Major Upgrade (Klaus-style Dashboard)
+Kish requested features matching Klaus Dashboard. Rebuilt entirely:
+- **Dexter Avatar** - Shows my emoji (🥸) with status glow
+- **Live Status** - Online/Working/Waiting/Idle with visual indicators
+- **Kanban Board** - 4 columns (To Do, In Progress, Done, Archived)
+- **Drag-and-Drop** - Move tasks between columns
+- **Live Task Status** - In-progress tasks show real-time updates
+- **Deliverables Section** - Folders/files with icons
+- **Action Log** - Timestamped activity feed
+- **Notes Section** - Quick notes I check on heartbeat
+- **Dark Theme** - Matches Klaus aesthetic
+
