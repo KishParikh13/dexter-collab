@@ -1699,7 +1699,7 @@
                 </div>
                 <div class="task-meta" x-show="expandedTask !== task.id">
                   <span x-text="formatDate(task.createdAt)"></span>
-                  <span x-show="task.repo" style="margin-left: 8px; color: var(--progress);" x-text="task.repo"></span>
+                  <span x-show="task.repo" style="margin-left: 8px; color: var(--progress);" x-text="task.repo.replace('KishParikh13/', '')"></span>
                 </div>
               </div>
             </template>
@@ -1748,8 +1748,8 @@
                 </div>
                 <!-- Time elapsed -->
                 <div class="task-meta">
-                  <span x-text="'Started ' + formatDate(task.startedAt || task.createdAt)"></span>
-                  <span x-show="task.repo" style="margin-left: 8px; color: var(--progress);" x-text="task.repo"></span>
+                  <span x-text="'Working: ' + getElapsedTime(task.startedAt || task.createdAt)"></span>
+                  <span x-show="task.repo" style="margin-left: 8px; color: var(--progress);" x-text="task.repo.replace('KishParikh13/', '')"></span>
                 </div>
               </div>
             </template>
@@ -1880,7 +1880,7 @@
                   <a :href="item.url" target="_blank" x-text="item.title"></a>
                 </div>
                 <div class="activity-meta">
-                  <span class="activity-repo" x-text="item.repo"></span>
+                  <span class="activity-repo" x-text="item.repo.replace('KishParikh13/', '')"></span>
                   <span x-text="formatRelativeTime(item.date)"></span>
                   <span x-show="item.author" x-text="'by ' + item.author"></span>
                 </div>
@@ -1942,7 +1942,7 @@
               <div class="detail-row" x-show="selectedTask.repo">
                 <span class="detail-label">Repo</span>
                 <span class="detail-value">
-                  <a :href="'https://github.com/' + selectedTask.repo" target="_blank" x-text="selectedTask.repo"></a>
+                  <a :href="'https://github.com/' + selectedTask.repo" target="_blank" x-text="selectedTask.repo.replace('KishParikh13/', '')"></a>
                 </span>
               </div>
               
@@ -3132,13 +3132,13 @@
           
           if (mainSession?.status === 'active') {
             this.status = 'working';
-            this.statusMessage = mainSession.currentAction || 'Dexter is thinking...';
+            this.statusMessage = mainSession.currentAction || 'Working...';
           } else if (activeAgents.length > 0) {
             this.status = 'working';
-            this.statusMessage = `${activeAgents.length} agent(s) working`;
+            this.statusMessage = 'Working...';
           } else {
-            this.status = 'online';
-            this.statusMessage = 'Ready';
+            this.status = 'idle';
+            this.statusMessage = 'Idle';
           }
         },
         
