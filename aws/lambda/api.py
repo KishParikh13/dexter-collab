@@ -198,7 +198,7 @@ def update_task(event, task_id):
         expression_names = {}
         
         allowed_fields = ['title', 'description', 'repo', 'status', 'currentStep', 
-                          'steps', 'cost', 'timeMs', 'startedAt', 'completedAt', 'agentId', 'prUrl', 'context']
+                          'steps', 'cost', 'tokenUsage', 'timeMs', 'startedAt', 'completedAt', 'agentId', 'prUrl', 'context']
         
         for field in allowed_fields:
             if field in body:

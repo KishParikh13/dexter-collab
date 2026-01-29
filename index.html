@@ -772,6 +772,21 @@
     .task-title { font-size: 13px; font-weight: 500; flex: 1; }
     .task-meta { font-size: 10px; color: var(--muted); margin-top: 8px; text-transform: uppercase; }
     
+    /* Cost Display */
+    .task-cost {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      color: var(--muted);
+      padding: 2px 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 3px;
+      margin-left: 6px;
+    }
+    .task-cost-icon { opacity: 0.7; }
+    .cost-amount { color: #4f4; font-weight: 500; }
+    
     .task-start-form {
       margin-top: 10px;
       display: flex;
@@ -2178,6 +2193,10 @@
                 </div>
                 <div class="task-meta">
                   <span x-show="task.prUrl"><a :href="task.prUrl" target="_blank" @click.stop style="color: var(--progress)">View PR →</a></span>
+                  <span class="task-cost" x-show="task.cost">
+                    <span class="task-cost-icon">💰</span>
+                    <span class="cost-amount" x-text="formatCost(task.cost)"></span>
+                  </span>
                 </div>
               </div>
             </template>
@@ -2195,7 +2214,13 @@
               <div class="task" :class="{'selected': selectedTask?.id === task.id}" :data-id="task.id" @click="selectTask(task)" style="opacity: 0.6">
                 <div class="task-repo" x-show="task.repo" style="font-size: 10px; color: var(--muted); font-family: var(--font-mono); margin-bottom: 4px;" x-text="task.repo.replace('KishParikh13/', '')"></div>
                 <div class="task-title" x-text="task.title"></div>
-                <div class="task-meta" x-text="'Done ' + formatDate(task.completedAt)"></div>
+                <div class="task-meta">
+                  <span x-text="'Done ' + formatDate(task.completedAt)"></span>
+                  <span class="task-cost" x-show="task.cost">
+                    <span class="task-cost-icon">💰</span>
+                    <span class="cost-amount" x-text="formatCost(task.cost)"></span>
+                  </span>
+                </div>
               </div>
             </template>
           </div>
@@ -2263,6 +2288,25 @@
                 <span class="detail-label">PR</span>
                 <span class="detail-value">
                   <a :href="selectedTask.prUrl" target="_blank">View Pull Request →</a>
+                </span>
+              </div>
+              
+              <div class="detail-row" x-show="selectedTask.cost || selectedTask.tokenUsage">
+                <span class="detail-label">Cost</span>
+                <span class="detail-value">
+                  <span class="cost-amount" x-text="formatCost(selectedTask.cost)"></span>
+                  <span x-show="selectedTask.tokenUsage" style="color: var(--muted); margin-left: 8px;">
+                    (<span x-text="formatTokens(selectedTask.tokenUsage?.totalTokens)"></span> tokens)
+                  </span>
+                </span>
+              </div>
+              
+              <div class="detail-row" x-show="selectedTask.tokenUsage">
+                <span class="detail-label">Tokens</span>
+                <span class="detail-value" style="font-size: 11px;">
+                  <span style="color: #0af;">↓ <span x-text="formatTokens(selectedTask.tokenUsage?.inputTokens)"></span></span>
+                  <span style="margin: 0 6px; color: var(--muted);">|</span>
+                  <span style="color: #fa0;">↑ <span x-text="formatTokens(selectedTask.tokenUsage?.outputTokens)"></span></span>
                 </span>
               </div>
             </div>
@@ -2870,6 +2914,21 @@
             hour: '2-digit',
             minute: '2-digit'
           });
+        },
+        
+        formatCost(cost) {
+          if (cost === null || cost === undefined) return '$0.00';
+          const num = parseFloat(cost);
+          if (num < 0.01) return '<$0.01';
+          if (num < 1) return '$' + num.toFixed(2);
+          return '$' + num.toFixed(2);
+        },
+        
+        formatTokens(tokens) {
+          if (!tokens) return '0';
+          if (tokens >= 1000000) return (tokens / 1000000).toFixed(1) + 'M';
+          if (tokens >= 1000) return (tokens / 1000).toFixed(1) + 'k';
+          return tokens.toString();
         },
         
         async fetchTaskGitHub(task) {
