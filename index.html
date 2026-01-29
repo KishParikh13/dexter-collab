@@ -276,6 +276,7 @@
     .task:active { cursor: grabbing; }
     .task.dragging { opacity: 0.3; }
     .task.expanded { border-color: var(--fg); }
+    .task.selected { border-color: var(--progress); border-width: 2px; }
     
     .task-header { display: flex; align-items: flex-start; gap: 8px; }
     .task-title { font-size: 13px; font-weight: 500; flex: 1; }
@@ -737,18 +738,329 @@
       margin-top: 16px;
     }
     
+    /* Task Detail Side Panel */
+    .main-wrapper {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      transition: margin-right 0.3s ease;
+    }
+    
+    .main-wrapper.panel-open {
+      margin-right: 380px;
+    }
+    
+    .task-detail-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 380px;
+      height: 100vh;
+      background: var(--bg);
+      border-left: 1px solid var(--border);
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      z-index: 500;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    .task-detail-panel.open {
+      transform: translateX(0);
+    }
+    
+    .panel-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-shrink: 0;
+    }
+    
+    .panel-title {
+      font-size: 16px;
+      font-weight: 500;
+      line-height: 1.3;
+      flex: 1;
+      padding-right: 12px;
+    }
+    
+    .panel-close {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    
+    .panel-close:hover {
+      color: var(--fg);
+      border-color: var(--fg);
+    }
+    
+    .panel-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0;
+    }
+    
+    .panel-section {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .panel-section:last-child {
+      border-bottom: none;
+    }
+    
+    .panel-section-title {
+      font-size: 10px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    
+    .panel-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .panel-status-dot {
+      width: 8px;
+      height: 8px;
+    }
+    
+    .panel-status.status-backlog .panel-status-dot { background: var(--muted); }
+    .panel-status.status-in-progress .panel-status-dot { background: var(--progress); }
+    .panel-status.status-review .panel-status-dot { background: #a0f; }
+    .panel-status.status-done .panel-status-dot { background: #4f4; }
+    
+    .detail-row {
+      display: flex;
+      margin-bottom: 10px;
+    }
+    
+    .detail-row:last-child {
+      margin-bottom: 0;
+    }
+    
+    .detail-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+      width: 80px;
+      flex-shrink: 0;
+      padding-top: 2px;
+    }
+    
+    .detail-value {
+      font-size: 12px;
+      color: var(--fg);
+      flex: 1;
+      word-break: break-word;
+    }
+    
+    .detail-value a {
+      color: var(--progress);
+    }
+    
+    .detail-value a:hover {
+      text-decoration: underline;
+    }
+    
+    .panel-description {
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--fg);
+      white-space: pre-wrap;
+    }
+    
+    .panel-context {
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--muted);
+      font-style: italic;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      background: var(--hover-bg);
+    }
+    
+    .panel-progress-current {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--progress);
+      background: rgba(0, 170, 255, 0.05);
+      font-size: 12px;
+      color: var(--progress);
+      margin-bottom: 12px;
+    }
+    
+    .panel-progress-current .spinner {
+      flex-shrink: 0;
+    }
+    
+    .panel-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    
+    .panel-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 0;
+      font-size: 11px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .panel-step:last-child {
+      border-bottom: none;
+    }
+    
+    .panel-step-icon {
+      width: 16px;
+      text-align: center;
+      flex-shrink: 0;
+      padding-top: 1px;
+    }
+    
+    .panel-step.step-done .panel-step-icon { color: #4f4; }
+    .panel-step.step-in-progress .panel-step-icon { color: var(--progress); }
+    .panel-step.step-pending .panel-step-icon { color: var(--muted); }
+    
+    .panel-step-content {
+      flex: 1;
+    }
+    
+    .panel-step-name {
+      font-weight: 500;
+    }
+    
+    .panel-step-detail {
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    
+    /* GitHub Section in Panel */
+    .panel-github-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 11px;
+    }
+    
+    .panel-github-item:last-child {
+      border-bottom: none;
+    }
+    
+    .panel-github-icon {
+      width: 18px;
+      text-align: center;
+      flex-shrink: 0;
+      font-size: 12px;
+    }
+    
+    .panel-github-item.type-commit .panel-github-icon { color: #4f4; }
+    .panel-github-item.type-pr .panel-github-icon { color: #a0f; }
+    .panel-github-item.type-issue .panel-github-icon { color: #fa0; }
+    .panel-github-item.type-branch .panel-github-icon { color: var(--progress); }
+    
+    .panel-github-content {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .panel-github-title {
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .panel-github-title a {
+      color: var(--fg);
+    }
+    
+    .panel-github-title a:hover {
+      text-decoration: underline;
+    }
+    
+    .panel-github-meta {
+      color: var(--muted);
+      margin-top: 3px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .panel-github-loading,
+    .panel-github-empty {
+      padding: 16px 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .panel-actions {
+      padding: 16px 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    
     @media (max-width: 1000px) {
       .board { grid-template-columns: repeat(2, 1fr); }
       .sidebar { display: none; }
+      
+      .task-detail-panel {
+        width: 320px;
+      }
+      
+      .main-wrapper.panel-open {
+        margin-right: 320px;
+      }
     }
     
     @media (max-width: 600px) {
       .board { grid-template-columns: 1fr; }
       .sections { grid-template-columns: 1fr; }
+      
+      .task-detail-panel {
+        width: 100%;
+      }
+      
+      .main-wrapper.panel-open {
+        margin-right: 0;
+      }
     }
   </style>
 </head>
-<body @keydown.window="handleKeyboard($event)">
+<body @keydown.window="handleKeyboard($event)" @click="handleOutsideClick($event)">
   <div class="layout">
     <!-- Sidebar -->
     <aside class="sidebar">
@@ -782,8 +1094,10 @@
       </div>
     </aside>
     
-    <!-- Main -->
-    <main class="main">
+    <!-- Main Wrapper (for push layout) -->
+    <div class="main-wrapper" :class="{'panel-open': selectedTask}">
+      <!-- Main -->
+      <main class="main">
       <nav>
         <h1>DEXTER DASHBOARD</h1>
         <span class="nav-status">
@@ -816,7 +1130,7 @@
           </div>
           <div id="kanban-backlog" class="column-body">
             <template x-for="task in tasks.filter(t => t.status === 'backlog')" :key="task.id">
-              <div class="task" :class="{'expanded': expandedTask === task.id}" :data-id="task.id" @click="toggleTask(task.id)">
+              <div class="task" :class="{'expanded': expandedTask === task.id, 'selected': selectedTask?.id === task.id}" :data-id="task.id" @click="selectTask(task); expandedTask = expandedTask === task.id ? null : task.id">
                 <div class="task-header">
                   <div class="task-title" x-text="task.title"></div>
                 </div>
@@ -853,7 +1167,7 @@
           </div>
           <div id="kanban-in-progress" class="column-body">
             <template x-for="task in tasks.filter(t => t.status === 'in-progress')" :key="task.id">
-              <div class="task task-active" :class="{'expanded': expandedTask === task.id}" :data-id="task.id" @click="toggleTask(task.id)">
+              <div class="task task-active" :class="{'expanded': expandedTask === task.id, 'selected': selectedTask?.id === task.id}" :data-id="task.id" @click="selectTask(task)">
                 <div class="task-header">
                   <div class="task-title" x-text="task.title"></div>
                 </div>
@@ -861,10 +1175,10 @@
                 <div class="task-progress">
                   <div class="task-progress-current">
                     <span class="spinner" x-text="spinnerFrame"></span>
-                    <span x-text="task.currentStep || task.currentAction || 'Working...'"></span>
+                    <span x-text="task.currentStep || task.currentAction || 'Waiting for agent...'"></span>
                     <span class="elapsed-time" x-text="getElapsedTime(task.updatedAt || task.startedAt)"></span>
                   </div>
-                  <div class="task-progress-toggle" x-show="task.steps?.length" @click.stop="toggleTask(task.id)">
+                  <div class="task-progress-toggle" x-show="task.steps?.length" @click.stop="expandedTask = expandedTask === task.id ? null : task.id">
                     <span x-text="expandedTask === task.id ? '▼ Hide' : '▶ ' + (task.steps?.length || 0) + ' steps'"></span>
                   </div>
                 </div>
@@ -902,12 +1216,12 @@
           </div>
           <div id="kanban-review" class="column-body">
             <template x-for="task in tasks.filter(t => t.status === 'review')" :key="task.id">
-              <div class="task" :data-id="task.id" @click="toggleTask(task.id)">
+              <div class="task" :class="{'selected': selectedTask?.id === task.id}" :data-id="task.id" @click="selectTask(task)">
                 <div class="task-header">
                   <div class="task-title" x-text="task.title"></div>
                 </div>
                 <div class="task-meta">
-                  <span x-show="task.prUrl"><a :href="task.prUrl" target="_blank" style="color: var(--progress)">View PR →</a></span>
+                  <span x-show="task.prUrl"><a :href="task.prUrl" target="_blank" @click.stop style="color: var(--progress)">View PR →</a></span>
                 </div>
               </div>
             </template>
@@ -922,7 +1236,7 @@
           </div>
           <div id="kanban-done" class="column-body">
             <template x-for="task in tasks.filter(t => t.status === 'done')" :key="task.id">
-              <div class="task" :data-id="task.id" style="opacity: 0.6">
+              <div class="task" :class="{'selected': selectedTask?.id === task.id}" :data-id="task.id" @click="selectTask(task)" style="opacity: 0.6">
                 <div class="task-title" x-text="task.title"></div>
                 <div class="task-meta" x-text="'Done ' + formatDate(task.completedAt)"></div>
               </div>
@@ -1031,6 +1345,178 @@
         </div>
       </div>
     </main>
+    </div><!-- /main-wrapper -->
+    
+    <!-- Task Detail Side Panel -->
+    <div class="task-detail-panel" :class="{'open': selectedTask}" x-cloak data-panel>
+      <template x-if="selectedTask">
+        <div style="display: contents;">
+          <div class="panel-header">
+            <div class="panel-title" x-text="selectedTask.title"></div>
+            <button class="panel-close" @click="closePanel()">×</button>
+          </div>
+          
+          <div class="panel-body">
+            <!-- Details Section -->
+            <div class="panel-section">
+              <div class="panel-section-title">Details</div>
+              
+              <div class="detail-row">
+                <span class="detail-label">Status</span>
+                <span class="detail-value">
+                  <span class="panel-status" :class="'status-' + selectedTask.status">
+                    <span class="panel-status-dot"></span>
+                    <span x-text="selectedTask.status.replace('-', ' ')"></span>
+                  </span>
+                </span>
+              </div>
+              
+              <div class="detail-row" x-show="selectedTask.description">
+                <span class="detail-label">Desc</span>
+                <span class="detail-value panel-description" x-text="selectedTask.description"></span>
+              </div>
+              
+              <div class="detail-row">
+                <span class="detail-label">Created</span>
+                <span class="detail-value" x-text="formatDateTime(selectedTask.createdAt)"></span>
+              </div>
+              
+              <div class="detail-row" x-show="selectedTask.startedAt">
+                <span class="detail-label">Started</span>
+                <span class="detail-value" x-text="formatDateTime(selectedTask.startedAt)"></span>
+              </div>
+              
+              <div class="detail-row" x-show="selectedTask.completedAt">
+                <span class="detail-label">Done</span>
+                <span class="detail-value" x-text="formatDateTime(selectedTask.completedAt)"></span>
+              </div>
+              
+              <div class="detail-row" x-show="selectedTask.repo">
+                <span class="detail-label">Repo</span>
+                <span class="detail-value">
+                  <a :href="'https://github.com/' + selectedTask.repo" target="_blank" x-text="selectedTask.repo"></a>
+                </span>
+              </div>
+              
+              <div class="detail-row" x-show="selectedTask.prUrl">
+                <span class="detail-label">PR</span>
+                <span class="detail-value">
+                  <a :href="selectedTask.prUrl" target="_blank">View Pull Request →</a>
+                </span>
+              </div>
+            </div>
+            
+            <!-- Context Section -->
+            <div class="panel-section" x-show="selectedTask.context">
+              <div class="panel-section-title">Context Notes</div>
+              <div class="panel-context" x-text="selectedTask.context"></div>
+            </div>
+            
+            <!-- Progress Section -->
+            <div class="panel-section" x-show="selectedTask.status === 'in-progress' || selectedTask.currentStep || (selectedTask.steps && selectedTask.steps.length > 0)">
+              <div class="panel-section-title">Progress</div>
+              
+              <!-- Current Step -->
+              <div class="panel-progress-current" x-show="selectedTask.status === 'in-progress' && (selectedTask.currentStep || selectedTask.currentAction)">
+                <span class="spinner" x-text="spinnerFrame"></span>
+                <span x-text="selectedTask.currentStep || selectedTask.currentAction || 'Waiting for agent...'"></span>
+              </div>
+              
+              <!-- Steps History -->
+              <div class="panel-steps" x-show="selectedTask.steps && selectedTask.steps.length > 0">
+                <template x-for="step in selectedTask.steps" :key="step.name">
+                  <div class="panel-step" :class="'step-' + step.status">
+                    <div class="panel-step-icon">
+                      <span x-show="step.status === 'done'">✓</span>
+                      <span x-show="step.status === 'in-progress'">●</span>
+                      <span x-show="step.status === 'pending'">○</span>
+                    </div>
+                    <div class="panel-step-content">
+                      <div class="panel-step-name" x-text="step.name"></div>
+                      <div class="panel-step-detail" x-show="step.detail" x-text="step.detail"></div>
+                    </div>
+                  </div>
+                </template>
+              </div>
+              
+              <div class="panel-github-empty" x-show="!selectedTask.currentStep && !selectedTask.currentAction && (!selectedTask.steps || selectedTask.steps.length === 0)">
+                No progress data yet
+              </div>
+            </div>
+            
+            <!-- GitHub Section -->
+            <div class="panel-section" x-show="selectedTask.repo">
+              <div class="panel-section-title">🐙 GitHub</div>
+              
+              <div class="panel-github-loading" x-show="taskGitHubLoading">
+                Loading GitHub data...
+              </div>
+              
+              <div x-show="!taskGitHubLoading">
+                <!-- Branch info -->
+                <div class="panel-github-item type-branch" x-show="taskGitHubData.branch">
+                  <div class="panel-github-icon">⎇</div>
+                  <div class="panel-github-content">
+                    <div class="panel-github-title">
+                      <a :href="'https://github.com/' + selectedTask.repo + '/tree/' + taskGitHubData.branch" target="_blank" x-text="taskGitHubData.branch"></a>
+                    </div>
+                    <div class="panel-github-meta">Branch</div>
+                  </div>
+                </div>
+                
+                <!-- PRs -->
+                <template x-for="pr in taskGitHubData.prs" :key="pr.id">
+                  <div class="panel-github-item type-pr">
+                    <div class="panel-github-icon">⎇</div>
+                    <div class="panel-github-content">
+                      <div class="panel-github-title">
+                        <a :href="pr.url" target="_blank" x-text="pr.title"></a>
+                      </div>
+                      <div class="panel-github-meta" x-text="'#' + pr.number + ' • ' + pr.state"></div>
+                    </div>
+                  </div>
+                </template>
+                
+                <!-- Commits -->
+                <template x-for="commit in taskGitHubData.commits.slice(0, 5)" :key="commit.sha">
+                  <div class="panel-github-item type-commit">
+                    <div class="panel-github-icon">⚡</div>
+                    <div class="panel-github-content">
+                      <div class="panel-github-title">
+                        <a :href="commit.url" target="_blank" x-text="commit.message"></a>
+                      </div>
+                      <div class="panel-github-meta" x-text="formatRelativeTime(commit.date) + ' • ' + commit.sha.slice(0,7)"></div>
+                    </div>
+                  </div>
+                </template>
+                
+                <!-- Issues -->
+                <template x-for="issue in taskGitHubData.issues" :key="issue.id">
+                  <div class="panel-github-item type-issue">
+                    <div class="panel-github-icon">◉</div>
+                    <div class="panel-github-content">
+                      <div class="panel-github-title">
+                        <a :href="issue.url" target="_blank" x-text="issue.title"></a>
+                      </div>
+                      <div class="panel-github-meta" x-text="'#' + issue.number + ' • ' + issue.state"></div>
+                    </div>
+                  </div>
+                </template>
+                
+                <div class="panel-github-empty" x-show="!taskGitHubData.branch && taskGitHubData.prs.length === 0 && taskGitHubData.commits.length === 0 && taskGitHubData.issues.length === 0">
+                  No related GitHub activity found
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Panel Actions -->
+          <div class="panel-actions" x-show="selectedTask.status === 'review'">
+            <button class="btn btn-primary" @click="moveTask(selectedTask.id, 'done'); closePanel()">Mark Done</button>
+          </div>
+        </div>
+      </template>
+    </div>
   </div>
   
   <!-- Start Task Confirmation -->
@@ -1126,6 +1612,11 @@
         githubLoading: false,
         githubError: null,
         githubUsername: 'KishParikh13',
+        
+        // Task Detail Panel
+        selectedTask: null,
+        taskGitHubData: { branch: null, commits: [], prs: [], issues: [] },
+        taskGitHubLoading: false,
         
         // Config from config.js
         config: window.DEXTER_CONFIG || {},
@@ -1314,6 +1805,192 @@
         },
         
         // ============================================
+        // Task Detail Panel
+        // ============================================
+        
+        selectTask(task) {
+          // Update the selected task with fresh data
+          this.selectedTask = { ...task };
+          this.taskGitHubData = { branch: null, commits: [], prs: [], issues: [] };
+          
+          // Fetch GitHub data if task has a repo
+          if (task.repo) {
+            this.fetchTaskGitHub(task);
+          }
+        },
+        
+        closePanel() {
+          this.selectedTask = null;
+          this.taskGitHubData = { branch: null, commits: [], prs: [], issues: [] };
+        },
+        
+        handleOutsideClick(event) {
+          if (!this.selectedTask) return;
+          
+          const panel = event.target.closest('[data-panel]');
+          const task = event.target.closest('.task');
+          
+          // Close if clicking outside panel and not on a task
+          if (!panel && !task) {
+            this.closePanel();
+          }
+        },
+        
+        formatDateTime(iso) {
+          if (!iso) return '';
+          return new Date(iso).toLocaleString('en-US', { 
+            month: 'short', 
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+        },
+        
+        async fetchTaskGitHub(task) {
+          if (!task.repo) return;
+          
+          this.taskGitHubLoading = true;
+          
+          try {
+            const repo = task.repo;
+            const taskId = task.id;
+            const taskTitle = task.title.toLowerCase();
+            
+            // Try to detect branch name from task ID or title
+            // Common patterns: dexter/task-id, feature/task-title, etc.
+            const possibleBranches = [
+              `dexter/${taskId.slice(0, 8)}`,
+              `dexter-${taskId.slice(0, 8)}`,
+              task.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 30)
+            ];
+            
+            // Fetch branches
+            let detectedBranch = null;
+            try {
+              const branchesRes = await fetch(`https://api.github.com/repos/${repo}/branches?per_page=30`);
+              if (branchesRes.ok) {
+                const branches = await branchesRes.json();
+                for (const b of branches) {
+                  const bn = b.name.toLowerCase();
+                  if (possibleBranches.some(pb => bn.includes(pb.slice(0, 8))) || 
+                      bn.includes(taskId.slice(0, 8)) ||
+                      taskTitle.split(' ').some(word => word.length > 3 && bn.includes(word))) {
+                    detectedBranch = b.name;
+                    break;
+                  }
+                }
+              }
+            } catch (e) {
+              console.log('Could not fetch branches:', e);
+            }
+            
+            // Fetch PRs
+            let relatedPRs = [];
+            try {
+              const prsRes = await fetch(`https://api.github.com/repos/${repo}/pulls?state=all&per_page=20`);
+              if (prsRes.ok) {
+                const prs = await prsRes.json();
+                relatedPRs = prs.filter(pr => {
+                  const title = pr.title.toLowerCase();
+                  const body = (pr.body || '').toLowerCase();
+                  const branch = pr.head?.ref?.toLowerCase() || '';
+                  
+                  return title.includes(taskId.slice(0, 8)) ||
+                         body.includes(taskId) ||
+                         branch.includes(taskId.slice(0, 8)) ||
+                         taskTitle.split(' ').some(word => word.length > 4 && (title.includes(word) || branch.includes(word)));
+                }).map(pr => ({
+                  id: pr.id,
+                  number: pr.number,
+                  title: pr.title,
+                  url: pr.html_url,
+                  state: pr.state,
+                  branch: pr.head?.ref
+                })).slice(0, 3);
+                
+                // If we found a PR with a branch, use that branch
+                if (relatedPRs.length > 0 && relatedPRs[0].branch) {
+                  detectedBranch = detectedBranch || relatedPRs[0].branch;
+                }
+              }
+            } catch (e) {
+              console.log('Could not fetch PRs:', e);
+            }
+            
+            // Fetch commits (from detected branch or default)
+            let relatedCommits = [];
+            try {
+              const branchParam = detectedBranch ? `?sha=${detectedBranch}&per_page=10` : '?per_page=20';
+              const commitsRes = await fetch(`https://api.github.com/repos/${repo}/commits${branchParam}`);
+              if (commitsRes.ok) {
+                const commits = await commitsRes.json();
+                relatedCommits = commits.filter(c => {
+                  const msg = (c.commit?.message || '').toLowerCase();
+                  return msg.includes(taskId.slice(0, 8)) ||
+                         taskTitle.split(' ').some(word => word.length > 4 && msg.includes(word));
+                }).map(c => ({
+                  sha: c.sha,
+                  message: c.commit.message.split('\n')[0],
+                  url: c.html_url,
+                  date: c.commit.author?.date,
+                  author: c.commit.author?.name
+                })).slice(0, 5);
+                
+                // If on a specific branch and no filter matches, show recent commits from that branch
+                if (detectedBranch && relatedCommits.length === 0) {
+                  relatedCommits = commits.slice(0, 5).map(c => ({
+                    sha: c.sha,
+                    message: c.commit.message.split('\n')[0],
+                    url: c.html_url,
+                    date: c.commit.author?.date,
+                    author: c.commit.author?.name
+                  }));
+                }
+              }
+            } catch (e) {
+              console.log('Could not fetch commits:', e);
+            }
+            
+            // Fetch issues
+            let relatedIssues = [];
+            try {
+              const issuesRes = await fetch(`https://api.github.com/repos/${repo}/issues?state=all&per_page=20`);
+              if (issuesRes.ok) {
+                const issues = await issuesRes.json();
+                relatedIssues = issues.filter(i => !i.pull_request).filter(issue => {
+                  const title = issue.title.toLowerCase();
+                  const body = (issue.body || '').toLowerCase();
+                  
+                  return title.includes(taskId.slice(0, 8)) ||
+                         body.includes(taskId) ||
+                         taskTitle.split(' ').some(word => word.length > 4 && title.includes(word));
+                }).map(issue => ({
+                  id: issue.id,
+                  number: issue.number,
+                  title: issue.title,
+                  url: issue.html_url,
+                  state: issue.state
+                })).slice(0, 3);
+              }
+            } catch (e) {
+              console.log('Could not fetch issues:', e);
+            }
+            
+            this.taskGitHubData = {
+              branch: detectedBranch,
+              commits: relatedCommits,
+              prs: relatedPRs,
+              issues: relatedIssues
+            };
+            
+          } catch (e) {
+            console.error('Error fetching task GitHub data:', e);
+          } finally {
+            this.taskGitHubLoading = false;
+          }
+        },
+        
+        // ============================================
         // API Methods
         // ============================================
         
@@ -1352,6 +2029,14 @@
             this.tasks = data.tasks || [];
             this.apiError = null;
             this.apiConnected = true;
+            
+            // Update selectedTask if it exists with fresh data
+            if (this.selectedTask) {
+              const updatedTask = this.tasks.find(t => t.id === this.selectedTask.id);
+              if (updatedTask) {
+                this.selectedTask = { ...updatedTask };
+              }
+            }
             
             // Also save to localStorage as backup
             if (this.config.fallbackToLocalStorage) {
@@ -1775,6 +2460,7 @@
             this.showImport = false;
             this.confirmStart = null;
             this.expandedTask = null;
+            this.closePanel();
           }
         }
       }
