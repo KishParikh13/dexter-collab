@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en" x-data="taskApp()" x-init="init()" :class="{ 'dark': darkMode }">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dexter Collab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6366f1',
+                        secondary: '#8b5cf6'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        [x-cloak] { display: none !important; }
+        .task-item { transition: all 0.2s ease; }
+        .task-item:hover { transform: translateX(4px); }
+        .sortable-ghost { opacity: 0.4; }
+        .sortable-chosen { box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3); }
+        .markdown-content h1, .markdown-content h2, .markdown-content h3 { margin-top: 1em; margin-bottom: 0.5em; font-weight: 600; }
+        .markdown-content p { margin-bottom: 0.75em; }
+        .markdown-content pre { background: #1e293b; padding: 1em; border-radius: 0.5em; overflow-x: auto; margin: 1em 0; }
+        .markdown-content code { font-family: monospace; }
+        .markdown-content ul, .markdown-content ol { margin-left: 1.5em; margin-bottom: 0.75em; }
+        .markdown-content table { width: 100%; border-collapse: collapse; margin: 1em 0; }
+        .markdown-content th, .markdown-content td { border: 1px solid #374151; padding: 0.5em; text-align: left; }
+        .markdown-content th { background: #1e293b; }
+        .pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-200">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- Header -->
+        <header class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-3">
+                <span class="text-4xl">🥸</span>
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Dexter Collab</h1>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Task collaboration dashboard</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <button @click="darkMode = !darkMode" class="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                    <span x-show="!darkMode">🌙</span>
+                    <span x-show="darkMode">☀️</span>
+                </button>
+                <div class="text-sm text-gray-500 dark:text-gray-400">
+                    <span x-text="tasks.filter(t => t.status === 'done').length"></span>/<span x-text="tasks.length"></span> complete
+                </div>
+            </div>
+        </header>
+
+        <!-- Stats Bar -->
+        <div class="grid grid-cols-3 gap-4 mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
+                        <span class="text-yellow-600 dark:text-yellow-400">📋</span>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white" x-text="tasks.filter(t => t.status === 'pending').length">0</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Pending</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                        <span class="text-blue-600 dark:text-blue-400 pulse">⚡</span>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white" x-text="tasks.filter(t => t.status === 'in-progress').length">0</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">In Progress</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                        <span class="text-green-600 dark:text-green-400">✅</span>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white" x-text="tasks.filter(t => t.status === 'done').length">0</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Completed</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column: Add Tasks -->
+            <div class="lg:col-span-1">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Add Tasks</h2>
+                    <textarea 
+                        x-model="newTasks"
+                        @keydown.ctrl.enter="addTasks()"
+                        @keydown.meta.enter="addTasks()"
+                        class="w-full h-40 p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 resize-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        placeholder="Enter tasks, one per line...
+
+Example:
+Review the PR for auth module
+Add dark mode to settings page
+Fix the bug in search"></textarea>
+                    <div class="flex justify-between items-center mt-3">
+                        <span class="text-xs text-gray-500 dark:text-gray-400">Ctrl+Enter to add</span>
+                        <button 
+                            @click="addTasks()"
+                            class="px-4 py-2 bg-primary hover:bg-indigo-600 text-white rounded-lg font-medium transition-colors">
+                            Add Tasks
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mt-6">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Filters</h2>
+                    <div class="space-y-2">
+                        <button @click="filter = 'all'" :class="filter === 'all' ? 'bg-primary text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'" class="w-full px-3 py-2 rounded-lg text-left text-sm font-medium transition-colors">
+                            All Tasks <span class="float-right" x-text="tasks.length"></span>
+                        </button>
+                        <button @click="filter = 'pending'" :class="filter === 'pending' ? 'bg-primary text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'" class="w-full px-3 py-2 rounded-lg text-left text-sm font-medium transition-colors">
+                            📋 Pending <span class="float-right" x-text="tasks.filter(t => t.status === 'pending').length"></span>
+                        </button>
+                        <button @click="filter = 'in-progress'" :class="filter === 'in-progress' ? 'bg-primary text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'" class="w-full px-3 py-2 rounded-lg text-left text-sm font-medium transition-colors">
+                            ⚡ In Progress <span class="float-right" x-text="tasks.filter(t => t.status === 'in-progress').length"></span>
+                        </button>
+                        <button @click="filter = 'done'" :class="filter === 'done' ? 'bg-primary text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'" class="w-full px-3 py-2 rounded-lg text-left text-sm font-medium transition-colors">
+                            ✅ Done <span class="float-right" x-text="tasks.filter(t => t.status === 'done').length"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Task List & Output -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Task List -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Tasks</h2>
+                        <span class="text-xs text-gray-500 dark:text-gray-400">Drag to reorder</span>
+                    </div>
+                    
+                    <div x-show="filteredTasks.length === 0" class="text-center py-12 text-gray-500 dark:text-gray-400">
+                        <p class="text-4xl mb-2">📭</p>
+                        <p>No tasks yet. Add some above!</p>
+                    </div>
+
+                    <div id="task-list" class="space-y-3">
+                        <template x-for="task in filteredTasks" :key="task.id">
+                            <div class="task-item bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-600 cursor-move" :data-id="task.id">
+                                <div class="flex items-start gap-3">
+                                    <div class="flex-shrink-0 mt-1">
+                                        <select x-model="task.status" @change="save()" class="text-sm bg-transparent border-0 cursor-pointer">
+                                            <option value="pending">📋</option>
+                                            <option value="in-progress">⚡</option>
+                                            <option value="done">✅</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-gray-900 dark:text-white font-medium" :class="task.status === 'done' ? 'line-through opacity-60' : ''" x-text="task.title"></p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1" x-text="formatDate(task.createdAt)"></p>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <button @click="selectedTask = selectedTask?.id === task.id ? null : task" class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors" :class="selectedTask?.id === task.id ? 'bg-primary/20 text-primary' : 'text-gray-400'">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                        </button>
+                                        <button @click="deleteTask(task.id)" class="p-1.5 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-gray-400 hover:text-red-500 transition-colors">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Output Panel -->
+                <div x-show="selectedTask" x-cloak class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Output: <span class="text-primary" x-text="selectedTask?.title"></span></h2>
+                        <div class="flex gap-2">
+                            <select x-model="outputMode" class="text-sm bg-gray-100 dark:bg-gray-700 border-0 rounded-lg px-3 py-1.5 text-gray-700 dark:text-gray-300">
+                                <option value="markdown">Markdown</option>
+                                <option value="json-ui">JSON UI</option>
+                                <option value="raw">Raw</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Output Editor -->
+                    <div class="mb-4">
+                        <textarea 
+                            x-model="selectedTask.output"
+                            @input="save()"
+                            class="w-full h-40 p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white font-mono text-sm resize-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                            placeholder="Add output here...
+
+Supports Markdown:
+# Headers
+**bold** and *italic*
+- Lists
+- Code blocks
+
+Or JSON UI:
+{&quot;type&quot;: &quot;table&quot;, &quot;data&quot;: [...]}"></textarea>
+                    </div>
+
+                    <!-- Rendered Output -->
+                    <div class="border-t border-gray-200 dark:border-gray-600 pt-4">
+                        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">Preview</h3>
+                        <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 min-h-[100px]">
+                            <!-- Markdown Mode -->
+                            <div x-show="outputMode === 'markdown'" class="markdown-content prose dark:prose-invert max-w-none text-gray-800 dark:text-gray-200" x-html="renderMarkdown(selectedTask?.output || '')"></div>
+                            
+                            <!-- JSON UI Mode -->
+                            <div x-show="outputMode === 'json-ui'">
+                                <template x-if="parseJsonUI(selectedTask?.output)">
+                                    <div x-html="renderJsonUI(parseJsonUI(selectedTask?.output))"></div>
+                                </template>
+                                <template x-if="!parseJsonUI(selectedTask?.output) && selectedTask?.output">
+                                    <p class="text-red-500 text-sm">Invalid JSON. Check your syntax.</p>
+                                </template>
+                            </div>
+                            
+                            <!-- Raw Mode -->
+                            <pre x-show="outputMode === 'raw'" class="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap" x-text="selectedTask?.output || '(empty)'"></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-12 text-center text-sm text-gray-500 dark:text-gray-400">
+            <p>Built by Dexter 🥸 • <span x-text="new Date().getFullYear()"></span></p>
+        </footer>
+    </div>
+
+    <script>
+        function taskApp() {
+            return {
+                tasks: [],
+                newTasks: '',
+                filter: 'all',
+                darkMode: true,
+                selectedTask: null,
+                outputMode: 'markdown',
+
+                init() {
+                    // Load from localStorage
+                    const saved = localStorage.getItem('dexter-collab-tasks');
+                    if (saved) {
+                        this.tasks = JSON.parse(saved);
+                    }
+                    
+                    const savedDark = localStorage.getItem('dexter-collab-dark');
+                    if (savedDark !== null) {
+                        this.darkMode = savedDark === 'true';
+                    }
+
+                    // Watch for dark mode changes
+                    this.$watch('darkMode', (value) => {
+                        localStorage.setItem('dexter-collab-dark', value);
+                    });
+
+                    // Initialize drag and drop after Alpine renders
+                    this.$nextTick(() => this.initSortable());
+                },
+
+                initSortable() {
+                    const el = document.getElementById('task-list');
+                    if (el && typeof Sortable !== 'undefined') {
+                        new Sortable(el, {
+                            animation: 150,
+                            ghostClass: 'sortable-ghost',
+                            chosenClass: 'sortable-chosen',
+                            onEnd: (evt) => {
+                                const taskId = evt.item.dataset.id;
+                                const oldIndex = this.tasks.findIndex(t => t.id === taskId);
+                                if (oldIndex > -1) {
+                                    const task = this.tasks.splice(oldIndex, 1)[0];
+                                    // Calculate new index based on visible filtered tasks
+                                    const filteredIds = this.filteredTasks.map(t => t.id);
+                                    const newFilteredIndex = evt.newIndex;
+                                    
+                                    // Find the actual index in the main array
+                                    let newIndex = 0;
+                                    if (newFilteredIndex > 0) {
+                                        const prevTaskId = filteredIds[newFilteredIndex - 1];
+                                        if (prevTaskId && prevTaskId !== taskId) {
+                                            newIndex = this.tasks.findIndex(t => t.id === prevTaskId) + 1;
+                                        }
+                                    }
+                                    
+                                    this.tasks.splice(newIndex, 0, task);
+                                    this.save();
+                                }
+                            }
+                        });
+                    }
+                },
+
+                get filteredTasks() {
+                    if (this.filter === 'all') return this.tasks;
+                    return this.tasks.filter(t => t.status === this.filter);
+                },
+
+                addTasks() {
+                    const lines = this.newTasks.split('\n').filter(l => l.trim());
+                    lines.forEach(line => {
+                        this.tasks.push({
+                            id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+                            title: line.trim(),
+                            status: 'pending',
+                            output: '',
+                            createdAt: new Date().toISOString()
+                        });
+                    });
+                    this.newTasks = '';
+                    this.save();
+                    this.$nextTick(() => this.initSortable());
+                },
+
+                deleteTask(id) {
+                    if (this.selectedTask?.id === id) {
+                        this.selectedTask = null;
+                    }
+                    this.tasks = this.tasks.filter(t => t.id !== id);
+                    this.save();
+                },
+
+                save() {
+                    localStorage.setItem('dexter-collab-tasks', JSON.stringify(this.tasks));
+                },
+
+                formatDate(iso) {
+                    const d = new Date(iso);
+                    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                },
+
+                renderMarkdown(text) {
+                    if (!text) return '<p class="text-gray-400">(no output)</p>';
+                    try {
+                        return marked.parse(text);
+                    } catch (e) {
+                        return '<p class="text-red-500">Error rendering markdown</p>';
+                    }
+                },
+
+                parseJsonUI(text) {
+                    if (!text) return null;
+                    try {
+                        return JSON.parse(text);
+                    } catch (e) {
+                        return null;
+                    }
+                },
+
+                renderJsonUI(data) {
+                    if (!data) return '';
+                    
+                    const type = data.type || 'unknown';
+                    
+                    switch (type) {
+                        case 'table':
+                            return this.renderTable(data);
+                        case 'list':
+                            return this.renderList(data);
+                        case 'stats':
+                            return this.renderStats(data);
+                        case 'code':
+                            return this.renderCode(data);
+                        case 'progress':
+                            return this.renderProgress(data);
+                        case 'card':
+                            return this.renderCard(data);
+                        case 'grid':
+                            return this.renderGrid(data);
+                        default:
+                            return `<pre class="text-sm">${JSON.stringify(data, null, 2)}</pre>`;
+                    }
+                },
+
+                renderTable(data) {
+                    if (!data.rows || !data.columns) return 'Invalid table data';
+                    let html = '<table class="w-full text-sm"><thead><tr>';
+                    data.columns.forEach(col => {
+                        html += `<th class="bg-gray-200 dark:bg-gray-700 px-3 py-2 text-left">${col}</th>`;
+                    });
+                    html += '</tr></thead><tbody>';
+                    data.rows.forEach(row => {
+                        html += '<tr>';
+                        row.forEach(cell => {
+                            html += `<td class="border-b border-gray-200 dark:border-gray-600 px-3 py-2">${cell}</td>`;
+                        });
+                        html += '</tr>';
+                    });
+                    html += '</tbody></table>';
+                    return html;
+                },
+
+                renderList(data) {
+                    if (!data.items) return 'Invalid list data';
+                    const ordered = data.ordered ? 'ol' : 'ul';
+                    let html = `<${ordered} class="space-y-1 ${data.ordered ? 'list-decimal' : 'list-disc'} list-inside">`;
+                    data.items.forEach(item => {
+                        const icon = item.icon ? `<span class="mr-2">${item.icon}</span>` : '';
+                        html += `<li class="text-gray-800 dark:text-gray-200">${icon}${item.text || item}</li>`;
+                    });
+                    html += `</${ordered}>`;
+                    return html;
+                },
+
+                renderStats(data) {
+                    if (!data.items) return 'Invalid stats data';
+                    let html = '<div class="grid grid-cols-2 md:grid-cols-4 gap-4">';
+                    data.items.forEach(stat => {
+                        html += `
+                            <div class="bg-white dark:bg-gray-700 rounded-lg p-3 text-center">
+                                <p class="text-2xl font-bold text-primary">${stat.value}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">${stat.label}</p>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                    return html;
+                },
+
+                renderCode(data) {
+                    const lang = data.language || '';
+                    return `<pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto"><code class="language-${lang}">${this.escapeHtml(data.code || '')}</code></pre>`;
+                },
+
+                renderProgress(data) {
+                    const percent = Math.min(100, Math.max(0, data.value || 0));
+                    const color = data.color || 'bg-primary';
+                    return `
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600 dark:text-gray-300">${data.label || 'Progress'}</span>
+                                <span class="text-gray-800 dark:text-gray-200 font-medium">${percent}%</span>
+                            </div>
+                            <div class="h-3 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
+                                <div class="${color} h-full rounded-full transition-all duration-500" style="width: ${percent}%"></div>
+                            </div>
+                        </div>
+                    `;
+                },
+
+                renderCard(data) {
+                    return `
+                        <div class="bg-white dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
+                            ${data.title ? `<h3 class="font-semibold text-gray-900 dark:text-white mb-2">${data.title}</h3>` : ''}
+                            ${data.description ? `<p class="text-gray-600 dark:text-gray-300 text-sm">${data.description}</p>` : ''}
+                            ${data.footer ? `<p class="text-xs text-gray-500 dark:text-gray-400 mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">${data.footer}</p>` : ''}
+                        </div>
+                    `;
+                },
+
+                renderGrid(data) {
+                    if (!data.items) return 'Invalid grid data';
+                    const cols = data.columns || 2;
+                    let html = `<div class="grid grid-cols-${cols} gap-4">`;
+                    data.items.forEach(item => {
+                        html += this.renderJsonUI(item);
+                    });
+                    html += '</div>';
+                    return html;
+                },
+
+                escapeHtml(text) {
+                    const div = document.createElement('div');
+                    div.textContent = text;
+                    return div.innerHTML;
+                }
+            }
+        }
+    </script>
+</body>
+</html>
