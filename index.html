@@ -2178,6 +2178,7 @@
           <div id="kanban-backlog" class="column-body">
             <template x-for="task in tasks.filter(t => t.status === 'backlog')" :key="task.id">
               <div class="task" :class="{'expanded': expandedTask === task.id, 'selected': selectedTask?.id === task.id}" :data-id="task.id" @click="selectTask(task); expandedTask = expandedTask === task.id ? null : task.id">
+                <div class="task-repo" x-show="task.repo" style="font-size: 10px; color: var(--muted); font-family: var(--font-mono); margin-bottom: 4px;" x-text="task.repo.replace('KishParikh13/', '')"></div>
                 <div class="task-header">
                   <div class="task-title" x-text="task.title"></div>
                 </div>
@@ -2198,7 +2199,6 @@
                 </div>
                 <div class="task-meta" x-show="expandedTask !== task.id">
                   <span x-text="formatDate(task.createdAt)"></span>
-                  <span x-show="task.repo" style="margin-left: 8px; color: var(--progress);" x-text="task.repo.replace('KishParikh13/', '')"></span>
                 </div>
               </div>
             </template>
@@ -2215,6 +2215,7 @@
           <div id="kanban-in-progress" class="column-body">
             <template x-for="task in tasks.filter(t => t.status === 'in-progress')" :key="task.id">
               <div class="task task-active" :class="{'expanded': expandedTask === task.id, 'selected': selectedTask?.id === task.id}" :data-id="task.id" @click="selectTask(task)">
+                <div class="task-repo" x-show="task.repo" style="font-size: 10px; color: var(--muted); font-family: var(--font-mono); margin-bottom: 4px;" x-text="task.repo.replace('KishParikh13/', '')"></div>
                 <div class="task-header">
                   <div class="task-title" x-text="task.title"></div>
                 </div>
@@ -2247,7 +2248,6 @@
                 <!-- Time elapsed -->
                 <div class="task-meta">
                   <span x-text="'Working: ' + getElapsedTime(task.startedAt || task.createdAt)"></span>
-                  <span x-show="task.repo" style="margin-left: 8px; color: var(--progress);" x-text="task.repo.replace('KishParikh13/', '')"></span>
                 </div>
               </div>
             </template>
@@ -2263,6 +2263,7 @@
           <div id="kanban-review" class="column-body">
             <template x-for="task in tasks.filter(t => t.status === 'review')" :key="task.id">
               <div class="task" :class="{'selected': selectedTask?.id === task.id}" :data-id="task.id" @click="selectTask(task)">
+                <div class="task-repo" x-show="task.repo" style="font-size: 10px; color: var(--muted); font-family: var(--font-mono); margin-bottom: 4px;" x-text="task.repo.replace('KishParikh13/', '')"></div>
                 <div class="task-header">
                   <div class="task-title" x-text="task.title"></div>
                 </div>
@@ -2283,6 +2284,7 @@
           <div id="kanban-done" class="column-body">
             <template x-for="task in tasks.filter(t => t.status === 'done')" :key="task.id">
               <div class="task" :class="{'selected': selectedTask?.id === task.id}" :data-id="task.id" @click="selectTask(task)" style="opacity: 0.6">
+                <div class="task-repo" x-show="task.repo" style="font-size: 10px; color: var(--muted); font-family: var(--font-mono); margin-bottom: 4px;" x-text="task.repo.replace('KishParikh13/', '')"></div>
                 <div class="task-title" x-text="task.title"></div>
                 <div class="task-meta" x-text="'Done ' + formatDate(task.completedAt)"></div>
               </div>
