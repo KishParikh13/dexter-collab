@@ -3486,6 +3486,24 @@
             this.apiError = null;
             this.apiConnected = true;
             
+            // Demo: Add mock reasoning data for demonstration
+            // Remove this once API supports reasoning field
+            this.tasks = this.tasks.map(task => {
+              if (task.title?.toLowerCase().includes('reasoning')) {
+                return {
+                  ...task,
+                  reasoning: [
+                    "Analyzed task requirements for reasoning viewer feature",
+                    "Explored existing codebase patterns (collapsible sections, accordion styles)",
+                    "Added CSS for reasoning section with expand/collapse animation",
+                    "Added HTML template supporting both string and array reasoning data",
+                    "Deployed to preview and verified functionality"
+                  ]
+                };
+              }
+              return task;
+            });
+            
             // Update selectedTask if it exists with fresh data
             if (this.selectedTask) {
               const updatedTask = this.tasks.find(t => t.id === this.selectedTask.id);
