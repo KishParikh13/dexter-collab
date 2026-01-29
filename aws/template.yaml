@@ -1,0 +1,220 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Dexter Dashboard Backend - Task Management API
+
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: python3.11
+    MemorySize: 256
+    Environment:
+      Variables:
+        TASKS_TABLE: !Ref TasksTable
+        SESSIONS_TABLE: !Ref SessionsTable
+        CORS_ORIGIN: https://kishparikh13.github.io
+
+Parameters:
+  Environment:
+    Type: String
+    Default: prod
+    AllowedValues: [dev, prod]
+
+Resources:
+  # ============================================
+  # DynamoDB Tables
+  # ============================================
+  
+  TasksTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub dexter-tasks-${Environment}
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: status
+          AttributeType: S
+        - AttributeName: createdAt
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: status-createdAt-index
+          KeySchema:
+            - AttributeName: status
+              KeyType: HASH
+            - AttributeName: createdAt
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      Tags:
+        - Key: Project
+          Value: dexter-dashboard
+
+  SessionsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub dexter-sessions-${Environment}
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true
+      Tags:
+        - Key: Project
+          Value: dexter-dashboard
+
+  # ============================================
+  # API Gateway
+  # ============================================
+  
+  DexterApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub dexter-api-${Environment}
+      StageName: !Ref Environment
+      Auth:
+        DefaultAuthorizer: NONE
+        ApiKeyRequired: false
+        UsagePlan:
+          CreateUsagePlan: PER_API
+          UsagePlanName: !Sub dexter-usage-plan-${Environment}
+      Cors:
+        AllowOrigin: "'https://kishparikh13.github.io'"
+        AllowHeaders: "'Content-Type,X-Api-Key,Authorization'"
+        AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+        AllowCredentials: true
+      GatewayResponses:
+        DEFAULT_4XX:
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: "'https://kishparikh13.github.io'"
+              Access-Control-Allow-Headers: "'Content-Type,X-Api-Key'"
+        DEFAULT_5XX:
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: "'https://kishparikh13.github.io'"
+              Access-Control-Allow-Headers: "'Content-Type,X-Api-Key'"
+
+  # API Key for write operations
+  DexterApiKey:
+    Type: AWS::ApiGateway::ApiKey
+    DependsOn: DexterApiStage
+    Properties:
+      Name: !Sub dexter-api-key-${Environment}
+      Enabled: true
+      StageKeys:
+        - RestApiId: !Ref DexterApi
+          StageName: !Ref Environment
+
+  # ============================================
+  # Lambda Functions
+  # ============================================
+  
+  DexterApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub dexter-api-${Environment}
+      CodeUri: lambda/
+      Handler: api.handler
+      Description: Dexter Dashboard API - CRUD for tasks and sessions
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TasksTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref SessionsTable
+      Events:
+        # Tasks endpoints
+        GetTasks:
+          Type: Api
+          Properties:
+            RestApiId: !Ref DexterApi
+            Path: /tasks
+            Method: GET
+        CreateTask:
+          Type: Api
+          Properties:
+            RestApiId: !Ref DexterApi
+            Path: /tasks
+            Method: POST
+            Auth:
+              ApiKeyRequired: true
+        UpdateTask:
+          Type: Api
+          Properties:
+            RestApiId: !Ref DexterApi
+            Path: /tasks/{id}
+            Method: PUT
+            Auth:
+              ApiKeyRequired: true
+        DeleteTask:
+          Type: Api
+          Properties:
+            RestApiId: !Ref DexterApi
+            Path: /tasks/{id}
+            Method: DELETE
+            Auth:
+              ApiKeyRequired: true
+        GetTask:
+          Type: Api
+          Properties:
+            RestApiId: !Ref DexterApi
+            Path: /tasks/{id}
+            Method: GET
+        # Sessions endpoints
+        GetSessions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref DexterApi
+            Path: /sessions
+            Method: GET
+        UpdateSession:
+          Type: Api
+          Properties:
+            RestApiId: !Ref DexterApi
+            Path: /sessions/{id}
+            Method: PUT
+            Auth:
+              ApiKeyRequired: true
+        # Health check
+        Health:
+          Type: Api
+          Properties:
+            RestApiId: !Ref DexterApi
+            Path: /health
+            Method: GET
+
+# ============================================
+# Outputs
+# ============================================
+
+Outputs:
+  ApiEndpoint:
+    Description: API Gateway endpoint URL
+    Value: !Sub https://${DexterApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}
+    Export:
+      Name: !Sub ${AWS::StackName}-ApiEndpoint
+  
+  ApiKeyId:
+    Description: API Key ID (retrieve value from AWS Console or CLI)
+    Value: !Ref DexterApiKey
+    Export:
+      Name: !Sub ${AWS::StackName}-ApiKeyId
+  
+  TasksTableName:
+    Description: DynamoDB Tasks Table Name
+    Value: !Ref TasksTable
+    Export:
+      Name: !Sub ${AWS::StackName}-TasksTable
+  
+  SessionsTableName:
+    Description: DynamoDB Sessions Table Name
+    Value: !Ref SessionsTable
+    Export:
+      Name: !Sub ${AWS::StackName}-SessionsTable

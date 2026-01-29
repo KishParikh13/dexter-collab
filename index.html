@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dexter Dashboard</title>
+  <script src="config.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
@@ -80,6 +81,48 @@
     
     .avatar-name { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
     .avatar-status { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); }
+    
+    /* Sidebar sections */
+    .sidebar-section {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .sidebar-title {
+      font-size: 10px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    
+    .agent-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0;
+      font-size: 11px;
+    }
+    
+    .agent-status {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--muted);
+    }
+    
+    .agent-status.status-working { background: #ff0; }
+    .agent-status.status-idle { background: var(--muted); }
+    
+    .agent-info { color: var(--fg); }
+    
+    .sidebar-empty {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
     
     /* Main */
     .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
@@ -287,8 +330,7 @@
     /* Sections */
     .sections {
       border-top: 1px solid var(--border);
-      display: grid;
-      grid-template-columns: 1fr 1fr;
+      display: block;
       flex-shrink: 0;
     }
     
@@ -521,6 +563,20 @@
         <div class="avatar-name">Dexter</div>
         <div class="avatar-status" x-text="statusMessage"></div>
       </div>
+      
+      <!-- Active Agents -->
+      <div class="sidebar-section">
+        <div class="sidebar-title">🤖 Agents</div>
+        <template x-for="(agent, id) in progress.agents" :key="id">
+          <div class="agent-item">
+            <span class="agent-status" :class="'status-' + agent.status"></span>
+            <span class="agent-info">
+              <span x-text="agent.taskIds?.length || 0"></span> task(s)
+            </span>
+          </div>
+        </template>
+        <div class="sidebar-empty" x-show="Object.keys(progress.agents || {}).length === 0">No active agents</div>
+      </div>
     </aside>
     
     <!-- Main -->
@@ -667,18 +723,6 @@
           <div class="empty" x-show="actionLog.length === 0">No actions logged</div>
         </div>
         
-        <div class="section">
-          <div class="section-header">
-            <span class="section-title">🤖 Active Agents</span>
-          </div>
-          <template x-for="(agent, id) in progress.agents" :key="id">
-            <div class="log-entry">
-              <span class="log-time" x-text="agent.status"></span>
-              <span class="log-msg" x-text="agent.taskIds.length + ' task(s)'"></span>
-            </div>
-          </template>
-          <div class="empty" x-show="Object.keys(progress.agents).length === 0">No active agents</div>
-        </div>
       </div>
       
       <!-- Notes -->
