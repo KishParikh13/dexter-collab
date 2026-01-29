@@ -1724,7 +1724,6 @@
                   <div class="task-progress-current">
                     <span class="spinner" x-text="spinnerFrame"></span>
                     <span x-text="task.currentStep || task.currentAction || 'Waiting for agent...'"></span>
-                    <span class="elapsed-time" x-text="getElapsedTime(task.updatedAt || task.startedAt)"></span>
                   </div>
                   <div class="task-progress-toggle" x-show="task.steps?.length" @click.stop="expandedTask = expandedTask === task.id ? null : task.id">
                     <span x-text="expandedTask === task.id ? '▼ Hide' : '▶ ' + (task.steps?.length || 0) + ' steps'"></span>
