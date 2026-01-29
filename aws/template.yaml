@@ -11,7 +11,7 @@ Globals:
       Variables:
         TASKS_TABLE: !Ref TasksTable
         SESSIONS_TABLE: !Ref SessionsTable
-        CORS_ORIGIN: https://kishparikh13.github.io
+        CORS_ORIGIN: '*'
 
 Parameters:
   Environment:
@@ -86,20 +86,20 @@ Resources:
           CreateUsagePlan: PER_API
           UsagePlanName: !Sub dexter-usage-plan-${Environment}
       Cors:
-        AllowOrigin: "'https://kishparikh13.github.io'"
+        AllowOrigin: "'*'"
         AllowHeaders: "'Content-Type,X-Api-Key,Authorization'"
         AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
-        AllowCredentials: true
+        AllowCredentials: false
       GatewayResponses:
         DEFAULT_4XX:
           ResponseParameters:
             Headers:
-              Access-Control-Allow-Origin: "'https://kishparikh13.github.io'"
+              Access-Control-Allow-Origin: "'*'"
               Access-Control-Allow-Headers: "'Content-Type,X-Api-Key'"
         DEFAULT_5XX:
           ResponseParameters:
             Headers:
-              Access-Control-Allow-Origin: "'https://kishparikh13.github.io'"
+              Access-Control-Allow-Origin: "'*'"
               Access-Control-Allow-Headers: "'Content-Type,X-Api-Key'"
 
   # API Key for write operations

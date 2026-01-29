@@ -45,6 +45,8 @@ html {
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  height: 100vh;
+  overflow: hidden;
 }
 
 body {
@@ -53,7 +55,8 @@ body {
   color: var(--fg);
   font-size: var(--text-base);
   line-height: 1.5;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
 /* Scrollbars */
@@ -304,8 +307,7 @@ nav,
   align-items: center;
   gap: var(--space-5);
   border-bottom: 1px solid var(--border);
-  position: sticky;
-  top: 0;
+  flex-shrink: 0;
   z-index: 100;
 }
 
@@ -347,6 +349,7 @@ nav,
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
+  overflow-y: auto;
 }
 
 .sidebar-section {
@@ -411,15 +414,21 @@ nav,
 
 /* Kanban */
 .board {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  min-height: calc(100vh - 60px);
+  display: flex;
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: hidden;
+  min-height: 0;
 }
 
 .column {
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-width: 250px;
+  flex-shrink: 0;
+  min-height: 0;
 }
 
 .column:last-child {
@@ -432,6 +441,7 @@ nav,
   align-items: center;
   padding: var(--space-3) var(--space-4);
   border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
 
 .column-title {
@@ -452,6 +462,8 @@ nav,
   display: flex;
   flex-direction: column;
   gap: 1px;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 /* Grid */
@@ -471,10 +483,19 @@ nav,
 /* Layout */
 .layout {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.content-padded {
   flex: 1;
   padding: var(--space-6);
   overflow-y: auto;
