@@ -281,6 +281,32 @@
     .task-title { font-size: 13px; font-weight: 500; flex: 1; }
     .task-meta { font-size: 10px; color: var(--muted); margin-top: 8px; text-transform: uppercase; }
     
+    .task-start-form {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    
+    .task-input {
+      padding: 6px 8px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--fg);
+      font-family: inherit;
+      font-size: 11px;
+    }
+    
+    .task-input:focus {
+      outline: none;
+      border-color: var(--fg);
+    }
+    
+    .btn-sm {
+      padding: 4px 10px;
+      font-size: 11px;
+    }
+    
     /* Progress Indicator */
     .task-progress {
       margin-top: 8px;
@@ -674,7 +700,21 @@
                   <div class="task-title" x-text="task.title"></div>
                 </div>
                 <div class="task-desc" x-show="expandedTask === task.id && task.description" x-text="task.description" style="font-size: 11px; color: var(--muted); margin-top: 8px; line-height: 1.4;"></div>
-                <div class="task-meta">
+                <!-- Inline start form -->
+                <div class="task-start-form" x-show="expandedTask === task.id" @click.stop>
+                  <input type="text" 
+                    :value="task.repo || ''" 
+                    @input="task.repo = $event.target.value"
+                    placeholder="Repo (optional)" 
+                    class="task-input">
+                  <input type="text" 
+                    x-model="taskContext[task.id]" 
+                    placeholder="Context for Dexter..." 
+                    class="task-input"
+                    @keydown.enter="startTaskInline(task)">
+                  <button class="btn btn-primary btn-sm" @click="startTaskInline(task)">Start →</button>
+                </div>
+                <div class="task-meta" x-show="expandedTask !== task.id">
                   <span x-text="formatDate(task.createdAt)"></span>
                   <span x-show="task.repo" style="margin-left: 8px; color: var(--progress);" x-text="task.repo"></span>
                 </div>
@@ -891,6 +931,7 @@
         showImport: false,
         expandedTask: null,
         confirmStart: null,
+        taskContext: {},
         newTaskText: '',
         newNote: '',
         noteTaskId: '',
@@ -1164,11 +1205,9 @@
           const task = this.tasks.find(t => t.id === taskId);
           if (!task) return;
           
-          // If dropping into in-progress, show confirmation
+          // Drag to in-progress: start directly (use inline form in backlog for details)
           if (newStatus === 'in-progress' && task.status !== 'in-progress') {
-            this.confirmStart = { ...task, repo: task.repo || '', context: '' };
-            // Revert the visual drop until confirmed
-            this.$nextTick(() => this.initKanban());
+            this.startTaskInline(task);
           } else if (task.status !== newStatus) {
             this.moveTask(taskId, newStatus);
           }
@@ -1233,6 +1272,35 @@
             });
           }
           this.confirmStart = null;
+          this.$nextTick(() => this.initKanban());
+        },
+        
+        async startTaskInline(task) {
+          const context = this.taskContext[task.id] || '';
+          const updates = {
+            status: 'in-progress',
+            startedAt: new Date().toISOString(),
+            repo: task.repo || '',
+            context: context
+          };
+          
+          // Update via API
+          if (this.config.useApi && this.config.apiEndpoint) {
+            await this.updateTaskApi(task.id, updates);
+          } else {
+            Object.assign(task, updates);
+            this.save();
+          }
+          
+          // Generate command and copy
+          const cmd = this.generateStartCommand({ ...task, ...updates });
+          navigator.clipboard.writeText(cmd).then(() => {
+            this.log(`Started: "${task.title}"`);
+          });
+          
+          // Clear context and collapse
+          delete this.taskContext[task.id];
+          this.expandedTask = null;
           this.$nextTick(() => this.initKanban());
         },
         
