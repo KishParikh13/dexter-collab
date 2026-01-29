@@ -2,7 +2,7 @@
 
 A Klaus-style task collaboration dashboard for working with your AI assistant.
 
-**Live Demo:** https://kishparikh13.github.io/dexter-collab/
+**Live Demo:** https://kish-clawdbot-controls.vercel.app
 
 ## Agent Orchestration
 
@@ -119,7 +119,7 @@ The dashboard polls `progress.json` every 15 seconds. Structure:
 
 ## Quick Start
 
-Just open https://kishparikh13.github.io/dexter-collab/
+Just open https://kish-clawdbot-controls.vercel.app
 
 Or run locally:
 ```bash
