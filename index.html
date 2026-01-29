@@ -267,9 +267,10 @@ Or JSON UI:
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">JSON (for import)</label>
                     <textarea readonly :value="exportData()" class="w-full h-40 p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white font-mono text-xs"></textarea>
                 </div>
-                <div class="flex gap-2">
-                    <button @click="copyExport()" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-indigo-600 transition-colors">Copy to Clipboard</button>
-                    <button @click="downloadExport()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">Download File</button>
+                <div class="flex gap-2 flex-wrap">
+                    <button @click="copyExport()" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-indigo-600 transition-colors">Copy JSON</button>
+                    <button @click="downloadExport()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">Download</button>
+                    <button @click="navigator.clipboard.writeText(generateShareLink()); alert('Share link copied!')" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">🔗 Copy Share Link</button>
                 </div>
                 <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Human Readable (for Dexter)</label>
@@ -311,10 +312,21 @@ Or JSON UI:
                 outputMode: 'markdown',
 
                 init() {
-                    // Load from localStorage
-                    const saved = localStorage.getItem('dexter-collab-tasks');
-                    if (saved) {
-                        this.tasks = JSON.parse(saved);
+                    // Check for URL hash data first
+                    if (window.location.hash) {
+                        const hashData = this.parseHashData();
+                        if (hashData) {
+                            this.tasks = hashData.tasks || [];
+                            // Clear hash after loading
+                            history.replaceState(null, '', window.location.pathname);
+                            this.save();
+                        }
+                    } else {
+                        // Load from localStorage
+                        const saved = localStorage.getItem('dexter-collab-tasks');
+                        if (saved) {
+                            this.tasks = JSON.parse(saved);
+                        }
                     }
                     
                     const savedDark = localStorage.getItem('dexter-collab-dark');
@@ -329,6 +341,26 @@ Or JSON UI:
 
                     // Initialize drag and drop after Alpine renders
                     this.$nextTick(() => this.initSortable());
+                },
+                
+                parseHashData() {
+                    try {
+                        const hash = window.location.hash.slice(1);
+                        if (hash.startsWith('data=')) {
+                            const encoded = hash.slice(5);
+                            const json = decodeURIComponent(atob(encoded));
+                            return JSON.parse(json);
+                        }
+                    } catch (e) {
+                        console.error('Failed to parse hash data:', e);
+                    }
+                    return null;
+                },
+                
+                generateShareLink() {
+                    const data = { version: 1, tasks: this.tasks };
+                    const encoded = btoa(encodeURIComponent(JSON.stringify(data)));
+                    return window.location.origin + window.location.pathname + '#data=' + encoded;
                 },
 
                 initSortable() {
