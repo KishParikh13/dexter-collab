@@ -9,7 +9,7 @@
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    
+
     :root {
       --bg: #000;
       --fg: #fff;
@@ -18,7 +18,7 @@
       --hover-bg: #111;
       --error: #f44;
     }
-    
+
     body {
       font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
       background: var(--bg);
@@ -26,17 +26,17 @@
       font-size: 13px;
       min-height: 100vh;
     }
-    
+
     [x-cloak] { display: none !important; }
-    
+
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: var(--bg); }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
-    
+
     /* Layout */
     .layout { display: flex; min-height: 100vh; }
-    
+
     /* Sidebar */
     .sidebar {
       width: 200px;
@@ -45,13 +45,13 @@
       flex-direction: column;
       flex-shrink: 0;
     }
-    
+
     .avatar-section {
       padding: 24px;
       text-align: center;
       border-bottom: 1px solid var(--border);
     }
-    
+
     .avatar {
       width: 80px;
       height: 80px;
@@ -63,7 +63,7 @@
       font-size: 40px;
       position: relative;
     }
-    
+
     .status-dot {
       position: absolute;
       bottom: -4px;
@@ -72,61 +72,58 @@
       height: 16px;
       border: 3px solid var(--bg);
     }
-    
+
     .status-online { background: #4f4; }
     .status-working { background: #ff0; }
     .status-waiting { background: #0af; }
     .status-idle { background: var(--muted); }
-    
+
     .avatar-name {
       font-size: 14px;
       font-weight: 500;
       margin-bottom: 4px;
     }
-    
+
     .avatar-status {
       font-size: 10px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       color: var(--muted);
     }
-    
-    .status-controls {
+
+    /* Inline Form */
+    .inline-form {
+      border: 1px solid var(--fg);
       padding: 12px;
-      border-bottom: 1px solid var(--border);
+      margin: 8px;
+      background: var(--bg);
     }
-    
-    .status-controls h3 {
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--muted);
-      margin-bottom: 8px;
-    }
-    
-    .status-btns {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 4px;
-    }
-    
-    .status-btn {
-      padding: 6px;
-      font-size: 10px;
+
+    .inline-form textarea {
+      width: 100%;
+      padding: 8px;
       border: 1px solid var(--border);
       background: var(--bg);
-      color: var(--muted);
-      cursor: pointer;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      color: var(--fg);
       font-family: inherit;
+      font-size: 12px;
+      resize: vertical;
+      min-height: 80px;
+      margin-bottom: 8px;
     }
-    
-    .status-btn:hover { border-color: var(--fg); color: var(--fg); }
-    
+
+    .inline-form textarea:focus { outline: none; border-color: var(--fg); }
+    .inline-form textarea::placeholder { color: var(--muted); }
+
+    .inline-form-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
     /* Main */
     .main { flex: 1; display: flex; flex-direction: column; }
-    
+
     /* Nav */
     nav {
       padding: 12px 20px;
@@ -135,20 +132,20 @@
       align-items: center;
       gap: 20px;
     }
-    
+
     nav h1 {
       font-size: 14px;
       font-weight: 500;
       letter-spacing: -0.5px;
     }
-    
+
     .nav-meta {
       font-size: 10px;
       color: var(--muted);
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
-    
+
     .nav-status {
       display: inline-flex;
       align-items: center;
@@ -159,18 +156,18 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
-    
+
     .nav-status-dot {
       width: 6px;
       height: 6px;
     }
-    
+
     .nav-actions {
       margin-left: auto;
       display: flex;
       gap: 8px;
     }
-    
+
     .btn {
       padding: 6px 12px;
       border: 1px solid var(--border);
@@ -182,28 +179,28 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
-    
+
     .btn:hover { border-color: var(--fg); }
     .btn-primary { background: var(--fg); color: var(--bg); border-color: var(--fg); }
     .btn-primary:hover { background: var(--bg); color: var(--fg); }
     .btn-danger { color: var(--error); border-color: var(--error); }
     .btn-danger:hover { background: var(--error); color: var(--bg); }
-    
+
     /* Board */
     .board {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       flex: 1;
     }
-    
+
     .column {
       border-right: 1px solid var(--border);
       display: flex;
       flex-direction: column;
     }
-    
+
     .column:last-child { border-right: none; }
-    
+
     .column-header {
       padding: 12px 16px;
       border-bottom: 1px solid var(--border);
@@ -211,19 +208,19 @@
       justify-content: space-between;
       align-items: center;
     }
-    
+
     .column-header h2 {
       font-size: 11px;
       font-weight: 500;
       text-transform: uppercase;
       letter-spacing: 1px;
     }
-    
+
     .column-count {
       font-size: 11px;
       color: var(--muted);
     }
-    
+
     .column-body {
       flex: 1;
       padding: 8px;
@@ -233,7 +230,7 @@
       overflow-y: auto;
       max-height: calc(100vh - 200px);
     }
-    
+
     .task {
       border: 1px solid var(--border);
       padding: 12px;
@@ -241,15 +238,15 @@
       transition: border-color 0.1s;
       background: var(--bg);
     }
-    
+
     .task:hover { border-color: var(--fg); }
     .task:active { cursor: grabbing; }
     .task.dragging { opacity: 0.3; }
-    
+
     .task-title { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
     .task-live { font-size: 11px; color: #ff0; margin-top: 4px; }
     .task-meta { font-size: 10px; color: var(--muted); margin-top: 8px; text-transform: uppercase; }
-    
+
     .column-add {
       padding: 8px 16px;
       font-size: 11px;
@@ -258,37 +255,37 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
-    
+
     .column-add:hover { color: var(--fg); background: var(--hover-bg); }
-    
+
     /* Sections */
     .sections {
       border-top: 1px solid var(--border);
       display: grid;
       grid-template-columns: 1fr 1fr;
     }
-    
+
     .section {
       padding: 16px;
       border-right: 1px solid var(--border);
     }
-    
+
     .section:last-child { border-right: none; }
-    
+
     .section-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 12px;
     }
-    
+
     .section-title {
       font-size: 11px;
       font-weight: 500;
       text-transform: uppercase;
       letter-spacing: 1px;
     }
-    
+
     .section-action {
       font-size: 10px;
       color: var(--muted);
@@ -296,33 +293,33 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
-    
+
     .section-action:hover { color: var(--fg); }
-    
+
     /* Deliverables */
     .deliverables-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 8px;
     }
-    
+
     .deliverable {
       border: 1px solid var(--border);
       padding: 12px;
       cursor: pointer;
     }
-    
+
     .deliverable:hover { border-color: var(--fg); }
     .deliverable-icon { font-size: 18px; margin-bottom: 6px; }
     .deliverable-name { font-size: 12px; font-weight: 500; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .deliverable-meta { font-size: 10px; color: var(--muted); text-transform: uppercase; }
-    
+
     /* Action Log */
     .log-list {
       max-height: 200px;
       overflow-y: auto;
     }
-    
+
     .log-entry {
       display: flex;
       gap: 12px;
@@ -330,28 +327,28 @@
       border-bottom: 1px solid var(--border);
       font-size: 12px;
     }
-    
+
     .log-time {
       font-size: 10px;
       color: #0af;
       white-space: nowrap;
       text-transform: uppercase;
     }
-    
+
     .log-msg { color: var(--fg); }
-    
+
     /* Notes */
     .notes-section {
       border-top: 1px solid var(--border);
       padding: 16px;
     }
-    
+
     .notes-input {
       display: flex;
       gap: 8px;
       margin-top: 12px;
     }
-    
+
     .notes-input input {
       flex: 1;
       padding: 8px 12px;
@@ -361,16 +358,16 @@
       font-family: inherit;
       font-size: 12px;
     }
-    
+
     .notes-input input:focus { outline: none; border-color: var(--fg); }
     .notes-input input::placeholder { color: var(--muted); }
-    
+
     .notes-list {
       margin-top: 12px;
       max-height: 150px;
       overflow-y: auto;
     }
-    
+
     .note {
       display: flex;
       justify-content: space-between;
@@ -380,12 +377,12 @@
       margin-bottom: 4px;
       font-size: 12px;
     }
-    
+
     .note-text { flex: 1; }
     .note-meta { font-size: 10px; color: var(--muted); text-transform: uppercase; margin-left: 12px; white-space: nowrap; }
     .note-delete { color: var(--muted); cursor: pointer; margin-left: 8px; }
     .note-delete:hover { color: var(--error); }
-    
+
     /* Empty */
     .empty {
       text-align: center;
@@ -395,7 +392,69 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
-    
+
+    /* Detail Panel (inline) */
+    .detail-panel {
+      border-top: 1px solid var(--fg);
+      background: var(--hover-bg);
+    }
+
+    .detail-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .detail-header h3 {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .detail-body {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      padding: 16px;
+    }
+
+    .detail-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .detail-row label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+    }
+
+    .detail-row input,
+    .detail-row select,
+    .detail-row textarea {
+      padding: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--fg);
+      font-family: inherit;
+      font-size: 12px;
+    }
+
+    .detail-row input:focus,
+    .detail-row select:focus,
+    .detail-row textarea:focus {
+      outline: none;
+      border-color: var(--fg);
+    }
+
+    .detail-row textarea {
+      min-height: 60px;
+      resize: vertical;
+    }
+
     /* Modal */
     .modal-overlay {
       position: fixed;
@@ -407,7 +466,7 @@
       z-index: 1000;
       padding: 20px;
     }
-    
+
     .modal {
       background: var(--bg);
       border: 1px solid var(--border);
@@ -417,7 +476,7 @@
       max-height: 90vh;
       overflow-y: auto;
     }
-    
+
     .modal-header {
       font-size: 12px;
       font-weight: 500;
@@ -425,9 +484,9 @@
       letter-spacing: 1px;
       margin-bottom: 24px;
     }
-    
+
     .form-group { margin-bottom: 16px; }
-    
+
     .form-group label {
       display: block;
       font-size: 10px;
@@ -436,7 +495,7 @@
       color: var(--muted);
       margin-bottom: 6px;
     }
-    
+
     .form-group input,
     .form-group textarea,
     .form-group select {
@@ -448,16 +507,16 @@
       font-family: inherit;
       font-size: 13px;
     }
-    
+
     .form-group input:focus,
     .form-group textarea:focus,
     .form-group select:focus {
       outline: none;
       border-color: var(--fg);
     }
-    
+
     .form-group textarea { min-height: 100px; resize: vertical; }
-    
+
     .modal-actions {
       display: flex;
       gap: 8px;
@@ -466,13 +525,13 @@
       padding-top: 16px;
       border-top: 1px solid var(--border);
     }
-    
+
     /* Responsive */
     @media (max-width: 1000px) {
       .board { grid-template-columns: repeat(2, 1fr); }
       .sidebar { display: none; }
     }
-    
+
     @media (max-width: 600px) {
       .board { grid-template-columns: 1fr; }
       .sections { grid-template-columns: 1fr; }
@@ -491,18 +550,9 @@
         <div class="avatar-name">Dexter</div>
         <div class="avatar-status" x-text="statusMessage"></div>
       </div>
-      
-      <div class="status-controls">
-        <h3>Set Status</h3>
-        <div class="status-btns">
-          <button class="status-btn" @click="setStatus('online', 'Ready')">Online</button>
-          <button class="status-btn" @click="setStatus('working', 'Working...')">Working</button>
-          <button class="status-btn" @click="setStatus('waiting', 'Waiting')">Waiting</button>
-          <button class="status-btn" @click="setStatus('idle', 'Away')">Idle</button>
-        </div>
-      </div>
+
     </aside>
-    
+
     <!-- Main -->
     <main class="main">
       <nav>
@@ -518,7 +568,7 @@
           <button class="btn" @click="showHelp = true">?</button>
         </div>
       </nav>
-      
+
       <!-- Kanban Board -->
       <div class="board">
         <!-- Backlog -->
@@ -526,6 +576,14 @@
           <div class="column-header">
             <h2>📋 Backlog</h2>
             <span class="column-count" x-text="tasks.filter(t => t.status === 'backlog').length"></span>
+          </div>
+          <!-- Inline Add Form -->
+          <div class="inline-form" x-show="showAddForm" x-cloak>
+            <textarea x-model="newTaskText" @keydown.ctrl.enter="addTasks(); showAddForm = false" @keydown.escape="showAddForm = false" placeholder="Add tasks (one per line)...&#10;&#10;Press Ctrl+Enter to add, Esc to cancel" x-ref="addInput"></textarea>
+            <div class="inline-form-actions">
+              <button class="btn" @click="showAddForm = false">Cancel</button>
+              <button class="btn btn-primary" @click="addTasks(); showAddForm = false">Add</button>
+            </div>
           </div>
           <div id="kanban-backlog" class="column-body">
             <template x-for="task in tasks.filter(t => t.status === 'backlog')" :key="task.id">
@@ -535,9 +593,9 @@
               </div>
             </template>
           </div>
-          <div class="column-add" @click="showAddTask = true; newTaskStatus = 'backlog'">+ Add Task</div>
+          <div class="column-add" @click="showAddForm = true; $nextTick(() => $refs.addInput.focus())">+ Add Task</div>
         </div>
-        
+
         <!-- In Progress -->
         <div class="column">
           <div class="column-header">
@@ -554,7 +612,7 @@
             </template>
           </div>
         </div>
-        
+
         <!-- Done -->
         <div class="column">
           <div class="column-header">
@@ -570,7 +628,7 @@
             </template>
           </div>
         </div>
-        
+
         <!-- Archived -->
         <div class="column">
           <div class="column-header">
@@ -587,7 +645,37 @@
           </div>
         </div>
       </div>
-      
+
+      <!-- Task Detail Panel (inline) -->
+      <div class="detail-panel" x-show="selectedTask" x-cloak>
+        <div class="detail-header">
+          <h3 x-text="selectedTask?.title"></h3>
+          <button class="btn" @click="selectedTask = null">× Close</button>
+        </div>
+        <div class="detail-body">
+          <div class="detail-row">
+            <label>Status</label>
+            <select x-model="selectedTask.status" @change="updateTask(selectedTask)">
+              <option value="backlog">📋 Backlog</option>
+              <option value="in-progress">⚡ In Progress</option>
+              <option value="done">✅ Done</option>
+              <option value="archived">📦 Archived</option>
+            </select>
+          </div>
+          <div class="detail-row" x-show="selectedTask?.status === 'in-progress'">
+            <label>Live Status</label>
+            <input type="text" x-model="selectedTask.liveStatus" @input="save()" placeholder="What's happening...">
+          </div>
+          <div class="detail-row" style="grid-column: span 2;">
+            <label>Output / Notes</label>
+            <textarea x-model="selectedTask.output" @input="save()" placeholder="Results, notes..."></textarea>
+          </div>
+          <div class="detail-row">
+            <button class="btn btn-danger" @click="deleteTask(selectedTask.id); selectedTask = null">Delete Task</button>
+          </div>
+        </div>
+      </div>
+
       <!-- Deliverables & Log -->
       <div class="sections">
         <div class="section">
@@ -606,7 +694,7 @@
           </div>
           <div class="empty" x-show="deliverables.length === 0">No deliverables</div>
         </div>
-        
+
         <div class="section">
           <div class="section-header">
             <span class="section-title">📜 Action Log</span>
@@ -623,7 +711,7 @@
           <div class="empty" x-show="actionLog.length === 0">No actions logged</div>
         </div>
       </div>
-      
+
       <!-- Notes -->
       <div class="notes-section">
         <div class="section-header">
@@ -646,54 +734,7 @@
       </div>
     </main>
   </div>
-  
-  <!-- Task Modal -->
-  <div class="modal-overlay" x-show="selectedTask" x-cloak @click.self="selectedTask = null">
-    <div class="modal">
-      <h3 class="modal-header" x-text="selectedTask?.title"></h3>
-      
-      <div class="form-group">
-        <label>Status</label>
-        <select x-model="selectedTask.status" @change="updateTask(selectedTask)">
-          <option value="backlog">📋 Backlog</option>
-          <option value="in-progress">⚡ In Progress</option>
-          <option value="done">✅ Done</option>
-          <option value="archived">📦 Archived</option>
-        </select>
-      </div>
-      
-      <div class="form-group" x-show="selectedTask?.status === 'in-progress'">
-        <label>Live Status</label>
-        <input type="text" x-model="selectedTask.liveStatus" @input="save()" placeholder="What's happening...">
-      </div>
-      
-      <div class="form-group">
-        <label>Output / Notes</label>
-        <textarea x-model="selectedTask.output" @input="save()" placeholder="Results, notes..."></textarea>
-      </div>
-      
-      <div class="modal-actions">
-        <button class="btn btn-danger" @click="deleteTask(selectedTask.id); selectedTask = null">Delete</button>
-        <button class="btn" @click="selectedTask = null">Close</button>
-      </div>
-    </div>
-  </div>
-  
-  <!-- Add Task Modal -->
-  <div class="modal-overlay" x-show="showAddTask" x-cloak @click.self="showAddTask = false">
-    <div class="modal">
-      <h3 class="modal-header">Add Tasks</h3>
-      <div class="form-group">
-        <label>Tasks (one per line)</label>
-        <textarea x-model="newTaskText" placeholder="Enter tasks..."></textarea>
-      </div>
-      <div class="modal-actions">
-        <button class="btn" @click="showAddTask = false">Cancel</button>
-        <button class="btn btn-primary" @click="addTasks(); showAddTask = false">Add</button>
-      </div>
-    </div>
-  </div>
-  
+
   <!-- Add Deliverable Modal -->
   <div class="modal-overlay" x-show="showAddDeliverable" x-cloak @click.self="showAddDeliverable = false">
     <div class="modal">
@@ -725,7 +766,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- Deliverable Detail Modal -->
   <div class="modal-overlay" x-show="showDeliverableDetail" x-cloak @click.self="showDeliverableDetail = false">
     <div class="modal">
@@ -741,7 +782,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- Export Modal -->
   <div class="modal-overlay" x-show="showExport" x-cloak @click.self="showExport = false">
     <div class="modal">
@@ -757,7 +798,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- Import Modal -->
   <div class="modal-overlay" x-show="showImport" x-cloak @click.self="showImport = false">
     <div class="modal">
@@ -772,7 +813,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- Help Modal -->
   <div class="modal-overlay" x-show="showHelp" x-cloak @click.self="showHelp = false">
     <div class="modal">
@@ -810,10 +851,10 @@
         status: 'online',
         statusMessage: 'Ready',
         lastSync: new Date().toLocaleTimeString(),
-        
+
         selectedTask: null,
         selectedDeliverable: null,
-        showAddTask: false,
+        showAddForm: false,
         showAddDeliverable: false,
         showDeliverableDetail: false,
         showExport: false,
@@ -824,7 +865,7 @@
         newNote: '',
         importDataText: '',
         newDeliverable: { name: '', icon: '📄', type: 'File', url: '' },
-        
+
         init() {
           if (window.location.hash) {
             try {
@@ -845,14 +886,14 @@
             this.notes = JSON.parse(localStorage.getItem('dexter-notes') || '[]');
             this.actionLog = JSON.parse(localStorage.getItem('dexter-action-log') || '[]');
           }
-          
+
           this.status = localStorage.getItem('dexter-status') || 'online';
           this.statusMessage = localStorage.getItem('dexter-status-message') || 'Ready';
-          
+
           this.$nextTick(() => this.initKanban());
           setInterval(() => this.lastSync = new Date().toLocaleTimeString(), 60000);
         },
-        
+
         initKanban() {
           ['backlog', 'in-progress', 'done', 'archived'].forEach(col => {
             const el = document.getElementById(`kanban-${col}`);
@@ -869,7 +910,7 @@
             }
           });
         },
-        
+
         moveTask(taskId, newStatus) {
           const task = this.tasks.find(t => t.id === taskId);
           if (task && task.status !== newStatus) {
@@ -881,7 +922,7 @@
             this.save();
           }
         },
-        
+
         addTasks() {
           this.newTaskText.split('\n').filter(l => l.trim()).forEach(line => {
             const task = {
@@ -899,9 +940,9 @@
           this.save();
           this.$nextTick(() => this.initKanban());
         },
-        
+
         selectTask(task) { this.selectedTask = task; },
-        
+
         updateTask(task) {
           task.updatedAt = new Date().toISOString();
           if (task.status === 'done') task.completedAt = new Date().toISOString();
@@ -909,14 +950,14 @@
           this.log(`Updated "${task.title}" → ${task.status}`);
           this.save();
         },
-        
+
         deleteTask(id) {
           const task = this.tasks.find(t => t.id === id);
           if (task) this.log(`Deleted: "${task.title}"`);
           this.tasks = this.tasks.filter(t => t.id !== id);
           this.save();
         },
-        
+
         addDeliverable() {
           if (!this.newDeliverable.name) return;
           this.deliverables.push({ ...this.newDeliverable, id: Date.now().toString(), createdAt: new Date().toISOString() });
@@ -924,14 +965,14 @@
           this.newDeliverable = { name: '', icon: '📄', type: 'File', url: '' };
           this.saveDeliverables();
         },
-        
+
         deleteDeliverable(id) {
           const d = this.deliverables.find(d => d.id === id);
           if (d) this.log(`Deleted deliverable: "${d.name}"`);
           this.deliverables = this.deliverables.filter(d => d.id !== id);
           this.saveDeliverables();
         },
-        
+
         addNote() {
           if (!this.newNote.trim()) return;
           this.notes.push({ id: Date.now().toString(), text: this.newNote.trim(), createdAt: new Date().toISOString() });
@@ -939,7 +980,7 @@
           this.newNote = '';
           this.saveNotes();
         },
-        
+
         setStatus(s, m) {
           this.status = s;
           this.statusMessage = m;
@@ -947,35 +988,35 @@
           localStorage.setItem('dexter-status-message', m);
           this.log(`Status → ${s}`);
         },
-        
+
         log(msg) {
           this.actionLog.push({ timestamp: new Date().toISOString(), message: msg });
           if (this.actionLog.length > 100) this.actionLog = this.actionLog.slice(-100);
           this.saveActionLog();
         },
-        
+
         save() { localStorage.setItem('dexter-tasks', JSON.stringify(this.tasks)); },
         saveDeliverables() { localStorage.setItem('dexter-deliverables', JSON.stringify(this.deliverables)); },
         saveNotes() { localStorage.setItem('dexter-notes', JSON.stringify(this.notes)); },
         saveActionLog() { localStorage.setItem('dexter-action-log', JSON.stringify(this.actionLog)); },
         saveAll() { this.save(); this.saveDeliverables(); this.saveNotes(); this.saveActionLog(); },
-        
+
         exportData() {
           return JSON.stringify({ version: 2, exported: new Date().toISOString(), tasks: this.tasks, deliverables: this.deliverables, notes: this.notes, actionLog: this.actionLog }, null, 2);
         },
-        
+
         copyExport() { navigator.clipboard.writeText(this.exportData()); alert('Copied!'); },
-        
+
         downloadExport() {
           const blob = new Blob([this.exportData()], { type: 'application/json' });
           const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
           a.download = `dexter-${new Date().toISOString().slice(0,10)}.json`; a.click();
         },
-        
+
         generateShareLink() {
           return window.location.origin + window.location.pathname + '#data=' + btoa(encodeURIComponent(JSON.stringify({ version: 2, tasks: this.tasks, deliverables: this.deliverables, notes: this.notes })));
         },
-        
+
         doImport() {
           try {
             const data = JSON.parse(this.importDataText);
@@ -990,25 +1031,25 @@
             }
           } catch (e) { alert('Invalid JSON'); }
         },
-        
+
         formatDate(iso) {
           if (!iso) return '';
           return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         },
-        
+
         formatLogTime(iso) {
           return new Date(iso).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
         },
-        
+
         handleKeyboard(e) {
           if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
           if (e.key === '?') this.showHelp = !this.showHelp;
-          if (e.key === 'a') this.showAddTask = true;
+          if (e.key === 'a') { this.showAddForm = true; this.$nextTick(() => this.$refs.addInput?.focus()); }
           if (e.key === 'e') this.showExport = true;
           if (e.key === 'i') this.showImport = true;
           if (e.key === 'Escape') {
             this.selectedTask = null;
-            this.showAddTask = false;
+            this.showAddForm = false;
             this.showAddDeliverable = false;
             this.showDeliverableDetail = false;
             this.showExport = false;
