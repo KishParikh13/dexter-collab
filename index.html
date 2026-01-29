@@ -926,11 +926,25 @@
       display: flex;
       flex: 1;
       overflow: hidden;
-      transition: margin-right 0.3s ease;
     }
     
-    .main-wrapper.panel-open {
-      margin-right: 380px;
+    /* Backdrop for panel overlay */
+    .panel-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 499;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    
+    .panel-backdrop.open {
+      opacity: 1;
+      visibility: visible;
     }
     
     .task-detail-panel {
@@ -1584,10 +1598,6 @@
       .task-detail-panel {
         width: 320px;
       }
-      
-      .main-wrapper.panel-open {
-        margin-right: 320px;
-      }
     }
     
     @media (max-width: 600px) {
@@ -1596,10 +1606,6 @@
       
       .task-detail-panel {
         width: 100%;
-      }
-      
-      .main-wrapper.panel-open {
-        margin-right: 0;
       }
     }
   </style>
@@ -1893,6 +1899,9 @@
       </div>
     </main>
     </div><!-- /main-wrapper -->
+    
+    <!-- Panel Backdrop (for overlay) -->
+    <div class="panel-backdrop" :class="{'open': selectedTask}" @click="closePanel()" x-cloak></div>
     
     <!-- Task Detail Side Panel -->
     <div class="task-detail-panel" :class="{'open': selectedTask}" x-cloak data-panel>
