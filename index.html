@@ -310,33 +310,6 @@
       letter-spacing: 0.5px;
     }
     
-    .sidebar-footer {
-      margin-top: auto;
-      padding: 12px;
-      border-top: 1px solid var(--border);
-    }
-    
-    .api-indicator {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    
-    .api-indicator .api-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-    }
-    
-    .api-indicator.connected .api-dot { background: #4f4; }
-    .api-indicator.connected { color: #4f4; }
-    
-    .api-indicator.disconnected .api-dot { background: var(--error); }
-    .api-indicator.disconnected { color: var(--error); }
-    
     /* Sidebar Accordion Sections */
     .sidebar-accordion {
       border-top: 1px solid var(--border);
@@ -2271,13 +2244,6 @@
         </div>
       </div>
       
-      <!-- API Status Indicator -->
-      <div class="sidebar-footer">
-        <div class="api-indicator" :class="apiConnected ? 'connected' : 'disconnected'">
-          <span class="api-dot"></span>
-          <span x-text="apiConnected ? 'API Connected' : (apiError || 'API Offline')"></span>
-        </div>
-      </div>
     </aside>
     
 <!-- Main Wrapper (for push layout) -->
